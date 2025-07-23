@@ -51,7 +51,7 @@ export default function Home() {
             <div className="bg-black/20 backdrop-blur-md rounded-xl p-8 max-w-4xl mx-auto">
                 <h1 className="text-4xl md:text-6xl font-bold font-headline mb-4">Compete. Innovate. Succeed.</h1>
                 <p className="text-lg md:text-xl max-w-3xl mx-auto text-primary-foreground/90">
-                Welcome to DigitalStar LPU, the ultimate platform for student competitions. Find your challenge and submit your entry today.
+                Welcome to Digital Star LPU, the ultimate platform for student competitions. Find your challenge and submit your entry today.
                 </p>
             </div>
           </div>
@@ -96,7 +96,7 @@ export default function Home() {
 
       <footer className="bg-foreground text-background/80 py-8">
         <div className="container mx-auto px-4 text-center">
-          <p>&copy; {new Date().getFullYear()} DigitalStar LPU. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Digital Star LPU. All rights reserved.</p>
         </div>
       </footer>
     </div>
