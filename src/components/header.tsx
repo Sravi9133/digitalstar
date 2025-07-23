@@ -24,7 +24,7 @@ export function Header() {
         <Logo />
         <div className="flex items-center space-x-4">
           {loading ? (
-            <Loader2 className="h-5 w-5 animate-spin" />
+            <div className="h-10 w-24" /> // Placeholder to prevent layout shift
           ) : user ? (
             <>
               <Button variant="ghost" onClick={() => router.push('/admin/dashboard')}>Dashboard</Button>
@@ -33,9 +33,9 @@ export function Header() {
               </Button>
             </>
           ) : (
-            <Button asChild variant="ghost">
-              <Link href="/admin/login">Admin Login</Link>
-            </Button>
+            // The Admin Login button was here. It's now hidden for a cleaner public UI.
+            // A placeholder is used to prevent layout shift while auth state loads.
+             <div className="h-10 w-24" />
           )}
         </div>
       </div>
