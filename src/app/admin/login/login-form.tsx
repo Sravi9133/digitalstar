@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -18,6 +19,8 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, LogIn, Mail, Lock } from "lucide-react";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 const formSchema = z.object({
   email: z.string().email("Please enter a valid email address."),
@@ -41,25 +44,35 @@ export function LoginForm() {
 
   async function onSubmit(values: LoginFormValues) {
     setIsLoading(true);
-    // Mock authentication
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // In a real app, you'd verify credentials here.
-    // For this demo, we'll accept any non-empty values.
-    if (values.email && values.password) {
+    try {
+      await signInWithEmailAndPassword(auth, values.email, values.password);
       toast({
         title: "Login Successful",
         description: "Redirecting to your dashboard...",
       });
       router.push("/admin/dashboard");
-    } else {
-        // This case is handled by form validation, but as a fallback:
-        toast({
-            title: "Login Failed",
-            description: "Invalid credentials provided.",
-            variant: "destructive",
-          });
-        setIsLoading(false);
+    } catch (error: any) {
+        let description = "An unknown error occurred.";
+        // Firebase Auth error codes can be more specific
+        switch (error.code) {
+            case "auth/user-not-found":
+            case "auth/wrong-password":
+            case "auth/invalid-credential":
+                description = "Invalid email or password. Please try again.";
+                break;
+            case "auth/invalid-email":
+                description = "The email address is not valid.";
+                break;
+            default:
+                description = "An error occurred during login. Please try again later.";
+                console.error("Firebase Auth Error:", error);
+        }
+      toast({
+        title: "Login Failed",
+        description: description,
+        variant: "destructive",
+      });
+      setIsLoading(false);
     }
   }
 

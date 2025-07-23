@@ -1,9 +1,15 @@
+
+"use client";
+
 import type { Submission } from "@/types";
 import { DashboardClient } from "./dashboard-client";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { LogOut } from "lucide-react";
+import { LogOut, Loader2 } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
+import { useRouter } from "next/navigation";
+import { auth } from "@/lib/firebase";
 
 // Dummy data for submissions
 const submissions: Submission[] = [
@@ -66,7 +72,9 @@ const submissions: Submission[] = [
 
 const competitionIds = ["codeclash-2024", "designminds-challenge", "startup-pitchfest"];
 
-export default function DashboardPage() {
+function DashboardPageContent() {
+    const router = useRouter();
+
   // In a real app, you would fetch this data from a database.
   const stats = {
     totalSubmissions: submissions.length,
@@ -80,16 +88,19 @@ export default function DashboardPage() {
     })
   };
 
+  const handleLogout = async () => {
+    await auth.signOut();
+    router.push('/admin/login');
+  };
+
   return (
     <>
     <header className="sticky top-0 z-40 w-full border-b bg-background">
         <div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
             <Logo />
             <div className="flex flex-1 items-center justify-end space-x-4">
-            <Button variant="ghost" asChild>
-                <Link href="/admin/login">
-                    Logout <LogOut className="ml-2 h-4 w-4"/>
-                </Link>
+            <Button variant="ghost" onClick={handleLogout}>
+                Logout <LogOut className="ml-2 h-4 w-4"/>
             </Button>
             </div>
         </div>
@@ -99,4 +110,24 @@ export default function DashboardPage() {
     </main>
     </>
   );
+}
+
+export default function DashboardPage() {
+    const { user, loading } = useAuth();
+    const router = useRouter();
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <Loader2 className="h-8 w-8 animate-spin" />
+            </div>
+        )
+    }
+
+    if (!user) {
+        router.replace("/admin/login");
+        return null;
+    }
+
+    return <DashboardPageContent />;
 }
