@@ -39,7 +39,7 @@ export function DashboardClient({ submissions, stats }: DashboardClientProps) {
         <div className="flex items-center space-x-2">
           <Button onClick={handleDownload}>
             <Download className="mr-2 h-4 w-4" />
-            Download All as CSV
+            download sheet
           </Button>
         </div>
       </div>
