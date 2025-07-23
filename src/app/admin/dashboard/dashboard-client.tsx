@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BarChart, Download, Users, Trophy } from "lucide-react";
 import Link from "next/link";
+import * as XLSX from "xlsx";
 
 interface DashboardClientProps {
   submissions: Submission[];
@@ -21,62 +22,57 @@ interface DashboardClientProps {
   };
 }
 
-// Helper function to convert data to CSV and trigger download
-const downloadAsCSV = (data: Submission[], fileName: string) => {
+// Helper function to convert data to XLSX and trigger download
+const downloadAsXLSX = (data: Submission[], fileName: string) => {
     if (data.length === 0) {
         alert("No data to download.");
         return;
     }
 
-    // Define the headers for the CSV file
+    // Define the headers for the Excel file
     const headers = [
         "competitionName", "submittedAt", "name", "email", "phone", "university",
         "registrationId", "instagramHandle", "school", "postLink", "fileName", "fileUrl"
     ];
 
-    // Create the CSV header row
-    let csvContent = "data:text/csv;charset=utf-8," + headers.join(",") + "\n";
-
-    // Map data to CSV rows
-    data.forEach(submission => {
-        const row = headers.map(header => {
+    // Create a new workbook and a worksheet
+    const workbook = XLSX.utils.book_new();
+    
+    // Format data for the worksheet
+    const worksheetData = data.map(submission => {
+        const row: { [key: string]: any } = {};
+        headers.forEach(header => {
             let value = submission[header as keyof Submission] as string | Date | undefined;
             if (value === undefined || value === null) {
-                return "";
+                row[header] = "";
+            } else if (value instanceof Date) {
+                row[header] = value.toLocaleString();
+            } else {
+                row[header] = value;
             }
-            if (value instanceof Date) {
-                value = value.toISOString();
-            }
-            // Escape commas and quotes
-            const stringValue = String(value);
-            if (stringValue.includes(',')) {
-                return `"${stringValue.replace(/"/g, '""')}"`;
-            }
-            return stringValue;
-        }).join(",");
-        csvContent += row + "\n";
+        });
+        return row;
     });
 
-    // Create a link and trigger the download
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `${fileName}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const worksheet = XLSX.utils.json_to_sheet(worksheetData, { header: headers });
+
+    // Append the worksheet to the workbook
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Submissions");
+
+    // Generate XLSX file and trigger download
+    XLSX.writeFile(workbook, `${fileName}.xlsx`);
 }
 
 
 export function DashboardClient({ submissions, stats }: DashboardClientProps) {
 
     const handleDownloadAll = () => {
-        downloadAsCSV(submissions, "all_submissions");
+        downloadAsXLSX(submissions, "all_submissions");
     }
 
     const handleDownloadCompetition = (competitionId: string, competitionName: string) => {
         const competitionSubmissions = submissions.filter(s => s.competitionId === competitionId);
-        downloadAsCSV(competitionSubmissions, competitionName.replace(/ /g, "_"));
+        downloadAsXLSX(competitionSubmissions, competitionName.replace(/ /g, "_"));
     }
 
   return (
@@ -86,7 +82,7 @@ export function DashboardClient({ submissions, stats }: DashboardClientProps) {
         <div className="flex items-center space-x-2">
           <Button onClick={handleDownloadAll}>
             <Download className="mr-2 h-4 w-4" />
-            download all
+            download sheet
           </Button>
         </div>
       </div>
@@ -141,7 +137,7 @@ export function DashboardClient({ submissions, stats }: DashboardClientProps) {
                             <CardTitle>{comp.name} Submissions</CardTitle>
                              <Button onClick={() => handleDownloadCompetition(comp.id, comp.name)} variant="outline" size="sm">
                                 <Download className="mr-2 h-4 w-4" />
-                                Download CSV
+                                Download XLSX
                             </Button>
                         </div>
                     </CardHeader>
