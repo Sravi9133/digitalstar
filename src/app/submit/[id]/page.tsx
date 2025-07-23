@@ -1,4 +1,4 @@
-import { ArrowLeft, Code, Lightbulb, Trophy } from "lucide-react";
+import { ArrowLeft, Camera, Gift, Tv } from "lucide-react";
 import type { Competition } from "@/types";
 import { SubmissionForm } from "./submission-form";
 import Link from "next/link";
@@ -6,22 +6,22 @@ import { Button } from "@/components/ui/button";
 
 const competitionsData: Omit<Competition, 'deadline'>[] = [
   {
-    id: "codeclash-2024",
-    name: "CodeClash 2024",
-    description: "An intense coding competition to challenge the brightest minds.",
-    icon: <Code className="w-8 h-8 text-primary" />,
+    id: "follow-win",
+    name: "Follow & Win",
+    description: "Follow your school's social media and submit a screenshot to win daily prizes.",
+    icon: <Gift className="w-8 h-8 text-primary" />,
   },
   {
-    id: "designminds-challenge",
-    name: "DesignMinds Challenge",
-    description: "A creative challenge for UI/UX designers.",
-    icon: <Lightbulb className="w-8 h-8 text-primary" />,
+    id: "reel-it-feel-it",
+    name: "Reel It. Feel It.",
+    description: "Create an Instagram Reel about your first days at LPU.",
+    icon: <Tv className="w-8 h-8 text-primary" />,
   },
   {
-    id: "startup-pitchfest",
-    name: "Startup PitchFest",
-    description: "The ultimate platform for aspiring entrepreneurs.",
-    icon: <Trophy className="w-8 h-8 text-primary" />,
+    id: "my-first-day",
+    name: "My First Day at LPU",
+    description: "Take a selfie at the official Selfie Point and post it on Instagram.",
+    icon: <Camera className="w-8 h-8 text-primary" />,
   },
 ];
 

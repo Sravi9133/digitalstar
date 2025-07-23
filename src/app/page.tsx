@@ -1,31 +1,31 @@
 import Link from "next/link";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Calendar, Code, Lightbulb, Trophy } from "lucide-react";
+import { ArrowRight, Calendar, Camera, Gift, Tv } from "lucide-react";
 import type { Competition } from "@/types";
 import { Header } from "@/components/header";
 
 const competitions: Competition[] = [
   {
-    id: "codeclash-2024",
-    name: "CodeClash 2024",
-    description: "An intense coding competition to challenge the brightest minds. Solve algorithmic problems and showcase your programming prowess.",
-    deadline: new Date("2024-12-15T23:59:59"),
-    icon: <Code className="w-8 h-8 text-primary" />,
+    id: "follow-win",
+    name: "Follow & Win",
+    description: "Follow your school's social media and submit a screenshot to win daily prizes. The more you engage, the better your chances!",
+    deadline: new Date("2025-09-30T23:59:59"),
+    icon: <Gift className="w-8 h-8 text-primary" />,
   },
   {
-    id: "designminds-challenge",
-    name: "DesignMinds Challenge",
-    description: "A creative challenge for UI/UX designers. Re-imagine an everyday app, focusing on user experience and innovative design.",
-    deadline: new Date("2024-11-30T23:59:59"),
-    icon: <Lightbulb className="w-8 h-8 text-primary" />,
+    id: "reel-it-feel-it",
+    name: "Reel It. Feel It.",
+    description: "Create an Instagram Reel about your first days at LPU. Top 3 reels win premium merchandise and get featured on our official page.",
+    deadline: new Date("2025-10-15T23:59:59"),
+    icon: <Tv className="w-8 h-8 text-primary" />,
   },
   {
-    id: "startup-pitchfest",
-    name: "Startup PitchFest",
-    description: "The ultimate platform for aspiring entrepreneurs. Pitch your groundbreaking startup idea to a panel of venture capitalists.",
-    deadline: new Date("2025-01-10T23:59:59"),
-    icon: <Trophy className="w-8 h-8 text-primary" />,
+    id: "my-first-day",
+    name: "My First Day at LPU",
+    description: "Take a selfie at the official Selfie Point, post it on Instagram with our hashtag, and tag us to win a participation gift.",
+    deadline: new Date("2025-09-20T23:59:59"),
+    icon: <Camera className="w-8 h-8 text-primary" />,
   },
 ];
 
