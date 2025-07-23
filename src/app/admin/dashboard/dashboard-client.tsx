@@ -138,9 +138,9 @@ function SubmissionsTable({ submissions }: { submissions: Submission[] }) {
             <TableCell className="hidden md:table-cell">{submission.university || submission.school || 'N/A'}</TableCell>
             <TableCell className="hidden lg:table-cell">{submission.submittedAt.toLocaleString()}</TableCell>
             <TableCell className="text-right">
-                {submission.fileName ? (
+                {submission.fileUrl && submission.fileName ? (
                     <Button variant="outline" size="sm" asChild>
-                        <a href="#" onClick={(e) => e.preventDefault()}>
+                        <a href={submission.fileUrl} target="_blank" rel="noopener noreferrer">
                             <Download className="mr-2 h-3 w-3" />
                             {submission.fileName}
                         </a>
