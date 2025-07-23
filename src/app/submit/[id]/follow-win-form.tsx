@@ -37,7 +37,7 @@ interface School {
 }
 
 const formSchema = z.object({
-  registrationId: z.string().min(5, "Registration/Application ID is required."),
+  registrationId: z.string().min(5, "Registration/Candidate ID is required."),
   instagramHandle: z.string().min(3, "Instagram handle/link is required.").refine(val => val.startsWith('@') || val.startsWith('https://'), { message: "Must be a valid handle (e.g. @user) or link (e.g. https://...)" }),
   school: z.string({
     required_error: "Please select a school.",
@@ -164,7 +164,7 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
                   name="registrationId"
                   render={({ field }) => (
                       <FormItem>
-                      <FormLabel>Registration / Application ID</FormLabel>
+                      <FormLabel>Registration / Candidate ID</FormLabel>
                       <FormControl>
                           <Input placeholder="Enter your ID" {...field} />
                       </FormControl>
