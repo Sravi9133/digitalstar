@@ -52,6 +52,7 @@ export default function SubmissionPage({ params }: { params: { id: string } }) {
 
   const isFollowAndWin = competition.id === 'follow-win';
   const isReelItFeelIt = competition.id === 'reel-it-feel-it';
+  const isMyFirstDay = competition.id === 'my-first-day';
 
   const getForm = () => {
     if (isFollowAndWin) {
@@ -59,6 +60,9 @@ export default function SubmissionPage({ params }: { params: { id: string } }) {
     }
     if (isReelItFeelIt) {
         return <ReelItFeelItForm competitionName={competition.name} />;
+    }
+    if (isMyFirstDay) {
+        return <ReelItFeelItForm competitionName={competition.name} postType="Post" />;
     }
     return <SubmissionForm competitionName={competition.name} />;
   }

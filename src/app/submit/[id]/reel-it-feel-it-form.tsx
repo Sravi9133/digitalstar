@@ -16,21 +16,22 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle, Loader2, Link as LinkIcon, Tv } from "lucide-react";
+import { CheckCircle, Loader2, Link as LinkIcon, Tv, Camera } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
   registrationId: z.string().min(5, "Registration/Candidate ID is required."),
-  reelLink: z.string().url("Please enter a valid Instagram Reel link."),
+  postLink: z.string().url("Please enter a valid Instagram link."),
 });
 
 type ReelItFeelItFormValues = z.infer<typeof formSchema>;
 
 interface ReelItFeelItFormProps {
   competitionName: string;
+  postType?: 'Reel' | 'Post';
 }
 
-export function ReelItFeelItForm({ competitionName }: ReelItFeelItFormProps) {
+export function ReelItFeelItForm({ competitionName, postType = 'Reel' }: ReelItFeelItFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const { toast } = useToast();
@@ -39,7 +40,7 @@ export function ReelItFeelItForm({ competitionName }: ReelItFeelItFormProps) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       registrationId: "",
-      reelLink: "",
+      postLink: "",
     },
   });
 
@@ -51,7 +52,7 @@ export function ReelItFeelItForm({ competitionName }: ReelItFeelItFormProps) {
     setIsSubmitted(true);
     toast({
         title: "Submission Successful!",
-        description: `Your reel for ${competitionName} has been submitted.`,
+        description: `Your ${postType.toLowerCase()} for ${competitionName} has been submitted.`,
     });
   }
 
@@ -89,14 +90,14 @@ export function ReelItFeelItForm({ competitionName }: ReelItFeelItFormProps) {
                 />
                 <FormField
                   control={form.control}
-                  name="reelLink"
+                  name="postLink"
                   render={({ field }) => (
                       <FormItem>
-                      <FormLabel>Instagram Reel Link</FormLabel>
+                      <FormLabel>Instagram {postType} Link</FormLabel>
                       <FormControl>
                         <div className="relative">
                             <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input type="url" placeholder="https://www.instagram.com/reel/..." {...field} className="pl-10" />
+                            <Input type="url" placeholder={`https://www.instagram.com/${postType.toLowerCase()}/...`} {...field} className="pl-10" />
                         </div>
                       </FormControl>
                       <FormMessage />
@@ -111,7 +112,7 @@ export function ReelItFeelItForm({ competitionName }: ReelItFeelItFormProps) {
                 </>
               ) : (
                 <>
-                  Submit My Reel <Tv className="ml-2 h-5 w-5"/>
+                  Submit My {postType} {postType === 'Reel' ? <Tv className="ml-2 h-5 w-5"/> : <Camera className="ml-2 h-5 w-5"/>}
                 </>
               )}
             </Button>
