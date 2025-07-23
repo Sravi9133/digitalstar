@@ -10,6 +10,7 @@ import { LogOut, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useRouter } from "next/navigation";
 import { auth } from "@/lib/firebase";
+import { useEffect } from "react";
 
 // Dummy data for submissions
 const submissions: Submission[] = [
@@ -116,17 +117,19 @@ export default function DashboardPage() {
     const { user, loading } = useAuth();
     const router = useRouter();
 
-    if (loading) {
+    useEffect(() => {
+        if (!loading && !user) {
+            router.replace("/admin/login");
+        }
+    }, [user, loading, router]);
+
+
+    if (loading || !user) {
         return (
             <div className="flex items-center justify-center min-h-screen">
                 <Loader2 className="h-8 w-8 animate-spin" />
             </div>
         )
-    }
-
-    if (!user) {
-        router.replace("/admin/login");
-        return null;
     }
 
     return <DashboardPageContent />;
