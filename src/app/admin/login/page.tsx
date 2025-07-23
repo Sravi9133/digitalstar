@@ -3,10 +3,10 @@
 
 import { useEffect } from "react";
 import { LoginForm } from "./login-form";
-import { Logo } from "@/components/logo";
 import { useAuth } from "@/hooks/use-auth";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import { Header } from "@/components/header";
 
 export default function LoginPage() {
     const { user, loading } = useAuth();
@@ -28,11 +28,11 @@ export default function LoginPage() {
     }
 
     return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4">
-      <div className="mb-8">
-        <Logo />
-      </div>
-      <LoginForm />
+    <div className="flex flex-col min-h-screen">
+      <Header />
+      <main className="flex-grow flex flex-col items-center justify-center p-4">
+        <LoginForm />
+      </main>
     </div>
     );
 }

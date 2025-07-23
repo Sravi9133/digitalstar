@@ -6,6 +6,7 @@ import { FollowWinForm } from "./follow-win-form";
 import { ReelItFeelItForm } from "./reel-it-feel-it-form";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Header } from "@/components/header";
 
 const competitionsData: Omit<Competition, 'deadline'>[] = [
   {
@@ -65,22 +66,25 @@ export default function SubmissionPage({ params }: { params: { id: string } }) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-accent/20 via-background to-primary/20">
-      <div className="container mx-auto px-4 py-12 md:py-24">
-        <div className="max-w-2xl mx-auto">
-            <div className="text-center mb-10">
-                 <div className="inline-block p-4 bg-card rounded-xl mb-4">
-                    {competition.icon}
-                 </div>
-                 <h1 className="text-4xl md:text-5xl font-bold font-headline mb-2">{competition.name}</h1>
-                 <p className="text-lg text-muted-foreground">{competition.id === 'follow-win' ? "Fill in your details to enter the lucky draw" : "Submission Form"}</p>
-                 <Button asChild variant="link" className="mt-4">
-                    <Link href="/"><ArrowLeft className="mr-2 h-4 w-4" />Back to all competitions</Link>
-                 </Button>
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-accent/20 via-background to-primary/20">
+      <Header />
+      <main className="flex-grow">
+        <div className="container mx-auto px-4 py-12 md:py-24">
+            <div className="max-w-2xl mx-auto">
+                <div className="text-center mb-10">
+                    <div className="inline-block p-4 bg-card rounded-xl mb-4">
+                        {competition.icon}
+                    </div>
+                    <h1 className="text-4xl md:text-5xl font-bold font-headline mb-2">{competition.name}</h1>
+                    <p className="text-lg text-muted-foreground">{competition.id === 'follow-win' ? "Fill in your details to enter the lucky draw" : "Submission Form"}</p>
+                    <Button asChild variant="link" className="mt-4">
+                        <Link href="/"><ArrowLeft className="mr-2 h-4 w-4" />Back to all competitions</Link>
+                    </Button>
+                </div>
+            {getForm()}
             </div>
-          {getForm()}
         </div>
-      </div>
+      </main>
     </div>
   );
 }
