@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -98,7 +99,7 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
     resolver: zodResolver(formSchema),
     defaultValues: {
         registrationId: "",
-        instagramHandle: "@",
+        instagramHandle: "",
     }
   });
 
