@@ -32,7 +32,7 @@ const downloadAsXLSX = (data: Submission[], fileName: string) => {
     // Define the headers for the Excel file
     const headers = [
         "competitionName", "submittedAt", "name", "email", "phone", "university",
-        "registrationId", "instagramHandle", "school", "postLink", "fileName", "fileUrl"
+        "registrationId", "instagramHandle", "school", "postLink", "redditPostLink", "fileName", "fileUrl"
     ];
 
     // Create a new workbook and a worksheet
@@ -158,23 +158,16 @@ function SubmissionsTable({ submissions }: { submissions: Submission[] }) {
     }
 
     const getSubmissionIdentifier = (submission: Submission) => {
-        return submission.name || submission.email || submission.registrationId || "N/A";
+        return submission.name || submission.registrationId || submission.email || "N/A";
     }
 
-    const getSubmissionSecondaryInfo = (submission: Submission) => {
-        if (submission.email) return submission.email;
-        if (submission.instagramHandle) return submission.instagramHandle;
-        if (submission.postLink) return <Link href={submission.postLink} target="_blank" className="text-primary hover:underline truncate block max-w-xs">{submission.postLink}</Link>;
-        return "N/A";
-    }
-    
   return (
     <Table>
       <TableHeader>
         <TableRow>
           <TableHead>Identifier</TableHead>
-          <TableHead>Contact / Link</TableHead>
           <TableHead className="hidden md:table-cell">Details</TableHead>
+          <TableHead>Links</TableHead>
           <TableHead className="hidden lg:table-cell">Submitted At</TableHead>
           <TableHead className="text-right">File</TableHead>
         </TableRow>
@@ -183,8 +176,26 @@ function SubmissionsTable({ submissions }: { submissions: Submission[] }) {
         {submissions.map((submission) => (
           <TableRow key={submission.id}>
             <TableCell className="font-medium">{getSubmissionIdentifier(submission)}</TableCell>
-            <TableCell>{getSubmissionSecondaryInfo(submission)}</TableCell>
-            <TableCell className="hidden md:table-cell">{submission.university || submission.school || 'N/A'}</TableCell>
+            <TableCell className="hidden md:table-cell">
+                <div className="flex flex-col">
+                    <span>{submission.email || submission.instagramHandle || 'N/A'}</span>
+                    <span className="text-sm text-muted-foreground">{submission.university || submission.school || ''}</span>
+                </div>
+            </TableCell>
+            <TableCell>
+                <div className="flex flex-col gap-1">
+                    {submission.postLink && (
+                        <Link href={submission.postLink} target="_blank" className="text-primary hover:underline truncate block max-w-[200px]">
+                           Instagram Post
+                        </Link>
+                    )}
+                    {submission.redditPostLink && (
+                        <Link href={submission.redditPostLink} target="_blank" className="text-primary hover:underline truncate block max-w-[200px]">
+                            Reddit Post
+                        </Link>
+                    )}
+                </div>
+            </TableCell>
             <TableCell className="hidden lg:table-cell">{submission.submittedAt.toLocaleString()}</TableCell>
             <TableCell className="text-right">
                 {submission.fileUrl && submission.fileName ? (
