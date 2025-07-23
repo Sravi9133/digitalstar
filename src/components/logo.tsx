@@ -6,13 +6,13 @@ export function Logo() {
     <Link href="/" className="flex items-center gap-2">
       <Image 
         src="/logo.png" 
-        alt="CompSubmit Logo" 
+        alt="DigitalStar LPU Logo" 
         width={32} 
         height={32} 
         className="h-8 w-8"
       />
       <span className="text-2xl font-bold font-headline text-foreground">
-        CompSubmit
+        DigitalStar LPU
       </span>
     </Link>
   );
