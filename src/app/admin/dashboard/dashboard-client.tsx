@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BarChart, Download, Users, Trophy } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import Link from "next/link";
 
 interface DashboardClientProps {
   submissions: Submission[];
@@ -106,13 +107,25 @@ function SubmissionsTable({ submissions }: { submissions: Submission[] }) {
     if (submissions.length === 0) {
         return <p className="text-center text-muted-foreground py-8">No submissions for this competition yet.</p>
     }
+
+    const getSubmissionIdentifier = (submission: Submission) => {
+        return submission.name || submission.email || submission.registrationId || "N/A";
+    }
+
+    const getSubmissionSecondaryInfo = (submission: Submission) => {
+        if (submission.email) return submission.email;
+        if (submission.instagramHandle) return submission.instagramHandle;
+        if (submission.postLink) return <Link href={submission.postLink} target="_blank" className="text-primary hover:underline truncate block max-w-xs">{submission.postLink}</Link>;
+        return "N/A";
+    }
+    
   return (
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Student Name</TableHead>
-          <TableHead>Email</TableHead>
-          <TableHead className="hidden md:table-cell">University</TableHead>
+          <TableHead>Identifier</TableHead>
+          <TableHead>Contact / Link</TableHead>
+          <TableHead className="hidden md:table-cell">Details</TableHead>
           <TableHead className="hidden lg:table-cell">Submitted At</TableHead>
           <TableHead className="text-right">File</TableHead>
         </TableRow>
@@ -120,17 +133,21 @@ function SubmissionsTable({ submissions }: { submissions: Submission[] }) {
       <TableBody>
         {submissions.map((submission) => (
           <TableRow key={submission.id}>
-            <TableCell className="font-medium">{submission.name}</TableCell>
-            <TableCell>{submission.email}</TableCell>
-            <TableCell className="hidden md:table-cell">{submission.university}</TableCell>
+            <TableCell className="font-medium">{getSubmissionIdentifier(submission)}</TableCell>
+            <TableCell>{getSubmissionSecondaryInfo(submission)}</TableCell>
+            <TableCell className="hidden md:table-cell">{submission.university || submission.school || 'N/A'}</TableCell>
             <TableCell className="hidden lg:table-cell">{submission.submittedAt.toLocaleString()}</TableCell>
             <TableCell className="text-right">
-                <Button variant="outline" size="sm" asChild>
-                    <a href="#" onClick={(e) => e.preventDefault()}>
-                        <Download className="mr-2 h-3 w-3" />
-                        {submission.fileName}
-                    </a>
-                </Button>
+                {submission.fileName ? (
+                    <Button variant="outline" size="sm" asChild>
+                        <a href="#" onClick={(e) => e.preventDefault()}>
+                            <Download className="mr-2 h-3 w-3" />
+                            {submission.fileName}
+                        </a>
+                    </Button>
+                ) : (
+                    <span className="text-xs text-muted-foreground">No file</span>
+                )}
             </TableCell>
           </TableRow>
         ))}

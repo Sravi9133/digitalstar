@@ -1,3 +1,4 @@
+
 import type { ReactNode } from "react";
 
 export interface Competition {
@@ -8,14 +9,26 @@ export interface Competition {
   icon: ReactNode;
 }
 
-export interface Submission {
+export type Submission = {
   id: string;
-  name: string;
-  email: string;
-  phone: string;
-  university: string;
   competitionId: string;
   competitionName: string;
-  fileName: string;
   submittedAt: Date;
-}
+  
+  // Fields for general submission
+  name?: string;
+  email?: string;
+  phone?: string;
+  university?: string;
+  fileName?: string;
+  fileUrl?: string;
+
+  // Fields for "Follow & Win"
+  registrationId?: string;
+  instagramHandle?: string;
+  school?: string;
+  schoolLink?: string;
+
+  // Fields for "Reel It. Feel It." and "My First Day"
+  postLink?: string;
+};

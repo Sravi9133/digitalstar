@@ -5,94 +5,66 @@ import type { Submission } from "@/types";
 import { DashboardClient } from "./dashboard-client";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import { LogOut, Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useRouter } from "next/navigation";
-import { auth } from "@/lib/firebase";
-import { useEffect } from "react";
+import { auth, app } from "@/lib/firebase";
+import { useEffect, useState } from "react";
+import { getFirestore, collection, getDocs, Timestamp } from "firebase/firestore";
 
-// Dummy data for submissions
-const submissions: Submission[] = [
-  {
-    id: "sub-001",
-    name: "Alice Johnson",
-    email: "alice.j@example.com",
-    phone: "111-222-3333",
-    university: "Tech University",
-    competitionId: "codeclash-2024",
-    competitionName: "CodeClash 2024",
-    fileName: "solution.pdf",
-    submittedAt: new Date("2024-11-20T10:00:00Z"),
-  },
-  {
-    id: "sub-002",
-    name: "Bob Smith",
-    email: "bob.s@example.com",
-    phone: "222-333-4444",
-    university: "Design Institute",
-    competitionId: "designminds-challenge",
-    competitionName: "DesignMinds Challenge",
-    fileName: "design_mockup.png",
-    submittedAt: new Date("2024-11-15T14:30:00Z"),
-  },
-  {
-    id: "sub-003",
-    name: "Charlie Brown",
-    email: "charlie.b@example.com",
-    phone: "333-444-5555",
-    university: "Business School",
-    competitionId: "startup-pitchfest",
-    competitionName: "Startup PitchFest",
-    fileName: "pitch_deck.pdf",
-    submittedAt: new Date("2024-12-01T09:00:00Z"),
-  },
-    {
-    id: "sub-004",
-    name: "Diana Prince",
-    email: "diana.p@example.com",
-    phone: "444-555-6666",
-    university: "Tech University",
-    competitionId: "codeclash-2024",
-    competitionName: "CodeClash 2024",
-    fileName: "code_submission.zip",
-    submittedAt: new Date("2024-11-22T11:00:00Z"),
-  },
-  {
-    id: "sub-005",
-    name: "Ethan Hunt",
-    email: "ethan.h@example.com",
-    phone: "555-666-7777",
-    university: "Design Institute",
-    competitionId: "designminds-challenge",
-    competitionName: "DesignMinds Challenge",
-    fileName: "app_prototype.jpg",
-    submittedAt: new Date("2024-11-18T18:00:00Z"),
-  },
-];
-
-const competitionIds = ["codeclash-2024", "designminds-challenge", "startup-pitchfest"];
+const competitionDisplayNames: { [key: string]: string } = {
+  "follow-win": "Follow & Win",
+  "reel-it-feel-it": "Reel It. Feel It.",
+  "my-first-day": "My First Day at LPU",
+};
 
 function DashboardPageContent() {
     const router = useRouter();
+    const [submissions, setSubmissions] = useState<Submission[]>([]);
+    const [isLoadingData, setIsLoadingData] = useState(true);
 
-  // In a real app, you would fetch this data from a database.
+    useEffect(() => {
+        const fetchSubmissions = async () => {
+            setIsLoadingData(true);
+            const db = getFirestore(app);
+            const submissionsCol = collection(db, "submissions");
+            const submissionSnapshot = await getDocs(submissionsCol);
+            const submissionList = submissionSnapshot.docs.map(doc => {
+                const data = doc.data();
+                return {
+                    id: doc.id,
+                    ...data,
+                    submittedAt: (data.submittedAt as Timestamp).toDate(),
+                } as Submission;
+            });
+            setSubmissions(submissionList);
+            setIsLoadingData(false);
+        };
+
+        fetchSubmissions();
+    }, []);
+
   const stats = {
     totalSubmissions: submissions.length,
-    submissionsPerCompetition: competitionIds.map(id => {
-        const comp = submissions.find(s => s.competitionId === id)
-        return {
-            id: id,
-            name: comp?.competitionName || id.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
-            count: submissions.filter(s => s.competitionId === id).length
-        }
-    })
+    submissionsPerCompetition: Object.keys(competitionDisplayNames).map(id => ({
+        id: id,
+        name: competitionDisplayNames[id],
+        count: submissions.filter(s => s.competitionId === id).length
+    }))
   };
 
   const handleLogout = async () => {
     await auth.signOut();
     router.push('/admin/login');
   };
+  
+  if (isLoadingData) {
+      return (
+          <div className="flex-1 flex items-center justify-center">
+              <Loader2 className="h-8 w-8 animate-spin" />
+          </div>
+      )
+  }
 
   return (
     <>

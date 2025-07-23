@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -19,6 +20,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Check, CheckCircle, Loader2, UploadCloud } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
+import { app } from "@/lib/firebase";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { getFirestore, collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_FILE_TYPES = ["application/pdf", "image/jpeg", "image/jpg", "image/png"];
@@ -29,9 +33,9 @@ const formSchema = z.object({
   phone: z.string().min(10, "Phone number must be at least 10 digits."),
   university: z.string().min(3, "University name is required."),
   file: z.any()
-    .refine((file) => file?.size > 0, "File is required.")
-    .refine((file) => file?.size <= MAX_FILE_SIZE, `File size must be less than 5MB.`)
-    .refine((file) => ACCEPTED_FILE_TYPES.includes(file?.type), "Only .pdf, .jpg, .jpeg, and .png formats are supported."),
+    .refine((files) => files?.length > 0, "File is required.")
+    .refine((files) => files?.[0]?.size <= MAX_FILE_SIZE, `File size must be less than 5MB.`)
+    .refine((files) => ACCEPTED_FILE_TYPES.includes(files?.[0]?.type), "Only .pdf, .jpg, .jpeg, and .png formats are supported."),
   captcha: z.literal<boolean>(true, {
     errorMap: () => ({ message: "Please confirm you are not a robot." }),
   }),
@@ -40,10 +44,11 @@ const formSchema = z.object({
 type SubmissionFormValues = z.infer<typeof formSchema>;
 
 interface SubmissionFormProps {
+  competitionId: string;
   competitionName: string;
 }
 
-export function SubmissionForm({ competitionName }: SubmissionFormProps) {
+export function SubmissionForm({ competitionId, competitionName }: SubmissionFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [fileName, setFileName] = useState("");
@@ -63,16 +68,49 @@ export function SubmissionForm({ competitionName }: SubmissionFormProps) {
 
   async function onSubmit(values: SubmissionFormValues) {
     setIsSubmitting(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    console.log(values);
-    setIsSubmitting(false);
-    setIsSubmitted(true);
-    toast({
-        title: "Submission Successful!",
-        description: "Your entry has been received.",
-        variant: "default",
-      });
+    
+    const file = values.file[0];
+
+    try {
+        const storage = getStorage(app);
+        const firestore = getFirestore(app);
+
+        // Upload file to Firebase Storage
+        const storageRef = ref(storage, `submissions/${competitionId}/${Date.now()}_${file.name}`);
+        const uploadResult = await uploadBytes(storageRef, file);
+        const fileUrl = await getDownloadURL(uploadResult.ref);
+
+        // Save submission data to Firestore
+        const submissionData = {
+            competitionId,
+            competitionName,
+            name: values.name,
+            email: values.email,
+            phone: values.phone,
+            university: values.university,
+            fileName: file.name,
+            fileUrl,
+            submittedAt: serverTimestamp(),
+        };
+
+        await addDoc(collection(firestore, "submissions"), submissionData);
+        
+        setIsSubmitting(false);
+        setIsSubmitted(true);
+        toast({
+            title: "Submission Successful!",
+            description: "Your entry has been received.",
+        });
+
+    } catch (error) {
+        console.error("Submission error:", error);
+        setIsSubmitting(false);
+        toast({
+            title: "Submission Failed",
+            description: "An error occurred while submitting your entry. Please try again.",
+            variant: "destructive",
+        });
+    }
   }
 
   if (isSubmitted) {
@@ -170,8 +208,10 @@ export function SubmissionForm({ competitionName }: SubmissionFormProps) {
                         {...fileRef}
                         onChange={(e) => {
                             const file = e.target.files?.[0];
-                            field.onChange(file);
-                            setFileName(file?.name || "");
+                            if (file) {
+                                form.setValue("file", e.target.files);
+                                setFileName(file.name);
+                            }
                         }}
                       />
                     </div>

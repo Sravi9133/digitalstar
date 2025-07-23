@@ -1,3 +1,4 @@
+
 import { ArrowLeft, Camera, Gift, Tv } from "lucide-react";
 import type { Competition } from "@/types";
 import { SubmissionForm } from "./submission-form";
@@ -50,21 +51,17 @@ export default function SubmissionPage({ params }: { params: { id: string } }) {
     );
   }
 
-  const isFollowAndWin = competition.id === 'follow-win';
-  const isReelItFeelIt = competition.id === 'reel-it-feel-it';
-  const isMyFirstDay = competition.id === 'my-first-day';
-
   const getForm = () => {
-    if (isFollowAndWin) {
-      return <FollowWinForm competitionName={competition.name} />;
+    switch (competition.id) {
+      case 'follow-win':
+        return <FollowWinForm competitionId={competition.id} competitionName={competition.name} />;
+      case 'reel-it-feel-it':
+        return <ReelItFeelItForm competitionId={competition.id} competitionName={competition.name} />;
+      case 'my-first-day':
+        return <ReelItFeelItForm competitionId={competition.id} competitionName={competition.name} postType="Post" />;
+      default:
+        return <SubmissionForm competitionId={competition.id} competitionName={competition.name} />;
     }
-    if (isReelItFeelIt) {
-        return <ReelItFeelItForm competitionName={competition.name} />;
-    }
-    if (isMyFirstDay) {
-        return <ReelItFeelItForm competitionName={competition.name} postType="Post" />;
-    }
-    return <SubmissionForm competitionName={competition.name} />;
   }
 
   return (
@@ -76,7 +73,7 @@ export default function SubmissionPage({ params }: { params: { id: string } }) {
                     {competition.icon}
                  </div>
                  <h1 className="text-4xl md:text-5xl font-bold font-headline mb-2">{competition.name}</h1>
-                 <p className="text-lg text-muted-foreground">{isFollowAndWin ? "Fill in your details to enter the lucky draw" : "Submission Form"}</p>
+                 <p className="text-lg text-muted-foreground">{competition.id === 'follow-win' ? "Fill in your details to enter the lucky draw" : "Submission Form"}</p>
                  <Button asChild variant="link" className="mt-4">
                     <Link href="/"><ArrowLeft className="mr-2 h-4 w-4" />Back to all competitions</Link>
                  </Button>

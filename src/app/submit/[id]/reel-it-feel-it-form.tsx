@@ -18,6 +18,8 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle, Loader2, Link as LinkIcon, Tv, Camera } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { app } from "@/lib/firebase";
+import { getFirestore, collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 const formSchema = z.object({
   registrationId: z.string().min(5, "Registration/Candidate ID is required."),
@@ -27,11 +29,12 @@ const formSchema = z.object({
 type ReelItFeelItFormValues = z.infer<typeof formSchema>;
 
 interface ReelItFeelItFormProps {
+  competitionId: string;
   competitionName: string;
   postType?: 'Reel' | 'Post';
 }
 
-export function ReelItFeelItForm({ competitionName, postType = 'Reel' }: ReelItFeelItFormProps) {
+export function ReelItFeelItForm({ competitionId, competitionName, postType = 'Reel' }: ReelItFeelItFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const { toast } = useToast();
@@ -46,14 +49,29 @@ export function ReelItFeelItForm({ competitionName, postType = 'Reel' }: ReelItF
 
   async function onSubmit(values: ReelItFeelItFormValues) {
     setIsSubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    console.log(values);
-    setIsSubmitting(false);
-    setIsSubmitted(true);
-    toast({
-        title: "Submission Successful!",
-        description: `Your ${postType.toLowerCase()} for ${competitionName} has been submitted.`,
-    });
+    try {
+        const db = getFirestore(app);
+        await addDoc(collection(db, "submissions"), {
+            competitionId,
+            competitionName,
+            ...values,
+            submittedAt: serverTimestamp(),
+        });
+        setIsSubmitting(false);
+        setIsSubmitted(true);
+        toast({
+            title: "Submission Successful!",
+            description: `Your ${postType.toLowerCase()} for ${competitionName} has been submitted.`,
+        });
+    } catch (error) {
+        console.error("Error adding document: ", error);
+        setIsSubmitting(false);
+        toast({
+            title: "Submission Failed",
+            description: "Something went wrong. Please try again.",
+            variant: "destructive",
+        })
+    }
   }
 
   if (isSubmitted) {

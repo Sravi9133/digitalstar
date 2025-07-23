@@ -27,6 +27,8 @@ import { Check, CheckCircle, Loader2, Link as LinkIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
+import { app } from "@/lib/firebase";
+import { getFirestore, collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 interface School {
     id: string;
@@ -45,10 +47,11 @@ const formSchema = z.object({
 type FollowWinFormValues = z.infer<typeof formSchema>;
 
 interface FollowWinFormProps {
+  competitionId: string;
   competitionName: string;
 }
 
-export function FollowWinForm({ competitionName }: FollowWinFormProps) {
+export function FollowWinForm({ competitionId, competitionName }: FollowWinFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [selectedSchoolUrl, setSelectedSchoolUrl] = useState<string | null>(null);
@@ -65,7 +68,6 @@ export function FollowWinForm({ competitionName }: FollowWinFormProps) {
         }
         const data = await response.json();
         
-        // The JSON has a top-level key "Account Links"
         const schoolData = data["Account Links"];
 
         if (Array.isArray(schoolData)) {
@@ -80,7 +82,7 @@ export function FollowWinForm({ competitionName }: FollowWinFormProps) {
         }
       } catch (error) {
         console.error(error);
-        setSchools([]); // Set to empty array on error
+        setSchools([]); 
         toast({
           title: "Error",
           description: "Could not load school list. Please try again later.",
@@ -109,14 +111,33 @@ export function FollowWinForm({ competitionName }: FollowWinFormProps) {
 
   async function onSubmit(values: FollowWinFormValues) {
     setIsSubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    console.log(values);
-    setIsSubmitting(false);
-    setIsSubmitted(true);
-    toast({
-        title: "Submission Successful!",
-        description: `Your entry for ${competitionName} has been received.`,
-      });
+    const selectedSchool = schools.find(s => s.id === values.school);
+
+    try {
+        const db = getFirestore(app);
+        await addDoc(collection(db, "submissions"), {
+            competitionId,
+            competitionName,
+            ...values,
+            school: selectedSchool?.name,
+            schoolLink: selectedSchool?.link,
+            submittedAt: serverTimestamp(),
+        });
+        setIsSubmitting(false);
+        setIsSubmitted(true);
+        toast({
+            title: "Submission Successful!",
+            description: `Your entry for ${competitionName} has been received.`,
+          });
+    } catch (error) {
+        console.error("Error adding document: ", error);
+        setIsSubmitting(false);
+        toast({
+            title: "Submission Failed",
+            description: "Something went wrong. Please try again.",
+            variant: "destructive",
+        })
+    }
   }
 
   if (isSubmitted) {
