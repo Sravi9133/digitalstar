@@ -64,18 +64,19 @@ export function FollowWinForm({ competitionName }: FollowWinFormProps) {
           throw new Error('Failed to fetch school data');
         }
         const data = await response.json();
-        // Ensure data is an array before setting state
-        if (Array.isArray(data)) {
-            setSchools(data);
+        
+        // The JSON has a top-level key "Account Links"
+        const schoolData = data["Account Links"];
+
+        if (Array.isArray(schoolData)) {
+            const formattedSchools = schoolData.map((item: any) => ({
+                id: String(item["Sr. No"]),
+                name: item["School"],
+                link: item["Instagram"],
+            }));
+            setSchools(formattedSchools);
         } else {
-            // Handle cases where data might be an object with a property
-            // This is a defensive check, adjust if your JSON has a different structure
-            const schoolsArray = Object.values(data).find(Array.isArray);
-            if(schoolsArray) {
-                setSchools(schoolsArray as School[]);
-            } else {
-                throw new Error("School data is not in the expected format.");
-            }
+            throw new Error("School data is not in the expected format.");
         }
       } catch (error) {
         console.error(error);
