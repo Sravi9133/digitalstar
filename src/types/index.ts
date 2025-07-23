@@ -31,4 +31,5 @@ export type Submission = {
 
   // Fields for "Reel It. Feel It." and "My First Day"
   postLink?: string;
+  redditPostLink?: string;
 };
