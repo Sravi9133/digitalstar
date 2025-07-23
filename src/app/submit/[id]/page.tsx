@@ -1,6 +1,7 @@
 import { ArrowLeft, Camera, Gift, Tv } from "lucide-react";
 import type { Competition } from "@/types";
 import { SubmissionForm } from "./submission-form";
+import { FollowWinForm } from "./follow-win-form";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
@@ -48,6 +49,8 @@ export default function SubmissionPage({ params }: { params: { id: string } }) {
     );
   }
 
+  const isFollowAndWin = competition.id === 'follow-win';
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-accent/20 via-background to-primary/20">
       <div className="container mx-auto px-4 py-12 md:py-24">
@@ -57,12 +60,16 @@ export default function SubmissionPage({ params }: { params: { id: string } }) {
                     {competition.icon}
                  </div>
                  <h1 className="text-4xl md:text-5xl font-bold font-headline mb-2">{competition.name}</h1>
-                 <p className="text-lg text-muted-foreground">Submission Form</p>
+                 <p className="text-lg text-muted-foreground">{isFollowAndWin ? "Fill in your details to enter the lucky draw" : "Submission Form"}</p>
                  <Button asChild variant="link" className="mt-4">
                     <Link href="/"><ArrowLeft className="mr-2 h-4 w-4" />Back to all competitions</Link>
                  </Button>
             </div>
-          <SubmissionForm competitionName={competition.name} />
+          {isFollowAndWin ? (
+            <FollowWinForm competitionName={competition.name} />
+          ) : (
+            <SubmissionForm competitionName={competition.name} />
+          )}
         </div>
       </div>
     </div>
