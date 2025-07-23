@@ -2,6 +2,7 @@ import { ArrowLeft, Camera, Gift, Tv } from "lucide-react";
 import type { Competition } from "@/types";
 import { SubmissionForm } from "./submission-form";
 import { FollowWinForm } from "./follow-win-form";
+import { ReelItFeelItForm } from "./reel-it-feel-it-form";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
@@ -50,6 +51,17 @@ export default function SubmissionPage({ params }: { params: { id: string } }) {
   }
 
   const isFollowAndWin = competition.id === 'follow-win';
+  const isReelItFeelIt = competition.id === 'reel-it-feel-it';
+
+  const getForm = () => {
+    if (isFollowAndWin) {
+      return <FollowWinForm competitionName={competition.name} />;
+    }
+    if (isReelItFeelIt) {
+        return <ReelItFeelItForm competitionName={competition.name} />;
+    }
+    return <SubmissionForm competitionName={competition.name} />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-accent/20 via-background to-primary/20">
@@ -65,11 +77,7 @@ export default function SubmissionPage({ params }: { params: { id: string } }) {
                     <Link href="/"><ArrowLeft className="mr-2 h-4 w-4" />Back to all competitions</Link>
                  </Button>
             </div>
-          {isFollowAndWin ? (
-            <FollowWinForm competitionName={competition.name} />
-          ) : (
-            <SubmissionForm competitionName={competition.name} />
-          )}
+          {getForm()}
         </div>
       </div>
     </div>
