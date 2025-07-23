@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -25,13 +25,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Check, CheckCircle, Loader2, Link as LinkIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
+import { Skeleton } from "@/components/ui/skeleton";
 
-const schools = [
-    { id: 'cse', name: 'School of Computer Science and Engineering', link: 'https://www.instagram.com/lpu.cse' },
-    { id: 'design', name: 'School of Design', link: 'https://www.instagram.com/lpu.design' },
-    { id: 'business', name: 'Mittal School of Business', link: 'https://www.instagram.com/lpu.business' },
-    { id: 'agriculture', name: 'School of Agriculture', link: 'https://www.instagram.com/lpu.agri' },
-];
+interface School {
+    id: string;
+    name: string;
+    link: string;
+}
 
 const formSchema = z.object({
   registrationId: z.string().min(5, "Registration/Application ID is required."),
@@ -51,7 +51,32 @@ export function FollowWinForm({ competitionName }: FollowWinFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [selectedSchoolUrl, setSelectedSchoolUrl] = useState<string | null>(null);
+  const [schools, setSchools] = useState<School[]>([]);
+  const [isLoadingSchools, setIsLoadingSchools] = useState(true);
   const { toast } = useToast();
+
+  useEffect(() => {
+    async function fetchSchools() {
+      try {
+        const response = await fetch('/social_ink.json');
+        if (!response.ok) {
+          throw new Error('Failed to fetch school data');
+        }
+        const data: School[] = await response.json();
+        setSchools(data);
+      } catch (error) {
+        console.error(error);
+        toast({
+          title: "Error",
+          description: "Could not load school list. Please try again later.",
+          variant: "destructive"
+        })
+      } finally {
+        setIsLoadingSchools(false);
+      }
+    }
+    fetchSchools();
+  }, [toast]);
 
   const form = useForm<FollowWinFormValues>({
     resolver: zodResolver(formSchema),
@@ -130,7 +155,10 @@ export function FollowWinForm({ competitionName }: FollowWinFormProps) {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Select Your School</FormLabel>
-                      <Select onValueChange={handleSchoolChange} defaultValue={field.value}>
+                       {isLoadingSchools ? (
+                        <Skeleton className="h-10 w-full" />
+                        ) : (
+                      <Select onValueChange={handleSchoolChange} defaultValue={field.value} disabled={schools.length === 0}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Choose your school" />
@@ -142,6 +170,7 @@ export function FollowWinForm({ competitionName }: FollowWinFormProps) {
                           ))}
                         </SelectContent>
                       </Select>
+                       )}
                       <FormMessage />
                     </FormItem>
                   )}
@@ -162,7 +191,7 @@ export function FollowWinForm({ competitionName }: FollowWinFormProps) {
                  </Card>
             )}
 
-            <Button type="submit" disabled={isSubmitting || !selectedSchoolUrl} className="w-full font-bold text-lg py-6">
+            <Button type="submit" disabled={isSubmitting || !selectedSchoolUrl || schools.length === 0} className="w-full font-bold text-lg py-6">
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Submitting...
