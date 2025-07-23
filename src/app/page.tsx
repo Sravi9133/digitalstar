@@ -1,7 +1,8 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Calendar, Camera, Gift, Tv } from "lucide-react";
+import { ArrowRight, Calendar, Gift, Tv, Camera } from "lucide-react";
 import type { Competition } from "@/types";
 import { Header } from "@/components/header";
 
@@ -9,21 +10,21 @@ const competitions: Competition[] = [
   {
     id: "follow-win",
     name: "Follow & Win",
-    description: "Follow your school's social media and submit a screenshot to win daily prizes. The more you engage, the better your chances!",
+    description: "Follow your school's social media and submit a screenshot to win daily prizes. Every day, we’ll pick lucky winners from valid entries for a chance to win LPU goodies!",
     deadline: new Date("2025-09-30T23:59:59"),
     icon: <Gift className="w-8 h-8 text-primary" />,
   },
   {
     id: "reel-it-feel-it",
     name: "Reel It. Feel It.",
-    description: "Create an Instagram Reel about your first days at LPU. Top 3 reels win premium merchandise and get featured on our official page.",
+    description: "Create an Instagram Reel about your first days at LPU. Top 3 reels will win premium LPU merchandise and get featured on the official LPU Instagram handle!",
     deadline: new Date("2025-10-15T23:59:59"),
     icon: <Tv className="w-8 h-8 text-primary" />,
   },
   {
     id: "my-first-day",
     name: "My First Day at LPU",
-    description: "Take a selfie at the official Selfie Point, post it on Instagram with our hashtag, and tag us to win a participation gift.",
+    description: "Take a selfie at LPU’s official Selfie Point, post it on Instagram using the designated hashtag, and tag the official LPU page.",
     deadline: new Date("2025-09-20T23:59:59"),
     icon: <Camera className="w-8 h-8 text-primary" />,
   },
@@ -34,12 +35,25 @@ export default function Home() {
     <div className="flex flex-col min-h-screen bg-background">
       <Header />
       <main className="flex-grow">
-        <section className="relative py-20 md:py-32 text-center text-white bg-gradient-to-br from-accent to-primary">
-          <div className="container mx-auto px-4">
-            <h1 className="text-4xl md:text-6xl font-bold font-headline mb-4">Compete. Innovate. Succeed.</h1>
-            <p className="text-lg md:text-xl max-w-3xl mx-auto text-primary-foreground/90">
-              Welcome to CompSubmit, the ultimate platform for student competitions. Find your challenge and submit your entry today.
-            </p>
+        <section className="relative py-20 md:py-32 text-center text-white overflow-hidden">
+            <div className="absolute inset-0">
+                <Image
+                    src="/hero.png"
+                    alt="Students collaborating"
+                    fill
+                    priority
+                    className="object-cover"
+                    data-ai-hint="students collaboration"
+                />
+                <div className="absolute inset-0 bg-black/30" />
+            </div>
+          <div className="relative container mx-auto px-4">
+            <div className="bg-black/20 backdrop-blur-md rounded-xl p-8 max-w-4xl mx-auto">
+                <h1 className="text-4xl md:text-6xl font-bold font-headline mb-4">Compete. Innovate. Succeed.</h1>
+                <p className="text-lg md:text-xl max-w-3xl mx-auto text-primary-foreground/90">
+                Welcome to CompSubmit, the ultimate platform for student competitions. Find your challenge and submit your entry today.
+                </p>
+            </div>
           </div>
         </section>
 
