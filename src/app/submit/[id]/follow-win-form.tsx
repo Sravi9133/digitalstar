@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -9,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -23,12 +23,13 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Check, CheckCircle, Loader2, Link as LinkIcon } from "lucide-react";
+import { Check, CheckCircle, Loader2, Link as LinkIcon, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import { app } from "@/lib/firebase";
 import { getFirestore, collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface School {
     id: string;
@@ -41,6 +42,9 @@ const formSchema = z.object({
   instagramHandle: z.string().min(3, "Instagram handle/link is required.").refine(val => val.startsWith('@') || val.startsWith('https://'), { message: "Must be a valid handle (e.g. @user) or link (e.g. https://...)" }),
   school: z.string({
     required_error: "Please select a school.",
+  }),
+  followedSubreddit: z.literal<boolean>(true, {
+    errorMap: () => ({ message: "You must confirm you have followed the subreddits." }),
   }),
 });
 
@@ -226,6 +230,44 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
                     </div>
                  </Card>
             )}
+
+            <FormField
+              control={form.control}
+              name="followedSubreddit"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>
+                      Followed Subreddit
+                    </FormLabel>
+                    <FormDescription>
+                      Please confirm you have followed both subreddits.
+                    </FormDescription>
+                    <FormMessage />
+                  </div>
+                </FormItem>
+              )}
+            />
+
+            <Card className="bg-muted/50 p-4 flex flex-col items-center justify-center gap-2">
+                <Button asChild variant="link">
+                    <Link href="https://www.reddit.com/r/btech_/" target="_blank">
+                        r/btech_ <ExternalLink className="ml-2 h-4 w-4" />
+                    </Link>
+                </Button>
+                <Button asChild variant="link">
+                    <Link href="https://www.reddit.com/r/Lpu_/" target="_blank">
+                        r/Lpu_ <ExternalLink className="ml-2 h-4 w-4" />
+                    </Link>
+                </Button>
+            </Card>
+
 
             <Button type="submit" disabled={isSubmitting || !selectedSchoolUrl || schools.length === 0} className="w-full font-bold text-lg py-6">
               {isSubmitting ? (
