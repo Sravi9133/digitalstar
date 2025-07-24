@@ -14,6 +14,7 @@ export type Submission = {
   competitionId: string;
   competitionName: string;
   submittedAt: Date;
+  isWinner?: boolean;
   
   // Fields for general submission
   name?: string;

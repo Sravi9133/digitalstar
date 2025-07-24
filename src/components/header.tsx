@@ -7,7 +7,7 @@ import { Logo } from '@/components/logo';
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
-import { LogOut, Loader2 } from 'lucide-react';
+import { LogOut, Loader2, Trophy } from 'lucide-react';
 
 export function Header() {
   const { user, loading } = useAuth();
@@ -23,11 +23,20 @@ export function Header() {
       <div className="container flex h-16 items-center justify-between mx-auto px-4">
         <Logo />
         <div className="flex items-center space-x-4">
+            <Button variant="ghost" asChild>
+                <Link href="/#competitions">Competitions</Link>
+            </Button>
+            <Button variant="ghost" asChild>
+                <Link href="/winners">
+                    <Trophy className="mr-2 h-4 w-4" />
+                    Winners
+                </Link>
+            </Button>
           {loading ? (
             <div className="h-10 w-24" /> // Placeholder to prevent layout shift
           ) : user ? (
             <>
-              <Button variant="ghost" onClick={() => router.push('/admin/dashboard')}>Dashboard</Button>
+              <Button variant="outline" onClick={() => router.push('/admin/dashboard')}>Dashboard</Button>
               <Button variant="ghost" onClick={handleLogout}>
                 Logout <LogOut className="ml-2 h-4 w-4"/>
               </Button>

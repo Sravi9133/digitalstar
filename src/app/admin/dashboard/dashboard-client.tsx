@@ -6,9 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { BarChart, Download, Users, Trophy } from "lucide-react";
+import { BarChart, Download, Users, Trophy, Award } from "lucide-react";
 import Link from "next/link";
 import * as XLSX from "xlsx";
+import { useToast } from "@/hooks/use-toast";
 
 interface DashboardClientProps {
   submissions: Submission[];
@@ -20,6 +21,7 @@ interface DashboardClientProps {
       count: number;
     }[];
   };
+  onMarkAsWinner: (submissionId: string) => Promise<void>;
 }
 
 // Helper function to convert data to XLSX and trigger download
@@ -32,7 +34,7 @@ const downloadAsXLSX = (data: Submission[], fileName: string) => {
     // Define the headers for the Excel file
     const headers = [
         "competitionName", "submittedAt", "name", "email", "phone", "university",
-        "registrationId", "instagramHandle", "school", "postLink", "redditPostLink", "fileName", "fileUrl"
+        "registrationId", "instagramHandle", "school", "postLink", "redditPostLink", "fileName", "fileUrl", "isWinner"
     ];
 
     // Create a new workbook and a worksheet
@@ -42,7 +44,7 @@ const downloadAsXLSX = (data: Submission[], fileName: string) => {
     const worksheetData = data.map(submission => {
         const row: { [key: string]: any } = {};
         headers.forEach(header => {
-            let value = submission[header as keyof Submission] as string | Date | undefined;
+            let value = submission[header as keyof Submission] as string | Date | boolean | undefined;
             if (value === undefined || value === null) {
                 row[header] = "";
             } else if (value instanceof Date) {
@@ -64,7 +66,7 @@ const downloadAsXLSX = (data: Submission[], fileName: string) => {
 }
 
 
-export function DashboardClient({ submissions, stats }: DashboardClientProps) {
+export function DashboardClient({ submissions, stats, onMarkAsWinner }: DashboardClientProps) {
 
     const handleDownloadAll = () => {
         downloadAsXLSX(submissions, "all_submissions");
@@ -142,7 +144,10 @@ export function DashboardClient({ submissions, stats }: DashboardClientProps) {
                         </div>
                     </CardHeader>
                     <CardContent>
-                        <SubmissionsTable submissions={submissions.filter(s => s.competitionId === comp.id)} />
+                        <SubmissionsTable 
+                            submissions={submissions.filter(s => s.competitionId === comp.id)} 
+                            onMarkAsWinner={onMarkAsWinner} 
+                        />
                     </CardContent>
                 </Card>
             </TabsContent>
@@ -152,13 +157,31 @@ export function DashboardClient({ submissions, stats }: DashboardClientProps) {
   );
 }
 
-function SubmissionsTable({ submissions }: { submissions: Submission[] }) {
+function SubmissionsTable({ submissions, onMarkAsWinner }: { submissions: Submission[], onMarkAsWinner: (submissionId: string) => Promise<void> }) {
+    const { toast } = useToast();
     if (submissions.length === 0) {
         return <p className="text-center text-muted-foreground py-8">No submissions for this competition yet.</p>
     }
 
     const getSubmissionIdentifier = (submission: Submission) => {
         return submission.name || submission.registrationId || submission.email || "N/A";
+    }
+
+    const handleMarkAsWinner = async (submissionId: string) => {
+        try {
+            await onMarkAsWinner(submissionId);
+            toast({
+                title: "Success",
+                description: "Submission marked as winner."
+            });
+        } catch (error) {
+            toast({
+                title: "Error",
+                description: "Could not mark as winner. Please try again.",
+                variant: "destructive"
+            });
+            console.error(error);
+        }
     }
 
   return (
@@ -169,13 +192,19 @@ function SubmissionsTable({ submissions }: { submissions: Submission[] }) {
           <TableHead className="hidden md:table-cell">Details</TableHead>
           <TableHead>Links</TableHead>
           <TableHead className="hidden lg:table-cell">Submitted At</TableHead>
-          <TableHead className="text-right">File</TableHead>
+          <TableHead>File</TableHead>
+          <TableHead className="text-right">Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {submissions.map((submission) => (
-          <TableRow key={submission.id}>
-            <TableCell className="font-medium">{getSubmissionIdentifier(submission)}</TableCell>
+          <TableRow key={submission.id} className={submission.isWinner ? 'bg-primary/10' : ''}>
+            <TableCell className="font-medium">
+                <div className="flex items-center gap-2">
+                    {submission.isWinner && <Award className="h-4 w-4 text-primary" />}
+                    {getSubmissionIdentifier(submission)}
+                </div>
+            </TableCell>
             <TableCell className="hidden md:table-cell">
                 <div className="flex flex-col">
                     <span>{submission.email || submission.instagramHandle || 'N/A'}</span>
@@ -185,19 +214,19 @@ function SubmissionsTable({ submissions }: { submissions: Submission[] }) {
             <TableCell>
                 <div className="flex flex-col gap-1">
                     {submission.postLink && (
-                        <Link href={submission.postLink} target="_blank" className="text-primary hover:underline truncate block max-w-[200px]">
+                        <Link href={submission.postLink} target="_blank" className="text-primary hover:underline truncate block max-w-[150px]">
                            Instagram Post
                         </Link>
                     )}
                     {submission.redditPostLink && (
-                        <Link href={submission.redditPostLink} target="_blank" className="text-primary hover:underline truncate block max-w-[200px]">
+                        <Link href={submission.redditPostLink} target="_blank" className="text-primary hover:underline truncate block max-w-[150px]">
                             Reddit Post
                         </Link>
                     )}
                 </div>
             </TableCell>
             <TableCell className="hidden lg:table-cell">{submission.submittedAt.toLocaleString()}</TableCell>
-            <TableCell className="text-right">
+            <TableCell>
                 {submission.fileUrl && submission.fileName ? (
                     <Button variant="outline" size="sm" asChild>
                         <a href={submission.fileUrl} target="_blank" rel="noopener noreferrer">
@@ -208,6 +237,17 @@ function SubmissionsTable({ submissions }: { submissions: Submission[] }) {
                 ) : (
                     <span className="text-xs text-muted-foreground">No file</span>
                 )}
+            </TableCell>
+            <TableCell className="text-right">
+                <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleMarkAsWinner(submission.id)}
+                    disabled={submission.isWinner}
+                >
+                    <Award className="mr-2 h-3 w-3" />
+                    {submission.isWinner ? 'Winner' : 'Mark as Winner'}
+                </Button>
             </TableCell>
           </TableRow>
         ))}

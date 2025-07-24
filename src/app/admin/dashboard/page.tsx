@@ -8,7 +8,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useRouter } from "next/navigation";
 import { auth, app } from "@/lib/firebase";
 import { useEffect, useState } from "react";
-import { getFirestore, collection, getDocs, Timestamp } from "firebase/firestore";
+import { getFirestore, collection, getDocs, Timestamp, doc, updateDoc } from "firebase/firestore";
 import { Loader2 } from "lucide-react";
 
 const competitionDisplayNames: { [key: string]: string } = {
@@ -20,27 +20,36 @@ const competitionDisplayNames: { [key: string]: string } = {
 function DashboardPageContent() {
     const [submissions, setSubmissions] = useState<Submission[]>([]);
     const [isLoadingData, setIsLoadingData] = useState(true);
+    const db = getFirestore(app);
+
+    const fetchSubmissions = async () => {
+        setIsLoadingData(true);
+        const submissionsCol = collection(db, "submissions");
+        const submissionSnapshot = await getDocs(submissionsCol);
+        const submissionList = submissionSnapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+                id: doc.id,
+                ...data,
+                submittedAt: (data.submittedAt as Timestamp).toDate(),
+            } as Submission;
+        }).sort((a, b) => b.submittedAt.getTime() - a.submittedAt.getTime());
+        setSubmissions(submissionList);
+        setIsLoadingData(false);
+    };
 
     useEffect(() => {
-        const fetchSubmissions = async () => {
-            setIsLoadingData(true);
-            const db = getFirestore(app);
-            const submissionsCol = collection(db, "submissions");
-            const submissionSnapshot = await getDocs(submissionsCol);
-            const submissionList = submissionSnapshot.docs.map(doc => {
-                const data = doc.data();
-                return {
-                    id: doc.id,
-                    ...data,
-                    submittedAt: (data.submittedAt as Timestamp).toDate(),
-                } as Submission;
-            });
-            setSubmissions(submissionList);
-            setIsLoadingData(false);
-        };
-
         fetchSubmissions();
     }, []);
+
+    const handleMarkAsWinner = async (submissionId: string) => {
+        const submissionRef = doc(db, "submissions", submissionId);
+        await updateDoc(submissionRef, {
+            isWinner: true
+        });
+        // Refetch data to update UI
+        await fetchSubmissions(); 
+    };
 
   const stats = {
     totalSubmissions: submissions.length,
@@ -66,7 +75,7 @@ function DashboardPageContent() {
     <div className="flex flex-col min-h-screen">
     <Header />
     <main className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-        <DashboardClient submissions={submissions} stats={stats} />
+        <DashboardClient submissions={submissions} stats={stats} onMarkAsWinner={handleMarkAsWinner} />
     </main>
     </div>
   );
