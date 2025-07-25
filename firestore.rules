@@ -1,27 +1,22 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Default: Deny all reads and writes to all documents.
+    // match /{document=**} {
+    //   allow read, write: if false;
+    // }
 
-    // Helper function to check if the user is an authenticated admin
-    function isAdmin() {
-      return request.auth != null; // For this demo, any authenticated user is an admin.
-                                   // In a real app, you'd check for a specific role/claim.
-    }
-
+    // Submissions collection rules
     match /submissions/{submissionId} {
-      // Admins can read and write any submission document
-      allow read, write: if isAdmin();
+      // Allow authenticated admins to perform any action on submissions
+      allow read, write: if request.auth != null;
       
-      // Anyone can GET a single submission document IFF it is a winner.
+      // Allow the public to READ documents ONLY IF they are marked as a winner.
       // This is needed for the public winners page.
+      allow list: if request.method == 'get' && resource.data.isWinner == true;
       allow get: if resource.data.isWinner == true;
-    }
-
-    // Explicitly deny LIST operations for the public on the submissions collection.
-    // The public can only GET single winner documents, not query the whole collection.
-    match /submissions/{submissionId} {
-        allow list: if isAdmin();
     }
   }
 }
