@@ -8,7 +8,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useRouter } from "next/navigation";
 import { auth, app } from "@/lib/firebase";
 import { useEffect, useState } from "react";
-import { getFirestore, collection, getDocs, Timestamp, doc, updateDoc } from "firebase/firestore";
+import { getFirestore, collection, getDocs, Timestamp, doc, updateDoc, query, where, getDoc } from "firebase/firestore";
 import { Loader2 } from "lucide-react";
 
 const competitionDisplayNames: { [key: string]: string } = {
@@ -42,13 +42,35 @@ function DashboardPageContent() {
         fetchSubmissions();
     }, []);
 
-    const handleMarkAsWinner = async (submissionId: string) => {
-        const submissionRef = doc(db, "submissions", submissionId);
-        await updateDoc(submissionRef, {
-            isWinner: true
-        });
-        // Refetch data to update UI
-        await fetchSubmissions(); 
+    const handleMarkAsWinner = async (submission: Submission): Promise<{success: boolean, message: string}> => {
+        // For "Follow & Win", check if the user has already won
+        if (submission.competitionId === 'follow-win' && submission.registrationId) {
+            const q = query(
+                collection(db, "submissions"),
+                where("competitionId", "==", "follow-win"),
+                where("registrationId", "==", submission.registrationId),
+                where("isWinner", "==", true)
+            );
+
+            const existingWinnerSnapshot = await getDocs(q);
+            if (!existingWinnerSnapshot.empty) {
+                console.log(`User ${submission.registrationId} has already won.`);
+                return { success: false, message: `This participant (${submission.registrationId}) has already won this competition.` };
+            }
+        }
+
+        try {
+            const submissionRef = doc(db, "submissions", submission.id);
+            await updateDoc(submissionRef, {
+                isWinner: true
+            });
+            // Refetch data to update UI
+            await fetchSubmissions(); 
+            return { success: true, message: "Successfully marked as winner." };
+        } catch (error) {
+            console.error("Error marking as winner: ", error);
+            return { success: false, message: "An unexpected error occurred while marking as winner." };
+        }
     };
 
   const stats = {

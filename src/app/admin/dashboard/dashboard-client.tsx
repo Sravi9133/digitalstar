@@ -21,7 +21,7 @@ interface DashboardClientProps {
       count: number;
     }[];
   };
-  onMarkAsWinner: (submissionId: string) => Promise<void>;
+  onMarkAsWinner: (submission: Submission) => Promise<{success: boolean; message: string}>;
 }
 
 // Helper function to convert data to XLSX and trigger download
@@ -157,7 +157,7 @@ export function DashboardClient({ submissions, stats, onMarkAsWinner }: Dashboar
   );
 }
 
-function SubmissionsTable({ submissions, onMarkAsWinner }: { submissions: Submission[], onMarkAsWinner: (submissionId: string) => Promise<void> }) {
+function SubmissionsTable({ submissions, onMarkAsWinner }: { submissions: Submission[], onMarkAsWinner: (submission: Submission) => Promise<{success: boolean; message: string}> }) {
     const { toast } = useToast();
     if (submissions.length === 0) {
         return <p className="text-center text-muted-foreground py-8">No submissions for this competition yet.</p>
@@ -167,17 +167,25 @@ function SubmissionsTable({ submissions, onMarkAsWinner }: { submissions: Submis
         return submission.name || submission.registrationId || submission.email || "N/A";
     }
 
-    const handleMarkAsWinner = async (submissionId: string) => {
+    const handleMarkAsWinner = async (submission: Submission) => {
         try {
-            await onMarkAsWinner(submissionId);
-            toast({
-                title: "Success",
-                description: "Submission marked as winner."
-            });
+            const result = await onMarkAsWinner(submission);
+            if (result.success) {
+                toast({
+                    title: "Success",
+                    description: "Submission marked as winner."
+                });
+            } else {
+                 toast({
+                    title: "Action Failed",
+                    description: result.message,
+                    variant: "destructive"
+                });
+            }
         } catch (error) {
             toast({
                 title: "Error",
-                description: "Could not mark as winner. Please try again.",
+                description: "An unexpected error occurred. Please try again.",
                 variant: "destructive"
             });
             console.error(error);
@@ -242,7 +250,7 @@ function SubmissionsTable({ submissions, onMarkAsWinner }: { submissions: Submis
                 <Button 
                     variant="outline" 
                     size="sm"
-                    onClick={() => handleMarkAsWinner(submission.id)}
+                    onClick={() => handleMarkAsWinner(submission)}
                     disabled={submission.isWinner}
                 >
                     <Award className="mr-2 h-3 w-3" />
