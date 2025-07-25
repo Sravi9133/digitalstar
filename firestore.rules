@@ -2,21 +2,16 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    match /submissions/{document} {
+      // Admins can read and write all submissions
+      allow read, write: if request.auth != null;
+      
+      // Public can create new submissions
+      allow create: if true;
 
-    // Helper function to check if the user is an authenticated admin
-    function isAdmin() {
-      // For this demo, any authenticated user is an admin.
-      // In a real app, you'd check for a specific role/claim.
-      return request.auth != null;
-    }
-
-    match /submissions/{submissionId} {
-        // Admins can read and write any submission.
-        allow read, write: if isAdmin();
-
-        // The public can read documents (get and list) ONLY if they are winners.
-        // This rule allows the public /winners page to query for all winner documents.
-        allow read: if resource.data.isWinner == true;
+      // Public can only read documents where isWinner is true
+      allow get: if resource.data.isWinner == true;
+      allow list: if query.where('isWinner', '==', true);
     }
   }
 }
