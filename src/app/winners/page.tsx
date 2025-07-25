@@ -1,44 +1,50 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import type { Submission, Competition } from "@/types";
 import { Header } from "@/components/header";
 import { getFirestore, collection, getDocs, query, where, Timestamp } from "firebase/firestore";
 import { app } from "@/lib/firebase";
-import { Loader2, Trophy, Award, Camera, Gift, Tv, User, ExternalLink } from "lucide-react";
+import { Loader2, Trophy, Award, Camera, Gift, Tv } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import Link from "next/link";
-import Image from "next/image";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { ExternalLink } from "lucide-react";
 
-// We need a version of the competitions data available on the client
-// to map icons and other details.
-const competitionsData: Omit<Competition, 'deadline'>[] = [
+
+const competitionsData: Omit<Competition, 'deadline' | 'status'>[] = [
   {
     id: "follow-win",
     name: "Follow & Win",
     description: "Follow your school's social media and submit a screenshot to win daily prizes.",
-    icon: <Gift className="w-8 h-8 text-primary" />,
+    icon: "Gift",
   },
   {
     id: "reel-it-feel-it",
     name: "Reel It. Feel It.",
     description: "Create an Instagram Reel about your first days at LPU.",
-    icon: <Tv className="w-8 h-8 text-primary" />,
+    icon: "Tv",
   },
   {
     id: "my-first-day",
     name: "My First Day at LPU",
     description: "Take a selfie at the official Selfie Point and post it on Instagram.",
-    icon: <Camera className="w-8 h-8 text-primary" />,
+    icon: "Camera",
   },
 ];
 
 const getCompetitionIcon = (id: string) => {
     const competition = competitionsData.find(c => c.id === id);
-    return competition?.icon || <Trophy className="w-8 h-8 text-primary" />;
+    const iconName = competition?.icon || "Trophy";
+    
+    switch(iconName) {
+        case "Gift": return <Gift className="w-8 h-8 text-primary" />;
+        case "Tv": return <Tv className="w-8 h-8 text-primary" />;
+        case "Camera": return <Camera className="w-8 h-8 text-primary" />;
+        default: return <Trophy className="w-8 h-8 text-primary" />;
+    }
 }
 
 export default function WinnersPage() {
@@ -99,21 +105,11 @@ export default function WinnersPage() {
             ) : (
                 <div className="flex flex-1 gap-8 items-stretch -mb-8">
                     {Object.entries(groupedWinners).map(([competitionName, competitionWinners]) => (
-                        <div key={competitionName} className="flex flex-col flex-1 min-w-0">
-                             <div className="flex items-center gap-4 mb-6">
-                                <div className="p-3 bg-card rounded-xl">
-                                    {getCompetitionIcon(competitionWinners[0].competitionId)}
-                                </div>
-                                <h2 className="text-3xl font-bold font-headline truncate">{competitionName}</h2>
-                            </div>
-                            <ScrollArea className="flex-grow h-0 pr-4">
-                                <div className="space-y-4 pb-8">
-                                    {competitionWinners.map(winner => (
-                                        <WinnerCard key={winner.id} winner={winner} />
-                                    ))}
-                                </div>
-                            </ScrollArea>
-                        </div>
+                        <AutoScrollingWinnerList 
+                            key={competitionName}
+                            competitionName={competitionName}
+                            winners={competitionWinners}
+                        />
                     ))}
                 </div>
             )}
@@ -121,6 +117,62 @@ export default function WinnersPage() {
       </main>
     </div>
   );
+}
+
+function AutoScrollingWinnerList({ competitionName, winners }: { competitionName: string, winners: Submission[] }) {
+    const scrollRef = useRef<HTMLDivElement>(null);
+    const isHovering = useRef(false);
+
+    useEffect(() => {
+        const scrollElement = scrollRef.current;
+        if (!scrollElement) return;
+
+        let scrollInterval: NodeJS.Timeout;
+
+        const startScrolling = () => {
+            scrollInterval = setInterval(() => {
+                if (!isHovering.current && scrollElement) {
+                    if (scrollElement.scrollTop >= scrollElement.scrollHeight - scrollElement.clientHeight -1) {
+                        scrollElement.scrollTop = 0;
+                    } else {
+                        scrollElement.scrollTop += 1;
+                    }
+                }
+            }, 50); 
+        };
+
+        startScrolling();
+
+        return () => clearInterval(scrollInterval);
+    }, [winners]);
+
+    return (
+        <div 
+            className="flex flex-col flex-1 min-w-0"
+            onMouseEnter={() => { isHovering.current = true; }}
+            onMouseLeave={() => { isHovering.current = false; }}
+        >
+            <div className="flex items-center gap-4 mb-6">
+                <div className="p-3 bg-card rounded-xl">
+                    {getCompetitionIcon(winners[0].competitionId)}
+                </div>
+                <h2 className="text-3xl font-bold font-headline truncate">{competitionName}</h2>
+            </div>
+            <ScrollArea className="flex-grow h-0 pr-4" viewportRef={scrollRef}>
+                <div className="space-y-4 pb-8">
+                    {winners.map(winner => (
+                        <WinnerCard key={winner.id} winner={winner} />
+                    ))}
+                    {/* Duplicate cards to create a seamless loop illusion if list is short */}
+                    {winners.length > 0 && winners.length < 5 && (
+                        winners.map(winner => (
+                            <WinnerCard key={`${winner.id}-clone`} winner={winner} />
+                        ))
+                    )}
+                </div>
+            </ScrollArea>
+        </div>
+    );
 }
 
 function WinnerCard({ winner }: { winner: Submission }) {
@@ -152,8 +204,6 @@ function WinnerCard({ winner }: { winner: Submission }) {
             <CardHeader>
                 <div className="flex items-center gap-4">
                     <Avatar>
-                        {/* If we had profile images, they would go here */}
-                        {/* <AvatarImage src="https://github.com/shadcn.png" /> */}
                         <AvatarFallback className="bg-primary/20 text-primary font-bold">{avatarFallback}</AvatarFallback>
                     </Avatar>
                     <div>
