@@ -151,7 +151,6 @@ function AutoScrollingWinnerList({ competitionName, winners }: { competitionName
     const contentRef = useRef<HTMLDivElement>(null);
     const isHovering = useRef(false);
     
-    // Only duplicate the list if it's long enough to need scrolling.
     const shouldLoop = winners.length > 3; 
     const displayWinners = shouldLoop ? [...winners, ...winners] : winners;
 
@@ -165,8 +164,6 @@ function AutoScrollingWinnerList({ competitionName, winners }: { competitionName
         const startScrolling = () => {
             scrollInterval = setInterval(() => {
                 if (!isHovering.current && scrollElement) {
-                    // When the scroll reaches the halfway point (the start of the duplicated content),
-                    // reset to the top to create a seamless loop.
                     if (scrollElement.scrollTop >= contentElement.scrollHeight / 2) {
                         scrollElement.scrollTop = 0;
                     } else {
