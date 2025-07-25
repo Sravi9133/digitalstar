@@ -3,21 +3,20 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper function to check if the user is an authenticated admin
     function isAdmin() {
-      return request.auth != null; // For this demo, any authenticated user is an admin.
+      // For this demo, any authenticated user is an admin.
+      // In a real app, you'd check for a specific role or claim.
+      return request.auth != null;
     }
 
     match /submissions/{submissionId} {
-      // Admins can read and write any submission document
+      // Admins can perform any action.
       allow read, write: if isAdmin();
       
-      // Public users can list documents only if the query is for winners.
-      // This rule allows the public winners page to fetch data.
+      // The public can read documents from the 'submissions' collection
+      // ONLY if the query is specifically filtering for winners.
+      // This allows the public winners page to work without exposing other data.
       allow list: if request.query.where.isWinner == true;
-
-      // Public users can get a single document if it's a winner.
-      // This is a good fallback and allows direct linking to a winner if needed.
       allow get: if resource.data.isWinner == true;
     }
   }
