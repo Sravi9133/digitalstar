@@ -106,7 +106,7 @@ export default function WinnersPage() {
             ) : (
               <div className="flex-1 min-h-0 flex flex-col">
                 {/* Desktop Layout: Columns */}
-                <div className="hidden md:flex flex-1 min-h-0 gap-8 items-stretch">
+                <div className="hidden md:flex flex-1 min-h-0 gap-8 items-stretch h-[70vh]">
                     {Object.entries(groupedWinners).map(([competitionName, competitionWinners]) => (
                         <AutoScrollingWinnerList 
                             key={competitionName}
