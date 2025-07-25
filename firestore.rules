@@ -1,16 +1,30 @@
+
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Default deny all access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Rules for the 'submissions' collection
     match /submissions/{submissionId} {
-      // 1. Admins (authenticated users) can do anything.
+      // Authenticated users (admins) have full access
       allow read, write: if request.auth != null;
-      
-      // 2. The public can create submissions.
+
+      // Anyone can create a new submission
       allow create: if true;
 
-      // 3. The public can read documents, but ONLY if they are winners.
-      // This rule is specifically for the public winners page.
-      allow list, get: if resource.data.isWinner == true;
+      // Anyone can GET a single document if it's a winner
+      allow get: if resource.data.isWinner == true;
+    }
+    
+    // Rule for LISTING/querying the submissions collection
+    match /submissions/{submissionId} {
+        // Anyone can LIST documents, but ONLY if they are querying for winners.
+        // This is what makes the public winners page work.
+        allow list: if request.query.where.isWinner == true;
     }
   }
 }
