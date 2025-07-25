@@ -18,7 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 const competitionsData: Omit<Competition, 'deadline' | 'status'>[] = [
   {
     id: "follow-win",
-    name: "Follow & Win",
+    name: "Follow & Win (Daily winner)",
     description: "Follow your school's social media and submit a screenshot to win daily prizes.",
     icon: "Gift",
   },
@@ -74,7 +74,8 @@ export default function WinnersPage() {
     }, []);
 
     const groupedWinners = winners.reduce((acc, winner) => {
-        const { competitionName } = winner;
+        const competition = competitionsData.find(c => c.id === winner.competitionId);
+        const competitionName = competition?.name || winner.competitionName;
         if (!acc[competitionName]) {
             acc[competitionName] = [];
         }

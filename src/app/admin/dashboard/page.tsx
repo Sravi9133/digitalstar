@@ -12,7 +12,7 @@ import { getFirestore, collection, getDocs, Timestamp, doc, updateDoc, query, wh
 import { Loader2 } from "lucide-react";
 
 const competitionDisplayNames: { [key: string]: string } = {
-  "follow-win": "Follow & Win",
+  "follow-win": "Follow & Win (Daily winner)",
   "reel-it-feel-it": "Reel It. Feel It.",
   "my-first-day": "My First Day at LPU",
 };

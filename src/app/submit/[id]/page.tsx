@@ -11,7 +11,7 @@ import { Header } from "@/components/header";
 const competitionsData: Omit<Competition, 'deadline'>[] = [
   {
     id: "follow-win",
-    name: "Follow & Win",
+    name: "Follow & Win (Daily winner)",
     description: "Follow your school's social media and submit a screenshot to win daily prizes.",
     icon: <Gift className="w-8 h-8 text-primary" />,
   },
