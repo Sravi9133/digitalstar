@@ -86,8 +86,8 @@ export default function WinnersPage() {
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-background via-background to-primary/10">
       <Header />
-      <main className="flex-grow flex flex-col">
-        <section className="container mx-auto px-4 py-12 md:py-20 flex flex-col flex-grow">
+      <main className="flex-grow">
+        <section className="container mx-auto px-4 py-12 md:py-20">
             <div className="text-center mb-12">
                 <Trophy className="w-16 h-16 mx-auto text-primary animate-pulse" />
                 <h1 className="text-4xl md:text-5xl font-bold font-headline mt-4">Hall of Fame</h1>
@@ -99,14 +99,14 @@ export default function WinnersPage() {
                     <Loader2 className="h-12 w-12 animate-spin text-primary" />
                 </div>
             ) : Object.keys(groupedWinners).length === 0 ? (
-                <div className="text-center py-20 flex-grow">
+                <div className="text-center py-20">
                     <p className="text-xl text-muted-foreground">No winners have been announced yet.</p>
                     <p className="mt-2">Check back soon!</p>
                 </div>
             ) : (
-              <div className="flex-1 min-h-0 flex flex-col">
+              <div>
                 {/* Desktop Layout: Columns */}
-                <div className="hidden md:flex flex-1 min-h-0 gap-8 items-stretch h-[70vh]">
+                <div className="hidden md:flex gap-8 h-[70vh]">
                     {Object.entries(groupedWinners).map(([competitionName, competitionWinners]) => (
                         <AutoScrollingWinnerList 
                             key={competitionName}
@@ -184,7 +184,7 @@ function AutoScrollingWinnerList({ competitionName, winners }: { competitionName
             onMouseEnter={() => { isHovering.current = true; }}
             onMouseLeave={() => { isHovering.current = false; }}
         >
-            <div className="hidden md:flex items-center gap-4 mb-6">
+            <div className="flex items-center gap-4 mb-6">
                 <div className="p-3 bg-card rounded-xl">
                     {getCompetitionIcon(winners[0].competitionId)}
                 </div>
