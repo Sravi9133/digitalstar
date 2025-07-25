@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import Link from "next/link";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ExternalLink } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 
 const competitionsData: Omit<Competition, 'deadline' | 'status'>[] = [
@@ -103,7 +104,9 @@ export default function WinnersPage() {
                     <p className="mt-2">Check back soon!</p>
                 </div>
             ) : (
-                <div className="flex flex-1 gap-8 items-stretch -mb-8">
+              <>
+                {/* Desktop Layout: Columns */}
+                <div className="hidden md:flex flex-1 gap-8 items-stretch -mb-8">
                     {Object.entries(groupedWinners).map(([competitionName, competitionWinners]) => (
                         <AutoScrollingWinnerList 
                             key={competitionName}
@@ -112,6 +115,30 @@ export default function WinnersPage() {
                         />
                     ))}
                 </div>
+
+                {/* Mobile Layout: Tabs */}
+                <div className="md:hidden">
+                  <Tabs defaultValue={Object.keys(groupedWinners)[0]} className="w-full">
+                    <TabsList className="grid w-full grid-cols-1 h-auto sm:grid-cols-3">
+                       {Object.keys(groupedWinners).map((competitionName) => (
+                           <TabsTrigger key={competitionName} value={competitionName} className="truncate">
+                            {competitionName}
+                           </TabsTrigger>
+                       ))}
+                    </TabsList>
+                    {Object.entries(groupedWinners).map(([competitionName, competitionWinners]) => (
+                        <TabsContent key={competitionName} value={competitionName}>
+                           <div className="h-[60vh] mt-4">
+                             <AutoScrollingWinnerList 
+                                competitionName={competitionName}
+                                winners={competitionWinners}
+                             />
+                           </div>
+                        </TabsContent>
+                    ))}
+                  </Tabs>
+                </div>
+              </>
             )}
         </section>
       </main>
@@ -156,11 +183,11 @@ function AutoScrollingWinnerList({ competitionName, winners }: { competitionName
 
     return (
         <div 
-            className="flex flex-col flex-1 min-w-0"
+            className="flex flex-col flex-1 min-w-0 h-full"
             onMouseEnter={() => { isHovering.current = true; }}
             onMouseLeave={() => { isHovering.current = false; }}
         >
-            <div className="flex items-center gap-4 mb-6">
+            <div className="hidden md:flex items-center gap-4 mb-6">
                 <div className="p-3 bg-card rounded-xl">
                     {getCompetitionIcon(winners[0].competitionId)}
                 </div>
@@ -222,9 +249,11 @@ function WinnerCard({ winner }: { winner: Submission }) {
                     <p className="text-xs text-muted-foreground">{winner.submittedAt.toLocaleDateString()}</p>
                 </div>
             </CardContent>
-            <CardFooter>
-                {renderSubmissionLink()}
-            </CardFooter>
+            {renderSubmissionLink() && 
+                <CardFooter>
+                    {renderSubmissionLink()}
+                </CardFooter>
+            }
         </Card>
     )
 }
