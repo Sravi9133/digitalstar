@@ -121,18 +121,26 @@ export default function WinnersPage() {
 
 function AutoScrollingWinnerList({ competitionName, winners }: { competitionName: string, winners: Submission[] }) {
     const scrollRef = useRef<HTMLDivElement>(null);
+    const contentRef = useRef<HTMLDivElement>(null);
     const isHovering = useRef(false);
+    
+    // Only duplicate the list if it's long enough to need scrolling.
+    const shouldLoop = winners.length > 3; 
+    const displayWinners = shouldLoop ? [...winners, ...winners] : winners;
 
     useEffect(() => {
         const scrollElement = scrollRef.current;
-        if (!scrollElement) return;
+        const contentElement = contentRef.current;
+        if (!scrollElement || !contentElement || !shouldLoop) return;
 
         let scrollInterval: NodeJS.Timeout;
 
         const startScrolling = () => {
             scrollInterval = setInterval(() => {
                 if (!isHovering.current && scrollElement) {
-                    if (scrollElement.scrollTop >= scrollElement.scrollHeight - scrollElement.clientHeight -1) {
+                    // When the scroll reaches the halfway point (the start of the duplicated content),
+                    // reset to the top to create a seamless loop.
+                    if (scrollElement.scrollTop >= contentElement.scrollHeight / 2) {
                         scrollElement.scrollTop = 0;
                     } else {
                         scrollElement.scrollTop += 1;
@@ -144,7 +152,7 @@ function AutoScrollingWinnerList({ competitionName, winners }: { competitionName
         startScrolling();
 
         return () => clearInterval(scrollInterval);
-    }, [winners]);
+    }, [winners, shouldLoop]);
 
     return (
         <div 
@@ -159,16 +167,10 @@ function AutoScrollingWinnerList({ competitionName, winners }: { competitionName
                 <h2 className="text-3xl font-bold font-headline truncate">{competitionName}</h2>
             </div>
             <ScrollArea className="flex-grow h-0 pr-4" viewportRef={scrollRef}>
-                <div className="space-y-4 pb-8">
-                    {winners.map(winner => (
-                        <WinnerCard key={winner.id} winner={winner} />
+                <div className="space-y-4 pb-8" ref={contentRef}>
+                    {displayWinners.map((winner, index) => (
+                        <WinnerCard key={`${winner.id}-${index}`} winner={winner} />
                     ))}
-                    {/* Duplicate cards to create a seamless loop illusion if list is short */}
-                    {winners.length > 0 && winners.length < 5 && (
-                        winners.map(winner => (
-                            <WinnerCard key={`${winner.id}-clone`} winner={winner} />
-                        ))
-                    )}
                 </div>
             </ScrollArea>
         </div>
