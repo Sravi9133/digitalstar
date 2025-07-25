@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -231,6 +232,20 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
                  </Card>
             )}
 
+            <Card className="bg-muted/50 p-4 flex flex-col items-center justify-center gap-2">
+                <p className="text-sm text-muted-foreground -mt-1 mb-1">And please follow both subreddits:</p>
+                <Button asChild variant="link">
+                    <Link href="https://www.reddit.com/r/btech_/" target="_blank">
+                        r/btech_ <ExternalLink className="ml-2 h-4 w-4" />
+                    </Link>
+                </Button>
+                <Button asChild variant="link">
+                    <Link href="https://www.reddit.com/r/Lpu_/" target="_blank">
+                        r/Lpu_ <ExternalLink className="ml-2 h-4 w-4" />
+                    </Link>
+                </Button>
+            </Card>
+
             <FormField
               control={form.control}
               name="followedSubreddit"
@@ -244,7 +259,7 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
                   </FormControl>
                   <div className="space-y-1 leading-none">
                     <FormLabel>
-                      Followed Subreddit
+                      Followed Subreddits
                     </FormLabel>
                     <FormDescription>
                       Please confirm you have followed both subreddits.
@@ -254,20 +269,6 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
                 </FormItem>
               )}
             />
-
-            <Card className="bg-muted/50 p-4 flex flex-col items-center justify-center gap-2">
-                <Button asChild variant="link">
-                    <Link href="https://www.reddit.com/r/btech_/" target="_blank">
-                        r/btech_ <ExternalLink className="ml-2 h-4 w-4" />
-                    </Link>
-                </Button>
-                <Button asChild variant="link">
-                    <Link href="https://www.reddit.com/r/Lpu_/" target="_blank">
-                        r/Lpu_ <ExternalLink className="ml-2 h-4 w-4" />
-                    </Link>
-                </Button>
-            </Card>
-
 
             <Button type="submit" disabled={isSubmitting || !selectedSchoolUrl || schools.length === 0} className="w-full font-bold text-lg py-6">
               {isSubmitting ? (
