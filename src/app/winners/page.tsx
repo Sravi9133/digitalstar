@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 import Image from "next/image";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 // We need a version of the competitions data available on the client
 // to map icons and other details.
@@ -78,8 +79,8 @@ export default function WinnersPage() {
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-background via-background to-primary/10">
       <Header />
-      <main className="flex-grow">
-        <section className="container mx-auto px-4 py-12 md:py-20">
+      <main className="flex-grow flex flex-col">
+        <section className="container mx-auto px-4 py-12 md:py-20 flex flex-col flex-grow">
             <div className="text-center mb-12">
                 <Trophy className="w-16 h-16 mx-auto text-primary animate-pulse" />
                 <h1 className="text-4xl md:text-5xl font-bold font-headline mt-4">Hall of Fame</h1>
@@ -87,29 +88,31 @@ export default function WinnersPage() {
             </div>
 
             {isLoading ? (
-                <div className="flex items-center justify-center py-20">
+                <div className="flex items-center justify-center flex-grow">
                     <Loader2 className="h-12 w-12 animate-spin text-primary" />
                 </div>
             ) : Object.keys(groupedWinners).length === 0 ? (
-                <div className="text-center py-20">
+                <div className="text-center py-20 flex-grow">
                     <p className="text-xl text-muted-foreground">No winners have been announced yet.</p>
                     <p className="mt-2">Check back soon!</p>
                 </div>
             ) : (
-                <div className="space-y-12">
+                <div className="flex flex-1 gap-8 items-stretch -mb-8">
                     {Object.entries(groupedWinners).map(([competitionName, competitionWinners]) => (
-                        <div key={competitionName}>
-                            <div className="flex items-center gap-4 mb-6">
+                        <div key={competitionName} className="flex flex-col flex-1 min-w-0">
+                             <div className="flex items-center gap-4 mb-6">
                                 <div className="p-3 bg-card rounded-xl">
                                     {getCompetitionIcon(competitionWinners[0].competitionId)}
                                 </div>
-                                <h2 className="text-3xl font-bold font-headline">{competitionName}</h2>
+                                <h2 className="text-3xl font-bold font-headline truncate">{competitionName}</h2>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                                {competitionWinners.map(winner => (
-                                    <WinnerCard key={winner.id} winner={winner} />
-                                ))}
-                            </div>
+                            <ScrollArea className="flex-grow h-0 pr-4">
+                                <div className="space-y-4 pb-8">
+                                    {competitionWinners.map(winner => (
+                                        <WinnerCard key={winner.id} winner={winner} />
+                                    ))}
+                                </div>
+                            </ScrollArea>
                         </div>
                     ))}
                 </div>
