@@ -5,20 +5,18 @@ service cloud.firestore {
 
     // Helper function to check if the user is an authenticated admin
     function isAdmin() {
-      return request.auth != null; // For this demo, any authenticated user is an admin.
-                                   // In a real app, you'd check for a specific role/claim.
+      // For this demo, any authenticated user is an admin.
+      // In a real app, you'd check for a specific role/claim.
+      return request.auth != null; 
     }
 
     match /submissions/{submissionId} {
-      // Admins can perform any action on any submission document.
-      allow read, write: if isAdmin();
-      
-      // Public users can GET a single document if it's a winner.
-      allow get: if resource.data.isWinner == true;
+      // Admins can write any submission document
+      allow write: if isAdmin();
 
-      // Public users can LIST documents only if they are querying for winners.
-      // This allows the public winners page to function.
-      allow list: if isAdmin() || (request.query.limit <= 100 && request.query.filters.size() == 1 && request.query.filters[0].field == "isWinner" && request.query.filters[0].operator == "==" && request.query.filters[0].value == true);
+      // Admins can read any submission
+      // The public can only read documents that are winners
+      allow read: if isAdmin() || (resource.data.isWinner == true && request.query.where.isWinner == true);
     }
   }
 }
