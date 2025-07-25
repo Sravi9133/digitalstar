@@ -1,3 +1,4 @@
+
 import Link from "next/link";
 import Image from "next/image";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,7 +10,7 @@ import { Header } from "@/components/header";
 const competitions: Competition[] = [
   {
     id: "follow-win",
-    name: "Follow & Win",
+    name: "Follow & Win (Daily winner)",
     description: "Follow your school's social media and submit a screenshot to win daily prizes. Every day, we’ll pick lucky winners from valid entries for a chance to win LPU goodies!",
     deadline: new Date("2025-09-30T23:59:59"),
     icon: <Gift className="w-8 h-8 text-primary" />,
