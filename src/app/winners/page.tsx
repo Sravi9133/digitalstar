@@ -6,13 +6,15 @@ import type { Submission, Competition } from "@/types";
 import { Header } from "@/components/header";
 import { getFirestore, collection, getDocs, query, where, Timestamp } from "firebase/firestore";
 import { app } from "@/lib/firebase";
-import { Loader2, Trophy, Award, Camera, Gift, Tv } from "lucide-react";
+import { Loader2, Trophy, Award, Camera, Gift, Tv, ChevronLeft, ChevronRight, Users } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import Link from "next/link";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ExternalLink } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { format, startOfDay, addDays, subDays, isToday } from "date-fns";
 
 
 const competitionsData: Omit<Competition, 'deadline' | 'status'>[] = [
@@ -73,7 +75,10 @@ export default function WinnersPage() {
         fetchWinners();
     }, []);
 
-    const groupedWinners = winners.reduce((acc, winner) => {
+    const followWinWinners = winners.filter(w => w.competitionId === 'follow-win');
+    const otherWinners = winners.filter(w => w.competitionId !== 'follow-win');
+
+    const groupedOtherWinners = otherWinners.reduce((acc, winner) => {
         const competition = competitionsData.find(c => c.id === winner.competitionId);
         const competitionName = competition?.name || winner.competitionName;
         if (!acc[competitionName]) {
@@ -87,8 +92,8 @@ export default function WinnersPage() {
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-background via-background to-primary/10">
       <Header />
-      <main className="flex-grow">
-        <section className="container mx-auto px-4 py-12 md:py-20">
+      <main className="flex-grow flex flex-col">
+        <section className="container mx-auto px-4 py-12 md:py-20 flex-grow flex flex-col">
             <div className="text-center mb-12">
                 <Trophy className="w-16 h-16 mx-auto text-primary animate-pulse" />
                 <h1 className="text-4xl md:text-5xl font-bold font-headline mt-4">Hall of Fame</h1>
@@ -99,16 +104,21 @@ export default function WinnersPage() {
                 <div className="flex items-center justify-center flex-grow">
                     <Loader2 className="h-12 w-12 animate-spin text-primary" />
                 </div>
-            ) : Object.keys(groupedWinners).length === 0 ? (
-                <div className="text-center py-20">
-                    <p className="text-xl text-muted-foreground">No winners have been announced yet.</p>
-                    <p className="mt-2">Check back soon!</p>
+            ) : winners.length === 0 ? (
+                <div className="text-center py-20 flex-grow flex items-center justify-center">
+                    <div>
+                        <p className="text-xl text-muted-foreground">No winners have been announced yet.</p>
+                        <p className="mt-2">Check back soon!</p>
+                    </div>
                 </div>
             ) : (
-              <div>
+              <div className="flex-grow">
                 {/* Desktop Layout: Columns */}
-                <div className="hidden md:flex gap-8 h-[70vh]">
-                    {Object.entries(groupedWinners).map(([competitionName, competitionWinners]) => (
+                <div className="hidden md:flex gap-8 h-full">
+                    {followWinWinners.length > 0 && (
+                        <FollowAndWinWinners winners={followWinWinners} />
+                    )}
+                    {Object.entries(groupedOtherWinners).map(([competitionName, competitionWinners]) => (
                         <AutoScrollingWinnerList 
                             key={competitionName}
                             competitionName={competitionName}
@@ -119,24 +129,36 @@ export default function WinnersPage() {
 
                 {/* Mobile Layout: Tabs */}
                 <div className="md:hidden">
-                  <Tabs defaultValue={Object.keys(groupedWinners)[0]} className="w-full">
-                    <TabsList className="grid w-full grid-cols-1 h-auto sm:grid-cols-3">
-                       {Object.keys(groupedWinners).map((competitionName) => (
-                           <TabsTrigger key={competitionName} value={competitionName} className="truncate">
-                            {competitionName}
-                           </TabsTrigger>
-                       ))}
-                    </TabsList>
-                    {Object.entries(groupedWinners).map(([competitionName, competitionWinners]) => (
-                        <TabsContent key={competitionName} value={competitionName}>
-                           <div className="h-[60vh] mt-4">
-                             <AutoScrollingWinnerList 
-                                competitionName={competitionName}
-                                winners={competitionWinners}
-                             />
-                           </div>
-                        </TabsContent>
-                    ))}
+                    <Tabs defaultValue={followWinWinners.length > 0 ? "follow-win" : Object.keys(groupedOtherWinners)[0]} className="w-full">
+                        <TabsList className="grid w-full grid-cols-1 h-auto sm:grid-cols-3">
+                            {followWinWinners.length > 0 && (
+                                <TabsTrigger value="follow-win">Follow & Win</TabsTrigger>
+                            )}
+                           {Object.keys(groupedOtherWinners).map((competitionName) => (
+                               <TabsTrigger key={competitionName} value={competitionName} className="truncate">
+                                {competitionName}
+                               </TabsTrigger>
+                           ))}
+                        </TabsList>
+
+                        {followWinWinners.length > 0 && (
+                             <TabsContent value="follow-win">
+                                <div className="mt-4">
+                                  <FollowAndWinWinners winners={followWinWinners} />
+                                </div>
+                             </TabsContent>
+                        )}
+                        
+                        {Object.entries(groupedOtherWinners).map(([competitionName, competitionWinners]) => (
+                            <TabsContent key={competitionName} value={competitionName}>
+                               <div className="h-[60vh] mt-4">
+                                 <AutoScrollingWinnerList 
+                                    competitionName={competitionName}
+                                    winners={competitionWinners}
+                                 />
+                               </div>
+                            </TabsContent>
+                        ))}
                   </Tabs>
                 </div>
               </div>
@@ -145,6 +167,69 @@ export default function WinnersPage() {
       </main>
     </div>
   );
+}
+
+function FollowAndWinWinners({ winners }: { winners: Submission[] }) {
+    const [currentDate, setCurrentDate] = useState(startOfDay(new Date()));
+
+    const winnersByDate = winners.reduce((acc, winner) => {
+        const date = startOfDay(winner.submittedAt).toISOString();
+        if (!acc[date]) {
+            acc[date] = [];
+        }
+        acc[date].push(winner);
+        return acc;
+    }, {} as Record<string, Submission[]>);
+
+    const winnersForCurrentDate = winnersByDate[currentDate.toISOString()] || [];
+    
+    return (
+        <div className="flex flex-col flex-1 min-w-0 h-full">
+             <div className="flex items-center gap-4 mb-6">
+                <div className="p-3 bg-card rounded-xl">
+                    {getCompetitionIcon('follow-win')}
+                </div>
+                <h2 className="text-3xl font-bold font-headline truncate">{competitionsData.find(c=>c.id === 'follow-win')?.name}</h2>
+            </div>
+            
+            <Card className="mb-4">
+                <CardHeader className="flex-row items-center justify-between p-4">
+                     <CardTitle className="text-lg">Total Winners</CardTitle>
+                     <div className="flex items-center gap-2">
+                         <Users className="w-6 h-6 text-primary"/>
+                         <span className="text-2xl font-bold">{winners.length}</span>
+                     </div>
+                </CardHeader>
+            </Card>
+
+            <div className="flex items-center justify-between mb-4">
+                <Button variant="outline" size="icon" onClick={() => setCurrentDate(subDays(currentDate, 1))}>
+                    <ChevronLeft className="h-4 w-4"/>
+                </Button>
+                <div className="text-center">
+                    <h3 className="font-semibold">{format(currentDate, "MMMM d, yyyy")}</h3>
+                    <p className="text-sm text-muted-foreground">{isToday(currentDate) ? "Today" : ""}</p>
+                </div>
+                 <Button variant="outline" size="icon" onClick={() => setCurrentDate(addDays(currentDate, 1))} disabled={isToday(currentDate)}>
+                    <ChevronRight className="h-4 w-4"/>
+                </Button>
+            </div>
+
+            <ScrollArea className="flex-grow pr-4">
+                <div className="space-y-4 pb-8">
+                {winnersForCurrentDate.length > 0 ? (
+                    winnersForCurrentDate.map((winner) => (
+                        <WinnerCard key={winner.id} winner={winner} />
+                    ))
+                ) : (
+                    <div className="text-center py-16">
+                        <p className="text-muted-foreground">No winners were announced on this day.</p>
+                    </div>
+                )}
+                </div>
+            </ScrollArea>
+        </div>
+    );
 }
 
 function AutoScrollingWinnerList({ competitionName, winners }: { competitionName: string, winners: Submission[] }) {
@@ -255,3 +340,5 @@ function WinnerCard({ winner }: { winner: Submission }) {
         </Card>
     )
 }
+
+    
