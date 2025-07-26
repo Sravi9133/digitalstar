@@ -85,6 +85,8 @@ export function DashboardClient({ submissions, stats, onMarkAsWinner, reelItFeel
         let headers;
         if (competitionId === 'follow-win') {
             headers = ["competitionName", "submittedAt", "registrationId", "instagramHandle", "school", "isWinner", "refSource"];
+        } else if (competitionId === 'reel-it-feel-it') {
+            headers = ["competitionName", "submittedAt", "registrationId", "postLink", "redditPostLink", "isWinner", "rank", "refSource"];
         }
         downloadAsXLSX(competitionSubmissions, competitionName.replace(/ /g, "_"), headers);
     }
@@ -386,6 +388,8 @@ function SubmissionsTable({ submissions, onMarkAsWinner, competitionId }: Submis
     </Table>
   );
 }
+
+    
 
     
 
