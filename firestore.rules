@@ -1,9 +1,6 @@
-
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Rules for the submissions collection
     match /submissions/{submissionId} {
       // 1. Admins (authenticated users) can do anything.
       allow read, write: if request.auth != null;
@@ -16,14 +13,12 @@ service cloud.firestore {
       allow list, get: if resource.data.isWinner == true;
     }
 
-    // Rules for the competition metadata collection
     match /competition_meta/{competitionId} {
-      // 1. Admins can read and write competition metadata (e.g., set announcement dates).
-      allow read, write: if request.auth != null;
+      // Allow public read access for the winners page
+      allow get: if true;
 
-      // 2. The public can read competition metadata. This is needed for the winners page
-      // to check for an announcement date.
-      allow get, list: if true;
+      // Only allow admins (authenticated users) to write
+      allow write: if request.auth != null;
     }
   }
 }
