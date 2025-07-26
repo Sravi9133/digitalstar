@@ -35,3 +35,9 @@ export type Submission = {
   postLink?: string;
   redditPostLink?: string;
 };
+
+export interface CompetitionMeta {
+  resultAnnouncementDate: Date;
+}
+
+    

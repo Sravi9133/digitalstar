@@ -1,14 +1,14 @@
 
 "use client";
 
-import type { Submission } from "@/types";
+import type { Submission, CompetitionMeta } from "@/types";
 import { DashboardClient } from "./dashboard-client";
 import { Header } from "@/components/header";
 import { useAuth } from "@/hooks/use-auth";
 import { useRouter } from "next/navigation";
 import { auth, app } from "@/lib/firebase";
 import { useEffect, useState } from "react";
-import { getFirestore, collection, getDocs, Timestamp, doc, updateDoc, query, where, getDoc, serverTimestamp } from "firebase/firestore";
+import { getFirestore, collection, getDocs, Timestamp, doc, updateDoc, query, where, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import { Loader2 } from "lucide-react";
 
 const competitionDisplayNames: { [key: string]: string } = {
@@ -20,9 +20,10 @@ const competitionDisplayNames: { [key: string]: string } = {
 function DashboardPageContent() {
     const [submissions, setSubmissions] = useState<Submission[]>([]);
     const [isLoadingData, setIsLoadingData] = useState(true);
+    const [reelItFeelItMeta, setReelItFeelItMeta] = useState<CompetitionMeta | null>(null);
     const db = getFirestore(app);
 
-    const fetchSubmissions = async () => {
+    const fetchData = async () => {
         setIsLoadingData(true);
         const submissionsCol = collection(db, "submissions");
         const submissionSnapshot = await getDocs(submissionsCol);
@@ -35,12 +36,38 @@ function DashboardPageContent() {
             } as Submission;
         }).sort((a, b) => b.submittedAt.getTime() - a.submittedAt.getTime());
         setSubmissions(submissionList);
+
+        // Fetch competition meta
+        const metaRef = doc(db, "competition_meta", "reel-it-feel-it");
+        const metaSnap = await getDoc(metaRef);
+        if (metaSnap.exists()) {
+            const data = metaSnap.data();
+            setReelItFeelItMeta({
+                ...data,
+                resultAnnouncementDate: (data.resultAnnouncementDate as Timestamp).toDate(),
+            } as CompetitionMeta);
+        } else {
+            setReelItFeelItMeta(null);
+        }
+
         setIsLoadingData(false);
     };
 
     useEffect(() => {
-        fetchSubmissions();
+        fetchData();
     }, []);
+
+    const handleSetReelItFeelItDate = async (date: Date): Promise<{success: boolean, message: string}> => {
+        try {
+            const metaRef = doc(db, "competition_meta", "reel-it-feel-it");
+            await setDoc(metaRef, { resultAnnouncementDate: Timestamp.fromDate(date) });
+            await fetchData(); // Refetch data to update UI
+            return { success: true, message: "Announcement date set successfully." };
+        } catch (error) {
+            console.error("Error setting announcement date: ", error);
+            return { success: false, message: "Failed to set announcement date." };
+        }
+    }
 
     const handleMarkAsWinner = async (submission: Submission, rank?: 1 | 2 | 3): Promise<{success: boolean, message: string}> => {
         // For "Follow & Win", check if the user has already won
@@ -72,7 +99,7 @@ function DashboardPageContent() {
             await updateDoc(submissionRef, updateData);
             
             // Refetch data to update UI
-            await fetchSubmissions(); 
+            await fetchData(); 
             return { success: true, message: "Successfully marked as winner." };
         } catch (error) {
             console.error("Error marking as winner: ", error);
@@ -104,7 +131,13 @@ function DashboardPageContent() {
     <div className="flex flex-col min-h-screen">
     <Header />
     <main className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-        <DashboardClient submissions={submissions} stats={stats} onMarkAsWinner={handleMarkAsWinner} />
+        <DashboardClient 
+            submissions={submissions} 
+            stats={stats} 
+            onMarkAsWinner={handleMarkAsWinner} 
+            reelItFeelItMeta={reelItFeelItMeta}
+            onSetReelItFeelItDate={handleSetReelItFeelItDate}
+        />
     </main>
     </div>
   );
@@ -131,3 +164,5 @@ export default function DashboardPage() {
 
     return <DashboardPageContent />;
 }
+
+    

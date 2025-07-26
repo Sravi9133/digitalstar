@@ -1,16 +1,20 @@
 
 "use client";
 
-import type { Submission } from "@/types";
+import type { CompetitionMeta, Submission } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { BarChart, Download, Users, Trophy, Award, ChevronDown } from "lucide-react";
+import { BarChart, Download, Users, Trophy, Award, ChevronDown, Calendar as CalendarIcon } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import * as XLSX from "xlsx";
 import { useToast } from "@/hooks/use-toast";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useState } from "react";
+import { format } from "date-fns";
 
 interface DashboardClientProps {
   submissions: Submission[];
@@ -23,6 +27,8 @@ interface DashboardClientProps {
     }[];
   };
   onMarkAsWinner: (submission: Submission, rank?: 1 | 2 | 3) => Promise<{success: boolean; message: string}>;
+  reelItFeelItMeta: CompetitionMeta | null;
+  onSetReelItFeelItDate: (date: Date) => Promise<{success: boolean; message: string}>;
 }
 
 // Helper function to convert data to XLSX and trigger download
@@ -67,7 +73,7 @@ const downloadAsXLSX = (data: Submission[], fileName: string) => {
 }
 
 
-export function DashboardClient({ submissions, stats, onMarkAsWinner }: DashboardClientProps) {
+export function DashboardClient({ submissions, stats, onMarkAsWinner, reelItFeelItMeta, onSetReelItFeelItDate }: DashboardClientProps) {
 
     const handleDownloadAll = () => {
         downloadAsXLSX(submissions, "all_submissions");
@@ -144,6 +150,14 @@ export function DashboardClient({ submissions, stats, onMarkAsWinner }: Dashboar
                             </Button>
                         </div>
                     </CardHeader>
+                    {comp.id === 'reel-it-feel-it' && (
+                        <CardContent>
+                            <ResultDateManager 
+                                meta={reelItFeelItMeta}
+                                onSetDate={onSetReelItFeelItDate}
+                            />
+                        </CardContent>
+                    )}
                     <CardContent>
                         <SubmissionsTable 
                             submissions={submissions.filter(s => s.competitionId === comp.id)} 
@@ -158,6 +172,65 @@ export function DashboardClient({ submissions, stats, onMarkAsWinner }: Dashboar
     </>
   );
 }
+
+interface ResultDateManagerProps {
+    meta: CompetitionMeta | null;
+    onSetDate: (date: Date) => Promise<{success: boolean; message: string}>;
+}
+
+function ResultDateManager({ meta, onSetDate }: ResultDateManagerProps) {
+    const [date, setDate] = useState<Date | undefined>(meta?.resultAnnouncementDate);
+    const { toast } = useToast();
+
+    const handleSetDate = async () => {
+        if (!date) {
+            toast({ title: "Error", description: "Please select a date.", variant: "destructive" });
+            return;
+        }
+        const result = await onSetDate(date);
+        toast({
+            title: result.success ? "Success" : "Error",
+            description: result.message,
+            variant: result.success ? "default" : "destructive",
+        });
+    }
+
+    return (
+        <Card className="mb-6 bg-muted/50">
+            <CardHeader>
+                <CardTitle className="text-lg">Result Announcement</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col md:flex-row items-center gap-4">
+                 <Popover>
+                    <PopoverTrigger asChild>
+                        <Button
+                        variant={"outline"}
+                        className="w-full md:w-auto justify-start text-left font-normal"
+                        >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {date ? format(date, "PPP") : <span>Pick a date</span>}
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                        <Calendar
+                        mode="single"
+                        selected={date}
+                        onSelect={setDate}
+                        initialFocus
+                        />
+                    </PopoverContent>
+                </Popover>
+                <Button onClick={handleSetDate}>Set Announcement Date</Button>
+                {meta?.resultAnnouncementDate && (
+                    <p className="text-sm text-muted-foreground">
+                        Currently set to: {format(meta.resultAnnouncementDate, "PPP")}
+                    </p>
+                )}
+            </CardContent>
+        </Card>
+    );
+}
+
 
 interface SubmissionsTableProps {
     submissions: Submission[];
@@ -297,3 +370,5 @@ function SubmissionsTable({ submissions, onMarkAsWinner, competitionId }: Submis
     </Table>
   );
 }
+
+    

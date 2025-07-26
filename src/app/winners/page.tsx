@@ -2,9 +2,9 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import type { Submission, Competition } from "@/types";
+import type { Submission, Competition, CompetitionMeta } from "@/types";
 import { Header } from "@/components/header";
-import { getFirestore, collection, getDocs, query, where, Timestamp } from "firebase/firestore";
+import { getFirestore, collection, getDocs, query, where, Timestamp, doc, getDoc } from "firebase/firestore";
 import { app } from "@/lib/firebase";
 import { Loader2, Trophy, Award, Camera, Gift, Tv, ChevronLeft, ChevronRight, Users, CalendarIcon } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,7 +14,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { ExternalLink } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { format, startOfDay, addDays, subDays, isToday } from "date-fns";
+import { format, startOfDay, addDays, subDays, isToday, isFuture } from "date-fns";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
@@ -52,12 +52,15 @@ const getCompetitionIcon = (id: string) => {
 
 export default function WinnersPage() {
     const [winners, setWinners] = useState<Submission[]>([]);
+    const [reelItFeelItMeta, setReelItFeelItMeta] = useState<CompetitionMeta | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchWinners = async () => {
             setIsLoading(true);
             const db = getFirestore(app);
+            
+            // Fetch winners
             const submissionsCol = collection(db, "submissions");
             const q = query(submissionsCol, where("isWinner", "==", true));
             const winnerSnapshot = await getDocs(q);
@@ -70,6 +73,18 @@ export default function WinnersPage() {
                 } as Submission;
             }).sort((a,b) => b.submittedAt.getTime() - a.submittedAt.getTime());
             setWinners(winnerList);
+
+            // Fetch competition meta
+            const metaRef = doc(db, "competition_meta", "reel-it-feel-it");
+            const metaSnap = await getDoc(metaRef);
+            if (metaSnap.exists()) {
+                const data = metaSnap.data();
+                setReelItFeelItMeta({
+                    ...data,
+                    resultAnnouncementDate: (data.resultAnnouncementDate as Timestamp).toDate(),
+                } as CompetitionMeta);
+            }
+
             setIsLoading(false);
         }
         fetchWinners();
@@ -88,6 +103,7 @@ export default function WinnersPage() {
         return acc;
     }, {} as Record<string, Submission[]>);
 
+    const showReelItFeelItAnnouncement = reelItFeelItMeta?.resultAnnouncementDate && isFuture(reelItFeelItMeta.resultAnnouncementDate);
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-background via-background to-primary/10">
@@ -104,7 +120,7 @@ export default function WinnersPage() {
                 <div className="flex items-center justify-center flex-grow">
                     <Loader2 className="h-12 w-12 animate-spin text-primary" />
                 </div>
-            ) : winners.length === 0 ? (
+            ) : winners.length === 0 && !showReelItFeelItAnnouncement ? (
                 <div className="text-center py-20 flex-grow flex items-center justify-center">
                     <div>
                         <p className="text-xl text-muted-foreground">No winners have been announced yet.</p>
@@ -118,19 +134,28 @@ export default function WinnersPage() {
                     {followWinWinners.length > 0 && (
                         <FollowAndWinWinners winners={followWinWinners} />
                     )}
-                    {Object.entries(groupedOtherWinners).map(([competitionName, competitionWinners]) => (
-                         <div key={competitionName} className="flex-1 flex flex-col h-[70vh]">
-                            <AutoScrollingWinnerList 
-                                competitionName={competitionName}
-                                winners={competitionWinners}
-                            />
-                        </div>
-                    ))}
+                    {Object.entries(groupedOtherWinners).map(([competitionName, competitionWinners]) => {
+                        const compId = competitionWinners[0].competitionId;
+                        if (compId === 'reel-it-feel-it' && showReelItFeelItAnnouncement) {
+                            return <AnnouncementCard key={competitionName} competitionName={competitionName} meta={reelItFeelItMeta!} />;
+                        }
+                        return (
+                            <div key={competitionName} className="flex-1 flex flex-col h-[70vh]">
+                                <AutoScrollingWinnerList 
+                                    competitionName={competitionName}
+                                    winners={competitionWinners}
+                                />
+                            </div>
+                        )
+                    })}
+                     {Object.keys(groupedOtherWinners).length === 0 && showReelItFeelItAnnouncement && (
+                        <AnnouncementCard competitionName="Reel It. Feel It." meta={reelItFeelItMeta!} />
+                    )}
                 </div>
 
                 {/* Mobile Layout: Tabs */}
                 <div className="md:hidden">
-                    <Tabs defaultValue={followWinWinners.length > 0 ? "follow-win" : Object.keys(groupedOtherWinners)[0]} className="w-full">
+                    <Tabs defaultValue={followWinWinners.length > 0 ? "follow-win" : Object.keys(groupedOtherWinners)[0] || 'announcement'} className="w-full">
                         <TabsList className="grid w-full grid-cols-1 h-auto sm:grid-cols-3">
                             {followWinWinners.length > 0 && (
                                 <TabsTrigger value="follow-win">Follow & Win</TabsTrigger>
@@ -140,6 +165,9 @@ export default function WinnersPage() {
                                 {competitionName}
                                </TabsTrigger>
                            ))}
+                           {showReelItFeelItAnnouncement && (
+                                <TabsTrigger value="announcement">Reel It. Feel It.</TabsTrigger>
+                           )}
                         </TabsList>
 
                         {followWinWinners.length > 0 && (
@@ -160,6 +188,14 @@ export default function WinnersPage() {
                                </div>
                             </TabsContent>
                         ))}
+
+                        {showReelItFeelItAnnouncement && (
+                            <TabsContent value="announcement">
+                                <div className="mt-4">
+                                    <AnnouncementCard competitionName="Reel It. Feel It." meta={reelItFeelItMeta!} />
+                                </div>
+                            </TabsContent>
+                        )}
                   </Tabs>
                 </div>
               </div>
@@ -169,6 +205,29 @@ export default function WinnersPage() {
     </div>
   );
 }
+
+function AnnouncementCard({ competitionName, meta }: { competitionName: string, meta: CompetitionMeta }) {
+    return (
+        <div className="flex-1 flex flex-col">
+            <div className="flex items-center gap-4 mb-6">
+                <div className="p-3 bg-card rounded-xl">
+                    {getCompetitionIcon('reel-it-feel-it')}
+                </div>
+                <h2 className="text-3xl font-bold font-headline truncate">{competitionName}</h2>
+            </div>
+            <Card className="flex-grow flex items-center justify-center text-center p-8 bg-muted/30 border-dashed">
+                <div>
+                    <CalendarIcon className="w-12 h-12 mx-auto text-primary mb-4" />
+                    <h3 className="text-2xl font-bold font-headline">Stay Tuned!</h3>
+                    <p className="text-muted-foreground mt-2">
+                        Results will be announced on <span className="font-semibold text-primary">{format(meta.resultAnnouncementDate, "PPP")}</span>.
+                    </p>
+                </div>
+            </Card>
+        </div>
+    );
+}
+
 
 function FollowAndWinWinners({ winners }: { winners: Submission[] }) {
     const [currentDate, setCurrentDate] = useState(startOfDay(new Date()));
@@ -384,3 +443,5 @@ function WinnerCard({ winner }: { winner: Submission }) {
         </Card>
     )
 }
+
+    
