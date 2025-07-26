@@ -112,18 +112,19 @@ export default function WinnersPage() {
                     </div>
                 </div>
             ) : (
-              <div className="flex-grow">
+              <div className="flex-grow flex flex-col">
                 {/* Desktop Layout: Columns */}
-                <div className="hidden md:flex gap-8 h-full">
+                <div className="hidden md:flex flex-row gap-8 h-full flex-grow items-stretch">
                     {followWinWinners.length > 0 && (
                         <FollowAndWinWinners winners={followWinWinners} />
                     )}
                     {Object.entries(groupedOtherWinners).map(([competitionName, competitionWinners]) => (
-                        <AutoScrollingWinnerList 
-                            key={competitionName}
-                            competitionName={competitionName}
-                            winners={competitionWinners}
-                        />
+                         <div key={competitionName} className="flex-1 flex flex-col h-[70vh]">
+                            <AutoScrollingWinnerList 
+                                competitionName={competitionName}
+                                winners={competitionWinners}
+                            />
+                        </div>
                     ))}
                 </div>
 
@@ -215,7 +216,7 @@ function FollowAndWinWinners({ winners }: { winners: Submission[] }) {
                 </Button>
             </div>
 
-            <ScrollArea className="flex-grow pr-4">
+            <ScrollArea className="flex-grow pr-4 h-[60vh]">
                 <div className="space-y-4 pb-8">
                 {winnersForCurrentDate.length > 0 ? (
                     winnersForCurrentDate.map((winner) => (
@@ -340,5 +341,3 @@ function WinnerCard({ winner }: { winner: Submission }) {
         </Card>
     )
 }
-
-    
