@@ -20,30 +20,27 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 
 
-const competitionsData: Omit<Competition, 'deadline' | 'status'>[] = [
+const competitionsData: Omit<Competition, 'deadline' | 'icon'>[] = [
   {
     id: "follow-win",
     name: "Follow & Win (Daily winner)",
     description: "Follow your school's social media and submit a screenshot to win daily prizes.",
-    icon: "Gift",
   },
   {
     id: "reel-it-feel-it",
     name: "Reel It. Feel It.",
     description: "Create an Instagram Reel about your first days at LPU.",
-    icon: "Tv",
   },
   {
     id: "my-first-day",
     name: "My First Day at LPU",
     description: "Take a selfie at the official Selfie Point and post it on Instagram.",
-    icon: "Camera",
   },
 ];
 
 const getCompetitionIcon = (id: string) => {
     const competition = competitionsData.find(c => c.id === id);
-    const iconName = competition?.icon || "Trophy";
+    const iconName = (competition as any)?.icon || "Trophy";
     
     switch(iconName) {
         case "Gift": return <Gift className="w-8 h-8 text-primary" />;
@@ -70,9 +67,8 @@ export default function WinnersPage() {
                     id: doc.id,
                     ...data,
                     submittedAt: (data.submittedAt as Timestamp).toDate(),
-                    wonAt: data.wonAt ? (data.wonAt as Timestamp).toDate() : (data.submittedAt as Timestamp).toDate(),
                 } as Submission;
-            }).sort((a,b) => (b.wonAt || b.submittedAt).getTime() - (a.wonAt || a.submittedAt).getTime());
+            }).sort((a,b) => b.submittedAt.getTime() - a.submittedAt.getTime());
             setWinners(winnerList);
             setIsLoading(false);
         }
@@ -178,7 +174,7 @@ function FollowAndWinWinners({ winners }: { winners: Submission[] }) {
     const [currentDate, setCurrentDate] = useState(startOfDay(new Date()));
 
     const winnersByDate = winners.reduce((acc, winner) => {
-        const dateKey = startOfDay(winner.wonAt || winner.submittedAt).toISOString();
+        const dateKey = startOfDay(winner.submittedAt).toISOString();
         if (!acc[dateKey]) {
             acc[dateKey] = [];
         }
@@ -354,7 +350,7 @@ function WinnerCard({ winner }: { winner: Submission }) {
                 <div className="bg-muted/50 p-3 rounded-lg text-center">
                     <Award className="w-8 h-8 mx-auto text-primary" />
                     <p className="text-sm font-semibold mt-2 text-foreground">Declared Winner</p>
-                    <p className="text-xs text-muted-foreground">{(winner.wonAt || winner.submittedAt).toLocaleDateString()}</p>
+                    <p className="text-xs text-muted-foreground">{winner.submittedAt.toLocaleDateString()}</p>
                 </div>
             </CardContent>
             {renderSubmissionLink() && 
