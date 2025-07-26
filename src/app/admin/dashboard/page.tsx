@@ -8,7 +8,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useRouter } from "next/navigation";
 import { auth, app } from "@/lib/firebase";
 import { useEffect, useState } from "react";
-import { getFirestore, collection, getDocs, Timestamp, doc, updateDoc, query, where, getDoc } from "firebase/firestore";
+import { getFirestore, collection, getDocs, Timestamp, doc, updateDoc, query, where, getDoc, serverTimestamp } from "firebase/firestore";
 import { Loader2 } from "lucide-react";
 
 const competitionDisplayNames: { [key: string]: string } = {
@@ -42,7 +42,7 @@ function DashboardPageContent() {
         fetchSubmissions();
     }, []);
 
-    const handleMarkAsWinner = async (submission: Submission): Promise<{success: boolean, message: string}> => {
+    const handleMarkAsWinner = async (submission: Submission, rank?: 1 | 2 | 3): Promise<{success: boolean, message: string}> => {
         // For "Follow & Win", check if the user has already won
         if (submission.competitionId === 'follow-win' && submission.registrationId) {
             const q = query(
@@ -61,9 +61,16 @@ function DashboardPageContent() {
 
         try {
             const submissionRef = doc(db, "submissions", submission.id);
-            await updateDoc(submissionRef, {
+            const updateData: { isWinner: boolean, rank?: 1 | 2 | 3 } = {
                 isWinner: true
-            });
+            };
+
+            if (rank) {
+                updateData.rank = rank;
+            }
+
+            await updateDoc(submissionRef, updateData);
+            
             // Refetch data to update UI
             await fetchSubmissions(); 
             return { success: true, message: "Successfully marked as winner." };

@@ -42,10 +42,10 @@ const getCompetitionIcon = (id: string) => {
     const competition = competitionsData.find(c => c.id === id);
     const iconName = (competition as any)?.icon || "Trophy";
     
-    switch(iconName) {
-        case "Gift": return <Gift className="w-8 h-8 text-primary" />;
-        case "Tv": return <Tv className="w-8 h-8 text-primary" />;
-        case "Camera": return <Camera className="w-8 h-8 text-primary" />;
+    switch(id) {
+        case "follow-win": return <Gift className="w-8 h-8 text-primary" />;
+        case "reel-it-feel-it": return <Tv className="w-8 h-8 text-primary" />;
+        case "my-first-day": return <Camera className="w-8 h-8 text-primary" />;
         default: return <Trophy className="w-8 h-8 text-primary" />;
     }
 }
@@ -258,8 +258,13 @@ function AutoScrollingWinnerList({ competitionName, winners }: { competitionName
     const contentRef = useRef<HTMLDivElement>(null);
     const isHovering = useRef(false);
     
-    const shouldLoop = winners.length > 3; 
-    const displayWinners = shouldLoop ? [...winners, ...winners] : winners;
+    // Sort winners by rank for 'Reel It. Feel It.'
+    const sortedWinners = winners[0]?.competitionId === 'reel-it-feel-it'
+        ? [...winners].sort((a, b) => (a.rank || 4) - (b.rank || 4))
+        : winners;
+    
+    const shouldLoop = sortedWinners.length > 3; 
+    const displayWinners = shouldLoop ? [...sortedWinners, ...sortedWinners] : sortedWinners;
 
     useEffect(() => {
         const scrollElement = scrollRef.current;
@@ -283,7 +288,7 @@ function AutoScrollingWinnerList({ competitionName, winners }: { competitionName
         startScrolling();
 
         return () => clearInterval(scrollInterval);
-    }, [winners, shouldLoop]);
+    }, [sortedWinners, shouldLoop]);
 
     return (
         <div 
@@ -306,6 +311,18 @@ function AutoScrollingWinnerList({ competitionName, winners }: { competitionName
             </ScrollArea>
         </div>
     );
+}
+
+function getRankBadge(rank?: 1 | 2 | 3) {
+    if (!rank) return null;
+    const medals = ["🥇", "🥈", "🥉"];
+    const text = ["1st Place", "2nd Place", "3rd Place"];
+    return (
+        <div className="flex items-center gap-2">
+            <span className="text-2xl">{medals[rank-1]}</span>
+            <span className="font-bold text-lg text-primary">{text[rank-1]}</span>
+        </div>
+    )
 }
 
 function WinnerCard({ winner }: { winner: Submission }) {
@@ -347,11 +364,17 @@ function WinnerCard({ winner }: { winner: Submission }) {
                 </div>
             </CardHeader>
             <CardContent>
-                <div className="bg-muted/50 p-3 rounded-lg text-center">
-                    <Award className="w-8 h-8 mx-auto text-primary" />
-                    <p className="text-sm font-semibold mt-2 text-foreground">Declared Winner</p>
-                    <p className="text-xs text-muted-foreground">{winner.submittedAt.toLocaleDateString()}</p>
-                </div>
+                {winner.rank ? (
+                    <div className="bg-muted/50 p-3 rounded-lg flex items-center justify-center">
+                       {getRankBadge(winner.rank)}
+                    </div>
+                ) : (
+                    <div className="bg-muted/50 p-3 rounded-lg text-center">
+                        <Award className="w-8 h-8 mx-auto text-primary" />
+                        <p className="text-sm font-semibold mt-2 text-foreground">Declared Winner</p>
+                        <p className="text-xs text-muted-foreground">{winner.submittedAt.toLocaleDateString()}</p>
+                    </div>
+                )}
             </CardContent>
             {renderSubmissionLink() && 
                 <CardFooter>

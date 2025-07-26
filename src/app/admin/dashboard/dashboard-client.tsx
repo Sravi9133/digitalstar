@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { BarChart, Download, Users, Trophy, Award } from "lucide-react";
+import { BarChart, Download, Users, Trophy, Award, ChevronDown } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import * as XLSX from "xlsx";
 import { useToast } from "@/hooks/use-toast";
@@ -21,7 +22,7 @@ interface DashboardClientProps {
       count: number;
     }[];
   };
-  onMarkAsWinner: (submission: Submission) => Promise<{success: boolean; message: string}>;
+  onMarkAsWinner: (submission: Submission, rank?: 1 | 2 | 3) => Promise<{success: boolean; message: string}>;
 }
 
 // Helper function to convert data to XLSX and trigger download
@@ -34,7 +35,7 @@ const downloadAsXLSX = (data: Submission[], fileName: string) => {
     // Define the headers for the Excel file
     const headers = [
         "competitionName", "submittedAt", "name", "email", "phone", "university",
-        "registrationId", "instagramHandle", "school", "postLink", "redditPostLink", "fileName", "fileUrl", "isWinner"
+        "registrationId", "instagramHandle", "school", "postLink", "redditPostLink", "fileName", "fileUrl", "isWinner", "rank"
     ];
 
     // Create a new workbook and a worksheet
@@ -44,7 +45,7 @@ const downloadAsXLSX = (data: Submission[], fileName: string) => {
     const worksheetData = data.map(submission => {
         const row: { [key: string]: any } = {};
         headers.forEach(header => {
-            let value = submission[header as keyof Submission] as string | Date | boolean | undefined;
+            let value = submission[header as keyof Submission] as string | Date | boolean | number | undefined;
             if (value === undefined || value === null) {
                 row[header] = "";
             } else if (value instanceof Date) {
@@ -147,6 +148,7 @@ export function DashboardClient({ submissions, stats, onMarkAsWinner }: Dashboar
                         <SubmissionsTable 
                             submissions={submissions.filter(s => s.competitionId === comp.id)} 
                             onMarkAsWinner={onMarkAsWinner} 
+                            competitionId={comp.id}
                         />
                     </CardContent>
                 </Card>
@@ -157,7 +159,13 @@ export function DashboardClient({ submissions, stats, onMarkAsWinner }: Dashboar
   );
 }
 
-function SubmissionsTable({ submissions, onMarkAsWinner }: { submissions: Submission[], onMarkAsWinner: (submission: Submission) => Promise<{success: boolean; message: string}> }) {
+interface SubmissionsTableProps {
+    submissions: Submission[];
+    onMarkAsWinner: (submission: Submission, rank?: 1 | 2 | 3) => Promise<{success: boolean; message: string}>;
+    competitionId: string;
+}
+
+function SubmissionsTable({ submissions, onMarkAsWinner, competitionId }: SubmissionsTableProps) {
     const { toast } = useToast();
     if (submissions.length === 0) {
         return <p className="text-center text-muted-foreground py-8">No submissions for this competition yet.</p>
@@ -167,9 +175,9 @@ function SubmissionsTable({ submissions, onMarkAsWinner }: { submissions: Submis
         return submission.name || submission.registrationId || submission.email || "N/A";
     }
 
-    const handleMarkAsWinner = async (submission: Submission) => {
+    const handleMarkAsWinner = async (submission: Submission, rank?: 1 | 2 | 3) => {
         try {
-            const result = await onMarkAsWinner(submission);
+            const result = await onMarkAsWinner(submission, rank);
             if (result.success) {
                 toast({
                     title: "Success",
@@ -211,6 +219,7 @@ function SubmissionsTable({ submissions, onMarkAsWinner }: { submissions: Submis
                 <div className="flex items-center gap-2">
                     {submission.isWinner && <Award className="h-4 w-4 text-primary" />}
                     {getSubmissionIdentifier(submission)}
+                    {submission.rank && <span className="text-xs font-bold text-primary">({submission.rank}st)</span>}
                 </div>
             </TableCell>
             <TableCell className="hidden md:table-cell">
@@ -247,15 +256,40 @@ function SubmissionsTable({ submissions, onMarkAsWinner }: { submissions: Submis
                 )}
             </TableCell>
             <TableCell className="text-right">
-                <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => handleMarkAsWinner(submission)}
-                    disabled={submission.isWinner}
-                >
-                    <Award className="mr-2 h-3 w-3" />
-                    {submission.isWinner ? 'Winner' : 'Mark as Winner'}
-                </Button>
+                {competitionId === 'reel-it-feel-it' ? (
+                     <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="sm" disabled={submission.isWinner}>
+                                {submission.isWinner ? `Winner (${submission.rank})` : 'Declare Rank'}
+                                <ChevronDown className="ml-2 h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                            <DropdownMenuItem onClick={() => handleMarkAsWinner(submission, 1)}>
+                                <Award className="mr-2 h-3 w-3" />
+                                Mark as 1st
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleMarkAsWinner(submission, 2)}>
+                                <Award className="mr-2 h-3 w-3" />
+                                Mark as 2nd
+                            </DropdownMenuItem>
+                             <DropdownMenuItem onClick={() => handleMarkAsWinner(submission, 3)}>
+                                <Award className="mr-2 h-3 w-3" />
+                                Mark as 3rd
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                ) : (
+                    <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleMarkAsWinner(submission)}
+                        disabled={submission.isWinner}
+                    >
+                        <Award className="mr-2 h-3 w-3" />
+                        {submission.isWinner ? 'Winner' : 'Mark as Winner'}
+                    </Button>
+                )}
             </TableCell>
           </TableRow>
         ))}
