@@ -9,9 +9,9 @@ export function RefTracker() {
 
   useEffect(() => {
     const refSource = searchParams.get('ref');
-    if (refSource) {
-      // Store the referral source in session storage to persist it across navigation
-      // within the same tab/session.
+    // Only set the refSource in sessionStorage if it doesn't already exist.
+    // This makes the first referral code "stick" for the entire session.
+    if (refSource && !sessionStorage.getItem('refSource')) {
       sessionStorage.setItem('refSource', refSource);
     }
   }, [searchParams]);
