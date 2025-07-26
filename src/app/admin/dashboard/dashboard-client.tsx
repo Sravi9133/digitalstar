@@ -33,14 +33,14 @@ interface DashboardClientProps {
 }
 
 // Helper function to convert data to XLSX and trigger download
-const downloadAsXLSX = (data: Submission[], fileName: string) => {
+const downloadAsXLSX = (data: Submission[], fileName: string, customHeaders?: string[]) => {
     if (data.length === 0) {
         alert("No data to download.");
         return;
     }
 
     // Define the headers for the Excel file
-    const headers = [
+    const headers = customHeaders || [
         "competitionName", "submittedAt", "name", "email", "phone", "university",
         "registrationId", "instagramHandle", "school", "postLink", "redditPostLink", "fileName", "fileUrl", "isWinner", "rank", "refSource"
     ];
@@ -82,7 +82,11 @@ export function DashboardClient({ submissions, stats, onMarkAsWinner, reelItFeel
 
     const handleDownloadCompetition = (competitionId: string, competitionName: string) => {
         const competitionSubmissions = submissions.filter(s => s.competitionId === competitionId);
-        downloadAsXLSX(competitionSubmissions, competitionName.replace(/ /g, "_"));
+        let headers;
+        if (competitionId === 'follow-win') {
+            headers = ["competitionName", "submittedAt", "registrationId", "instagramHandle", "school", "isWinner", "refSource"];
+        }
+        downloadAsXLSX(competitionSubmissions, competitionName.replace(/ /g, "_"), headers);
     }
 
   return (
@@ -382,6 +386,8 @@ function SubmissionsTable({ submissions, onMarkAsWinner, competitionId }: Submis
     </Table>
   );
 }
+
+    
 
     
 
