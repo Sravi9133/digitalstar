@@ -34,6 +34,9 @@ export type Submission = {
   // Fields for "Reel It. Feel It." and "My First Day"
   postLink?: string;
   redditPostLink?: string;
+
+  // Field for referral tracking
+  refSource?: string;
 };
 
 export interface CompetitionMeta {

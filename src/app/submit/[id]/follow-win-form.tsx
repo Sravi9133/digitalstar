@@ -120,14 +120,21 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
 
     try {
         const db = getFirestore(app);
-        await addDoc(collection(db, "submissions"), {
+        const submissionData: any = {
             competitionId,
             competitionName,
             ...values,
             school: selectedSchool?.name,
             schoolLink: selectedSchool?.link,
             submittedAt: serverTimestamp(),
-        });
+        };
+
+        const refSource = sessionStorage.getItem('refSource');
+        if (refSource) {
+            submissionData.refSource = refSource;
+        }
+
+        await addDoc(collection(db, "submissions"), submissionData);
         setIsSubmitting(false);
         setIsSubmitted(true);
         toast({

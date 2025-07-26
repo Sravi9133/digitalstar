@@ -53,12 +53,19 @@ export function ReelItFeelItForm({ competitionId, competitionName, postType = 'R
     setIsSubmitting(true);
     try {
         const db = getFirestore(app);
-        await addDoc(collection(db, "submissions"), {
+        const submissionData: any = {
             competitionId,
             competitionName,
             ...values,
             submittedAt: serverTimestamp(),
-        });
+        };
+
+        const refSource = sessionStorage.getItem('refSource');
+        if (refSource) {
+            submissionData.refSource = refSource;
+        }
+
+        await addDoc(collection(db, "submissions"), submissionData);
         setIsSubmitting(false);
         setIsSubmitted(true);
         toast({

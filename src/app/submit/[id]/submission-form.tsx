@@ -81,7 +81,7 @@ export function SubmissionForm({ competitionId, competitionName }: SubmissionFor
         const fileUrl = await getDownloadURL(uploadResult.ref);
 
         // Save submission data to Firestore
-        const submissionData = {
+        const submissionData: any = {
             competitionId,
             competitionName,
             name: values.name,
@@ -92,6 +92,11 @@ export function SubmissionForm({ competitionId, competitionName }: SubmissionFor
             fileUrl,
             submittedAt: serverTimestamp(),
         };
+
+        const refSource = sessionStorage.getItem('refSource');
+        if (refSource) {
+            submissionData.refSource = refSource;
+        }
 
         await addDoc(collection(firestore, "submissions"), submissionData);
         
