@@ -1,4 +1,6 @@
 
+"use client";
+
 import { ArrowLeft, Camera, Gift, Tv } from "lucide-react";
 import type { Competition } from "@/types";
 import { SubmissionForm } from "./submission-form";
