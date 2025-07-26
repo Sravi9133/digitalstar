@@ -42,7 +42,7 @@ const downloadAsXLSX = (data: Submission[], fileName: string) => {
     // Define the headers for the Excel file
     const headers = [
         "competitionName", "submittedAt", "name", "email", "phone", "university",
-        "registrationId", "instagramHandle", "school", "postLink", "redditPostLink", "fileName", "fileUrl", "isWinner", "rank"
+        "registrationId", "instagramHandle", "school", "postLink", "redditPostLink", "fileName", "fileUrl", "isWinner", "rank", "refSource"
     ];
 
     // Create a new workbook and a worksheet
