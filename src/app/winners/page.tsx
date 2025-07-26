@@ -6,7 +6,7 @@ import type { Submission, Competition } from "@/types";
 import { Header } from "@/components/header";
 import { getFirestore, collection, getDocs, query, where, Timestamp } from "firebase/firestore";
 import { app } from "@/lib/firebase";
-import { Loader2, Trophy, Award, Camera, Gift, Tv, ChevronLeft, ChevronRight, Users } from "lucide-react";
+import { Loader2, Trophy, Award, Camera, Gift, Tv, ChevronLeft, ChevronRight, Users, CalendarIcon } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import Link from "next/link";
@@ -15,6 +15,9 @@ import { ExternalLink } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { format, startOfDay, addDays, subDays, isToday } from "date-fns";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
 
 
 const competitionsData: Omit<Competition, 'deadline' | 'status'>[] = [
@@ -67,8 +70,9 @@ export default function WinnersPage() {
                     id: doc.id,
                     ...data,
                     submittedAt: (data.submittedAt as Timestamp).toDate(),
+                    wonAt: data.wonAt ? (data.wonAt as Timestamp).toDate() : (data.submittedAt as Timestamp).toDate(),
                 } as Submission;
-            }).sort((a,b) => b.submittedAt.getTime() - a.submittedAt.getTime());
+            }).sort((a,b) => (b.wonAt || b.submittedAt).getTime() - (a.wonAt || a.submittedAt).getTime());
             setWinners(winnerList);
             setIsLoading(false);
         }
@@ -174,11 +178,11 @@ function FollowAndWinWinners({ winners }: { winners: Submission[] }) {
     const [currentDate, setCurrentDate] = useState(startOfDay(new Date()));
 
     const winnersByDate = winners.reduce((acc, winner) => {
-        const date = startOfDay(winner.submittedAt).toISOString();
-        if (!acc[date]) {
-            acc[date] = [];
+        const dateKey = startOfDay(winner.wonAt || winner.submittedAt).toISOString();
+        if (!acc[dateKey]) {
+            acc[dateKey] = [];
         }
-        acc[date].push(winner);
+        acc[dateKey].push(winner);
         return acc;
     }, {} as Record<string, Submission[]>);
 
@@ -203,15 +207,35 @@ function FollowAndWinWinners({ winners }: { winners: Submission[] }) {
                 </CardHeader>
             </Card>
 
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-4 gap-2">
                 <Button variant="outline" size="icon" onClick={() => setCurrentDate(subDays(currentDate, 1))}>
                     <ChevronLeft className="h-4 w-4"/>
                 </Button>
-                <div className="text-center">
-                    <h3 className="font-semibold">{format(currentDate, "MMMM d, yyyy")}</h3>
-                    <p className="text-sm text-muted-foreground">{isToday(currentDate) ? "Today" : ""}</p>
-                </div>
-                 <Button variant="outline" size="icon" onClick={() => setCurrentDate(addDays(currentDate, 1))} disabled={isToday(currentDate)}>
+
+                <Popover>
+                    <PopoverTrigger asChild>
+                        <Button
+                        variant={"outline"}
+                        className={cn(
+                            "justify-start text-left font-normal flex-1",
+                            !currentDate && "text-muted-foreground"
+                        )}
+                        >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {currentDate ? format(currentDate, "PPP") : <span>Pick a date</span>}
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                        <Calendar
+                        mode="single"
+                        selected={currentDate}
+                        onSelect={(day) => day && setCurrentDate(day)}
+                        initialFocus
+                        />
+                    </PopoverContent>
+                </Popover>
+
+                <Button variant="outline" size="icon" onClick={() => setCurrentDate(addDays(currentDate, 1))} disabled={isToday(currentDate)}>
                     <ChevronRight className="h-4 w-4"/>
                 </Button>
             </div>
@@ -330,7 +354,7 @@ function WinnerCard({ winner }: { winner: Submission }) {
                 <div className="bg-muted/50 p-3 rounded-lg text-center">
                     <Award className="w-8 h-8 mx-auto text-primary" />
                     <p className="text-sm font-semibold mt-2 text-foreground">Declared Winner</p>
-                    <p className="text-xs text-muted-foreground">{winner.submittedAt.toLocaleDateString()}</p>
+                    <p className="text-xs text-muted-foreground">{(winner.wonAt || winner.submittedAt).toLocaleDateString()}</p>
                 </div>
             </CardContent>
             {renderSubmissionLink() && 
@@ -341,5 +365,3 @@ function WinnerCard({ winner }: { winner: Submission }) {
         </Card>
     )
 }
-
-    
