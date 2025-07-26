@@ -76,7 +76,7 @@ export default function WinnersPage() {
     }, []);
 
     const followWinWinners = winners.filter(w => w.competitionId === 'follow-win');
-    const otherWinners = winners.filter(w => w.competitionId !== 'follow-win');
+    const otherWinners = winners.filter(w => w.competitionId !== 'follow-win' && w.competitionId !== 'my-first-day');
 
     const groupedOtherWinners = otherWinners.reduce((acc, winner) => {
         const competition = competitionsData.find(c => c.id === winner.competitionId);
@@ -341,3 +341,5 @@ function WinnerCard({ winner }: { winner: Submission }) {
         </Card>
     )
 }
+
+    
