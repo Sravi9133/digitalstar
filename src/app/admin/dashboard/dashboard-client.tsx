@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { BarChart, Download, Users, Trophy, Award, ChevronDown, Calendar as CalendarIcon } from "lucide-react";
+import { BarChart, Download, Users, Trophy, Award, ChevronDown, Calendar as CalendarIcon, Link2 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import * as XLSX from "xlsx";
@@ -15,6 +15,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useState } from "react";
 import { format } from "date-fns";
+import { Badge } from "@/components/ui/badge";
 
 interface DashboardClientProps {
   submissions: Submission[];
@@ -280,6 +281,7 @@ function SubmissionsTable({ submissions, onMarkAsWinner, competitionId }: Submis
           <TableHead>Identifier</TableHead>
           <TableHead className="hidden md:table-cell">Details</TableHead>
           <TableHead>Links</TableHead>
+          <TableHead className="hidden md:table-cell">Referral</TableHead>
           <TableHead className="hidden lg:table-cell">Submitted At</TableHead>
           <TableHead>File</TableHead>
           <TableHead className="text-right">Actions</TableHead>
@@ -314,6 +316,16 @@ function SubmissionsTable({ submissions, onMarkAsWinner, competitionId }: Submis
                         </Link>
                     )}
                 </div>
+            </TableCell>
+            <TableCell className="hidden md:table-cell">
+                {submission.refSource ? (
+                    <Badge variant="secondary" className="whitespace-nowrap">
+                        <Link2 className="mr-1.5 h-3 w-3"/>
+                        {submission.refSource}
+                    </Badge>
+                ) : (
+                    <span className="text-xs text-muted-foreground">Direct</span>
+                )}
             </TableCell>
             <TableCell className="hidden lg:table-cell">{submission.submittedAt.toLocaleString()}</TableCell>
             <TableCell>
@@ -370,5 +382,7 @@ function SubmissionsTable({ submissions, onMarkAsWinner, competitionId }: Submis
     </Table>
   );
 }
+
+    
 
     
