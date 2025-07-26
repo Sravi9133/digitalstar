@@ -3,28 +3,27 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Default deny all access
-    match /{document=**} {
-      allow read, write: if false;
-    }
-
-    // Rules for the 'submissions' collection
+    // Rules for the submissions collection
     match /submissions/{submissionId} {
-      // Authenticated users (admins) have full access
+      // 1. Admins (authenticated users) can do anything.
       allow read, write: if request.auth != null;
-
-      // Anyone can create a new submission
+      
+      // 2. The public can create submissions.
       allow create: if true;
 
-      // Anyone can GET a single document if it's a winner
-      allow get: if resource.data.isWinner == true;
+      // 3. The public can read documents, but ONLY if they are winners.
+      // This rule is specifically for the public winners page.
+      allow list, get: if resource.data.isWinner == true;
     }
-    
-    // Rule for LISTING/querying the submissions collection
-    match /submissions/{submissionId} {
-        // Anyone can LIST documents, but ONLY if they are querying for winners.
-        // This is what makes the public winners page work.
-        allow list: if request.query.where.isWinner == true;
+
+    // Rules for the competition metadata collection
+    match /competition_meta/{competitionId} {
+      // 1. Admins can read and write competition metadata (e.g., set announcement dates).
+      allow read, write: if request.auth != null;
+
+      // 2. The public can read competition metadata. This is needed for the winners page
+      // to check for an announcement date.
+      allow get, list: if true;
     }
   }
 }
