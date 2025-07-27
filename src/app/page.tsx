@@ -38,12 +38,14 @@ async function getAnnouncements(): Promise<Announcement[]> {
   try {
     const db = getFirestore(app);
     const announcementsCol = collection(db, "announcements");
-    const q = query(announcementsCol, where("isActive", "==", true), orderBy("createdAt", "desc"));
+    // Simpler query to avoid needing a composite index immediately.
+    // We filter by isActive and then sort in code.
+    const q = query(announcementsCol, where("isActive", "==", true));
     const snapshot = await getDocs(q);
     if (snapshot.empty) {
       return [];
     }
-    return snapshot.docs.map(doc => {
+    const announcements = snapshot.docs.map(doc => {
       const data = doc.data();
       return {
         id: doc.id,
@@ -51,6 +53,10 @@ async function getAnnouncements(): Promise<Announcement[]> {
         createdAt: (data.createdAt as Timestamp).toDate(),
       } as Announcement;
     });
+
+    // Sort by creation date descending (newest first)
+    return announcements.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    
   } catch (error) {
     console.error("Error fetching announcements:", error);
     return [];
