@@ -8,7 +8,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
 import { auth } from '@/lib/firebase';
 import { LogOut, Loader2, Trophy, Menu } from 'lucide-react';
-import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { useState } from 'react';
 
 export function Header() {
@@ -66,6 +66,8 @@ export function Header() {
                     </Button>
                 </SheetTrigger>
                 <SheetContent>
+                    <SheetTitle className="sr-only">Mobile Navigation Menu</SheetTitle>
+                    <SheetDescription className="sr-only">A list of navigation links for the CompSubmit application.</SheetDescription>
                     <div className="flex flex-col items-start space-y-4 pt-8">
                         {navLinks}
                         <div className="border-t w-full pt-4">
