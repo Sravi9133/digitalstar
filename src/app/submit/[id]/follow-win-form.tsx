@@ -29,8 +29,9 @@ import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
 import { app } from "@/lib/firebase";
-import { getFirestore, collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { getFirestore, collection, addDoc, serverTimestamp, Timestamp } from "firebase/firestore";
 import { Checkbox } from "@/components/ui/checkbox";
+import { writeToGoogleSheet } from "@/lib/sheets";
 
 interface School {
     id: string;
@@ -120,11 +121,17 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
 
     try {
         const db = getFirestore(app);
+        
+        const sheetData = {
+          competitionId,
+          competitionName,
+          ...values,
+          school: selectedSchool?.name,
+          submittedAt: new Date(),
+        };
+
         const submissionData: any = {
-            competitionId,
-            competitionName,
-            ...values,
-            school: selectedSchool?.name,
+            ...sheetData,
             schoolLink: selectedSchool?.link,
             submittedAt: serverTimestamp(),
         };
@@ -132,9 +139,14 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
         const refSource = sessionStorage.getItem('refSource');
         if (refSource) {
             submissionData.refSource = refSource;
+            sheetData.refSource = refSource;
         }
 
         await addDoc(collection(db, "submissions"), submissionData);
+        
+        // Asynchronously write to Google Sheet without blocking the UI
+        writeToGoogleSheet(sheetData);
+
         setIsSubmitting(false);
         setIsSubmitted(true);
         toast({

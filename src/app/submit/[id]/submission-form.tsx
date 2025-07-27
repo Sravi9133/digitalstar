@@ -23,6 +23,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { app } from "@/lib/firebase";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { getFirestore, collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { writeToGoogleSheet } from "@/lib/sheets";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_FILE_TYPES = ["application/pdf", "image/jpeg", "image/jpg", "image/png"];
@@ -80,8 +81,7 @@ export function SubmissionForm({ competitionId, competitionName }: SubmissionFor
         const uploadResult = await uploadBytes(storageRef, file);
         const fileUrl = await getDownloadURL(uploadResult.ref);
 
-        // Save submission data to Firestore
-        const submissionData: any = {
+        const sheetData = {
             competitionId,
             competitionName,
             name: values.name,
@@ -90,15 +90,25 @@ export function SubmissionForm({ competitionId, competitionName }: SubmissionFor
             university: values.university,
             fileName: file.name,
             fileUrl,
+            submittedAt: new Date(),
+        };
+
+        // Save submission data to Firestore
+        const submissionData: any = {
+            ...sheetData,
             submittedAt: serverTimestamp(),
         };
 
         const refSource = sessionStorage.getItem('refSource');
         if (refSource) {
             submissionData.refSource = refSource;
+            sheetData.refSource = refSource;
         }
 
         await addDoc(collection(firestore, "submissions"), submissionData);
+        
+        // Asynchronously write to Google Sheet
+        writeToGoogleSheet(sheetData);
         
         setIsSubmitting(false);
         setIsSubmitted(true);

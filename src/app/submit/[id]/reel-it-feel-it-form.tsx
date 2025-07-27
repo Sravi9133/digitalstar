@@ -20,6 +20,7 @@ import { CheckCircle, Loader2, Link as LinkIcon, Tv, Camera, Redo } from "lucide
 import { useToast } from "@/hooks/use-toast";
 import { app } from "@/lib/firebase";
 import { getFirestore, collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { writeToGoogleSheet } from "@/lib/sheets";
 
 const formSchema = z.object({
   registrationId: z.string().min(5, "Registration/Candidate ID is required."),
@@ -53,19 +54,30 @@ export function ReelItFeelItForm({ competitionId, competitionName, postType = 'R
     setIsSubmitting(true);
     try {
         const db = getFirestore(app);
+        
+        const sheetData = {
+          competitionId,
+          competitionName,
+          ...values,
+          submittedAt: new Date(),
+        };
+
         const submissionData: any = {
-            competitionId,
-            competitionName,
-            ...values,
+            ...sheetData,
             submittedAt: serverTimestamp(),
         };
 
         const refSource = sessionStorage.getItem('refSource');
         if (refSource) {
             submissionData.refSource = refSource;
+            sheetData.refSource = refSource;
         }
 
         await addDoc(collection(db, "submissions"), submissionData);
+        
+        // Asynchronously write to Google Sheet
+        writeToGoogleSheet(sheetData);
+
         setIsSubmitting(false);
         setIsSubmitted(true);
         toast({
