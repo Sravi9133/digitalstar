@@ -1,7 +1,7 @@
 
 'use server';
 
-import { getFirestore, collection, getDocs, query, orderBy, Timestamp, doc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, query, orderBy, Timestamp } from 'firebase/firestore';
 import { app } from '@/lib/firebase';
 import type { Announcement } from '@/types';
 
@@ -27,29 +27,5 @@ export async function getAnnouncements(): Promise<Announcement[]> {
     } catch (error) {
         console.error("Error fetching announcements: ", error);
         return [];
-    }
-}
-
-// UPDATE
-export async function toggleAnnouncementActive(id: string, isActive: boolean) {
-    try {
-        const docRef = doc(db, 'announcements', id);
-        await updateDoc(docRef, { isActive });
-        return { success: true, message: `Announcement status updated.` };
-    } catch (error) {
-        console.error("Error updating announcement: ", error);
-        return { success: false, message: 'Failed to update announcement status.' };
-    }
-}
-
-// DELETE
-export async function deleteAnnouncement(id: string) {
-    try {
-        const docRef = doc(db, 'announcements', id);
-        await deleteDoc(docRef);
-        return { success: true, message: 'Announcement deleted successfully.' };
-    } catch (error) {
-        console.error("Error deleting announcement: ", error);
-        return { success: false, message: 'Failed to delete announcement.' };
     }
 }

@@ -37,7 +37,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Loader2 } from "lucide-react";
-import { addDoc, collection, getFirestore, serverTimestamp } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getFirestore, serverTimestamp, updateDoc } from "firebase/firestore";
 import { app } from "@/lib/firebase";
 
 
@@ -60,8 +60,6 @@ interface DashboardClientProps {
   refFilter: string;
   onRefFilterChange: (value: string) => void;
   onRefreshAnnouncements: () => void;
-  onDeleteAnnouncement: (id: string) => Promise<{success: boolean; message: string}>;
-  onToggleAnnouncementActive: (id: string, isActive: boolean) => Promise<{success: boolean; message: string}>;
 }
 
 // Helper function to convert data to XLSX and trigger download
@@ -118,8 +116,6 @@ export function DashboardClient({
     refFilter,
     onRefFilterChange,
     onRefreshAnnouncements,
-    onDeleteAnnouncement,
-    onToggleAnnouncementActive,
  }: DashboardClientProps) {
     const { toast } = useToast();
     const [selectedSubmissionIds, setSelectedSubmissionIds] = useState<string[]>([]);
@@ -280,8 +276,6 @@ export function DashboardClient({
             <AnnouncementsManager 
                 announcements={announcements}
                 onRefresh={onRefreshAnnouncements}
-                onDelete={onDeleteAnnouncement}
-                onToggleActive={onToggleAnnouncementActive}
             />
         </TabsContent>
       </Tabs>
@@ -301,13 +295,13 @@ type AnnouncementFormValues = z.infer<typeof announcementFormSchema>;
 interface AnnouncementsManagerProps {
     announcements: Announcement[];
     onRefresh: () => void;
-    onDelete: (id: string) => Promise<{success: boolean; message: string}>;
-    onToggleActive: (id: string, isActive: boolean) => Promise<{success: boolean; message: string}>;
 }
 
-function AnnouncementsManager({ announcements, onRefresh, onDelete, onToggleActive }: AnnouncementsManagerProps) {
+function AnnouncementsManager({ announcements, onRefresh }: AnnouncementsManagerProps) {
     const { toast } = useToast();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const db = getFirestore(app);
+
     const form = useForm<AnnouncementFormValues>({
         resolver: zodResolver(announcementFormSchema),
         defaultValues: {
@@ -321,7 +315,6 @@ function AnnouncementsManager({ announcements, onRefresh, onDelete, onToggleActi
     const onSubmit = async (values: AnnouncementFormValues) => {
         setIsSubmitting(true);
         try {
-            const db = getFirestore(app);
             const announcementsCol = collection(db, 'announcements');
             const docData = {
                 ...values,
@@ -340,20 +333,26 @@ function AnnouncementsManager({ announcements, onRefresh, onDelete, onToggleActi
     }
     
     const handleDelete = async (id: string) => {
-        const result = await onDelete(id);
-        if (result.success) {
+        try {
+            const docRef = doc(db, 'announcements', id);
+            await deleteDoc(docRef);
             toast({ title: "Success", description: "Announcement deleted." });
-        } else {
-            toast({ title: "Error", description: result.message, variant: "destructive" });
+            onRefresh();
+        } catch (error) {
+            console.error("Error deleting announcement:", error);
+            toast({ title: "Error", description: "Failed to delete announcement.", variant: "destructive" });
         }
     }
 
     const handleToggle = async (id: string, isActive: boolean) => {
-        const result = await onToggleActive(id, isActive);
-        if (result.success) {
+        try {
+            const docRef = doc(db, 'announcements', id);
+            await updateDoc(docRef, { isActive });
             toast({ title: "Success", description: `Announcement ${isActive ? 'activated' : 'deactivated'}.` });
-        } else {
-            toast({ title: "Error", description: result.message, variant: "destructive" });
+            onRefresh();
+        } catch (error) {
+            console.error("Error updating announcement:", error);
+            toast({ title: "Error", description: "Failed to update announcement status.", variant: "destructive" });
         }
     }
 

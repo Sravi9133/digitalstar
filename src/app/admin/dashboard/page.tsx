@@ -10,7 +10,7 @@ import { auth, app } from "@/lib/firebase";
 import { useEffect, useState, useMemo } from "react";
 import { getFirestore, collection, getDocs, Timestamp, doc, updateDoc, query, where, getDoc, serverTimestamp, setDoc, writeBatch, orderBy } from "firebase/firestore";
 import { Loader2 } from "lucide-react";
-import { deleteAnnouncement, getAnnouncements, toggleAnnouncementActive } from "./actions";
+import { getAnnouncements } from "./actions";
 
 const competitionDisplayNames: { [key: string]: string } = {
   "follow-win": "Follow & Win (Daily winner)",
@@ -167,14 +167,6 @@ function DashboardPageContent() {
     }))
   };
 
-  const handleAnnouncementAction = async (action: () => Promise<any>) => {
-    const result = await action();
-    if (result.success) {
-      await fetchAnnouncements(); // Refresh announcements data on success
-    }
-    return result;
-  };
-
   if (isLoadingData) {
       return (
         <div className="flex flex-col min-h-screen">
@@ -202,8 +194,6 @@ function DashboardPageContent() {
             onRefFilterChange={setRefFilter}
             announcements={announcements}
             onRefreshAnnouncements={fetchAnnouncements}
-            onDeleteAnnouncement={(id) => handleAnnouncementAction(() => deleteAnnouncement(id))}
-            onToggleAnnouncementActive={(id, isActive) => handleAnnouncementAction(() => toggleAnnouncementActive(id, isActive))}
         />
     </main>
     </div>
