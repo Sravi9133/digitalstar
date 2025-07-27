@@ -13,21 +13,21 @@ const competitionsData: Omit<Competition, 'deadline'>[] = [
     id: "follow-win",
     name: "Follow & Win (Daily winner)",
     description: "Follow your school's social media and submit a screenshot to win daily prizes.",
-    prize: "LPU Goodie Pack worth ₹500",
+    prize: "🎁 25 winners/day\n🧧 Reward: LPU Goodie Pack worth ₹500\n📣 Winners announced on this platform",
     icon: <Gift className="w-8 h-8 text-primary" />,
   },
   {
     id: "reel-it-feel-it",
     name: "Reel It. Feel It.",
     description: "Create an Instagram Reel about your first days at LPU.",
-    prize: "Premium LPU Merchandise (Worth ₹5,000)",
+    prize: "🎁 Participation Gift: For valid entries with 500+ views (Worth ₹200)\n🏅 Top 3 Reels: Premium LPU Merchandise (Worth ₹5,000 each)",
     icon: <Tv className="w-8 h-8 text-primary" />,
   },
   {
     id: "my-first-day",
     name: "My First Day at LPU",
     description: "Take a selfie at the official Selfie Point and post it on Instagram.",
-    prize: "Participation Gift (Worth ₹100)",
+    prize: "🎁 Participation Gift: For posts with 50+ likes (Worth ₹100)",
     icon: <Camera className="w-8 h-8 text-primary" />,
   },
 ];
@@ -81,9 +81,11 @@ export default async function SubmissionPage({ params }: { params: { id: string 
                     <h1 className="text-4xl md:text-5xl font-bold font-headline mb-2">{competition.name}</h1>
                     <p className="text-lg text-muted-foreground">{competition.id === 'follow-win' ? "Fill in your details to enter the lucky draw" : "Submission Form"}</p>
                     {competition.prize && (
-                        <div className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-primary bg-primary/10 py-1 px-3 rounded-full">
-                            <Gift className="w-4 h-4" />
-                            <span>Prize: {competition.prize}</span>
+                        <div className="mt-4 text-sm text-foreground/90 bg-card/80 p-4 rounded-md border">
+                            <h4 className="font-bold mb-2 flex items-center justify-center"><Gift className="w-4 h-4 mr-2 text-primary" /> Prize Details</h4>
+                            <div className="whitespace-pre-line text-xs">
+                                {competition.prize}
+                            </div>
                         </div>
                     )}
                     <Button asChild variant="link" className="mt-4 block">
