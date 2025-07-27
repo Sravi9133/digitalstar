@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { BarChart, Download, Users, Trophy, Award, ChevronDown, Calendar as CalendarIcon, Link2, Filter } from "lucide-react";
+import { BarChart, Download, Users, Trophy, Award, ChevronDown, Calendar as CalendarIcon, Link2, Filter, Trash2 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import * as XLSX from "xlsx";
@@ -17,7 +17,18 @@ import { useState } from "react";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 interface DashboardClientProps {
   submissions: Submission[];
@@ -30,6 +41,7 @@ interface DashboardClientProps {
     }[];
   };
   onMarkAsWinner: (submission: Submission, rank?: 1 | 2 | 3) => Promise<{success: boolean; message: string}>;
+  onDeleteSubmissions: (ids: string[]) => Promise<{success: boolean; message: string}>;
   reelItFeelItMeta: CompetitionMeta | null;
   onSetReelItFeelItDate: (date: Date) => Promise<{success: boolean; message: string}>;
   refSources: string[];
@@ -82,13 +94,16 @@ const downloadAsXLSX = (data: Submission[], fileName: string, customHeaders?: st
 export function DashboardClient({ 
     submissions, 
     stats, 
-    onMarkAsWinner, 
+    onMarkAsWinner,
+    onDeleteSubmissions,
     reelItFeelItMeta, 
     onSetReelItFeelItDate,
     refSources,
     refFilter,
     onRefFilterChange,
  }: DashboardClientProps) {
+    const { toast } = useToast();
+    const [selectedSubmissionIds, setSelectedSubmissionIds] = useState<string[]>([]);
 
     const handleDownloadAll = () => {
         downloadAsXLSX(submissions, "all_submissions");
@@ -105,6 +120,16 @@ export function DashboardClient({
             headers = ["competitionName", "submittedAt", "registrationId", "postLink", "redditPostLink", "isWinner", "rank", "refSource"];
         }
         downloadAsXLSX(competitionSubmissions, competitionName.replace(/ /g, "_"), headers);
+    }
+    
+    const handleDelete = async () => {
+        const result = await onDeleteSubmissions(selectedSubmissionIds);
+        if (result.success) {
+            toast({ title: "Success", description: result.message });
+            setSelectedSubmissionIds([]);
+        } else {
+            toast({ title: "Error", description: result.message, variant: "destructive" });
+        }
     }
 
   return (
@@ -125,6 +150,28 @@ export function DashboardClient({
                 ))}
               </SelectContent>
             </Select>
+            {selectedSubmissionIds.length > 0 && (
+                 <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                        <Button variant="destructive">
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete ({selectedSubmissionIds.length})
+                        </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This action cannot be undone. This will permanently delete {selectedSubmissionIds.length} submission(s).
+                        </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete}>Confirm Delete</AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+            )}
           <Button onClick={handleDownloadAll}>
             <Download className="mr-2 h-4 w-4" />
             download sheet
@@ -174,36 +221,41 @@ export function DashboardClient({
             </Card>
           </div>
         </TabsContent>
-        {stats.submissionsPerCompetition.map(comp => (
-            <TabsContent key={comp.id} value={comp.id} className="space-y-4">
-                <Card>
-                    <CardHeader>
-                        <div className="flex items-center justify-between">
-                            <CardTitle>{comp.name} Submissions</CardTitle>
-                             <Button onClick={() => handleDownloadCompetition(comp.id, comp.name)} variant="outline" size="sm">
-                                <Download className="mr-2 h-4 w-4" />
-                                Download XLSX
-                            </Button>
-                        </div>
-                    </CardHeader>
-                    {comp.id === 'reel-it-feel-it' && (
+        {stats.submissionsPerCompetition.map(comp => {
+            const competitionSubmissions = submissions.filter(s => s.competitionId === comp.id);
+            return (
+                <TabsContent key={comp.id} value={comp.id} className="space-y-4">
+                    <Card>
+                        <CardHeader>
+                            <div className="flex items-center justify-between">
+                                <CardTitle>{comp.name} Submissions</CardTitle>
+                                 <Button onClick={() => handleDownloadCompetition(comp.id, comp.name)} variant="outline" size="sm">
+                                    <Download className="mr-2 h-4 w-4" />
+                                    Download XLSX
+                                </Button>
+                            </div>
+                        </CardHeader>
+                        {comp.id === 'reel-it-feel-it' && (
+                            <CardContent>
+                                <ResultDateManager 
+                                    meta={reelItFeelItMeta}
+                                    onSetDate={onSetReelItFeelItDate}
+                                />
+                            </CardContent>
+                        )}
                         <CardContent>
-                            <ResultDateManager 
-                                meta={reelItFeelItMeta}
-                                onSetDate={onSetReelItFeelItDate}
+                            <SubmissionsTable 
+                                submissions={competitionSubmissions}
+                                onMarkAsWinner={onMarkAsWinner} 
+                                competitionId={comp.id}
+                                selectedSubmissionIds={selectedSubmissionIds}
+                                setSelectedSubmissionIds={setSelectedSubmissionIds}
                             />
                         </CardContent>
-                    )}
-                    <CardContent>
-                        <SubmissionsTable 
-                            submissions={submissions.filter(s => s.competitionId === comp.id)} 
-                            onMarkAsWinner={onMarkAsWinner} 
-                            competitionId={comp.id}
-                        />
-                    </CardContent>
-                </Card>
-            </TabsContent>
-        ))}
+                    </Card>
+                </TabsContent>
+            )
+        })}
       </Tabs>
     </>
   );
@@ -272,10 +324,13 @@ interface SubmissionsTableProps {
     submissions: Submission[];
     onMarkAsWinner: (submission: Submission, rank?: 1 | 2 | 3) => Promise<{success: boolean; message: string}>;
     competitionId: string;
+    selectedSubmissionIds: string[];
+    setSelectedSubmissionIds: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
-function SubmissionsTable({ submissions, onMarkAsWinner, competitionId }: SubmissionsTableProps) {
+function SubmissionsTable({ submissions, onMarkAsWinner, competitionId, selectedSubmissionIds, setSelectedSubmissionIds }: SubmissionsTableProps) {
     const { toast } = useToast();
+
     if (submissions.length === 0) {
         return <p className="text-center text-muted-foreground py-8">No submissions for this competition yet.</p>
     }
@@ -308,11 +363,30 @@ function SubmissionsTable({ submissions, onMarkAsWinner, competitionId }: Submis
             console.error(error);
         }
     }
+    
+    const handleSelectAll = (checked: boolean) => {
+        if (checked) {
+            const submissionIds = submissions.map(s => s.id);
+            setSelectedSubmissionIds(prev => [...new Set([...prev, ...submissionIds])]);
+        } else {
+            const submissionIds = submissions.map(s => s.id);
+            setSelectedSubmissionIds(prev => prev.filter(id => !submissionIds.includes(id)));
+        }
+    };
+    
+    const isAllSelected = submissions.length > 0 && submissions.every(s => selectedSubmissionIds.includes(s.id));
 
   return (
     <Table>
       <TableHeader>
         <TableRow>
+          <TableHead className="w-[50px]">
+            <Checkbox
+              checked={isAllSelected}
+              onCheckedChange={handleSelectAll}
+              aria-label="Select all"
+            />
+          </TableHead>
           <TableHead>S.No.</TableHead>
           <TableHead>Identifier</TableHead>
           <TableHead className="hidden md:table-cell">Details</TableHead>
@@ -325,7 +399,18 @@ function SubmissionsTable({ submissions, onMarkAsWinner, competitionId }: Submis
       </TableHeader>
       <TableBody>
         {submissions.map((submission, index) => (
-          <TableRow key={submission.id} className={submission.isWinner ? 'bg-primary/10' : ''}>
+          <TableRow key={submission.id} className={submission.isWinner ? 'bg-primary/10' : ''} data-state={selectedSubmissionIds.includes(submission.id) && "selected"}>
+            <TableCell>
+              <Checkbox
+                checked={selectedSubmissionIds.includes(submission.id)}
+                onCheckedChange={(checked) => {
+                  return checked
+                    ? setSelectedSubmissionIds([...selectedSubmissionIds, submission.id])
+                    : setSelectedSubmissionIds(selectedSubmissionIds.filter((id) => id !== submission.id))
+                }}
+                aria-label={`Select submission ${index + 1}`}
+              />
+            </TableCell>
             <TableCell>{index + 1}</TableCell>
             <TableCell className="font-medium">
                 <div className="flex items-center gap-2">
@@ -419,5 +504,3 @@ function SubmissionsTable({ submissions, onMarkAsWinner, competitionId }: Submis
     </Table>
   );
 }
-
-    

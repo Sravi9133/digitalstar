@@ -8,7 +8,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useRouter } from "next/navigation";
 import { auth, app } from "@/lib/firebase";
 import { useEffect, useState, useMemo } from "react";
-import { getFirestore, collection, getDocs, Timestamp, doc, updateDoc, query, where, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
+import { getFirestore, collection, getDocs, Timestamp, doc, updateDoc, query, where, getDoc, serverTimestamp, setDoc, writeBatch } from "firebase/firestore";
 import { Loader2 } from "lucide-react";
 
 const competitionDisplayNames: { [key: string]: string } = {
@@ -67,6 +67,25 @@ function DashboardPageContent() {
         } catch (error) {
             console.error("Error setting announcement date: ", error);
             return { success: false, message: "Failed to set announcement date." };
+        }
+    }
+
+    const handleDeleteSubmissions = async (ids: string[]): Promise<{success: boolean, message: string}> => {
+        if (ids.length === 0) {
+            return { success: false, message: "No submissions selected." };
+        }
+        try {
+            const batch = writeBatch(db);
+            ids.forEach(id => {
+                const submissionRef = doc(db, "submissions", id);
+                batch.delete(submissionRef);
+            });
+            await batch.commit();
+            await fetchData(); // Refetch data to update UI
+            return { success: true, message: `${ids.length} submission(s) deleted successfully.` };
+        } catch (error) {
+            console.error("Error deleting submissions: ", error);
+            return { success: false, message: "Failed to delete submissions." };
         }
     }
 
@@ -156,6 +175,7 @@ function DashboardPageContent() {
             submissions={filteredSubmissions} 
             stats={stats} 
             onMarkAsWinner={handleMarkAsWinner} 
+            onDeleteSubmissions={handleDeleteSubmissions}
             reelItFeelItMeta={reelItFeelItMeta}
             onSetReelItFeelItDate={handleSetReelItFeelItDate}
             refSources={refSources}
