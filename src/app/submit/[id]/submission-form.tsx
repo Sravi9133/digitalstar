@@ -23,7 +23,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { app } from "@/lib/firebase";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { getFirestore, collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { writeToGoogleSheet } from "@/lib/sheets";
+import { writeToGoogleSheet } from "./actions";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_FILE_TYPES = ["application/pdf", "image/jpeg", "image/jpg", "image/png"];
@@ -81,7 +81,7 @@ export function SubmissionForm({ competitionId, competitionName }: SubmissionFor
         const uploadResult = await uploadBytes(storageRef, file);
         const fileUrl = await getDownloadURL(uploadResult.ref);
 
-        const sheetData = {
+        const submissionBaseData = {
             competitionId,
             competitionName,
             name: values.name,
@@ -90,25 +90,29 @@ export function SubmissionForm({ competitionId, competitionName }: SubmissionFor
             university: values.university,
             fileName: file.name,
             fileUrl,
-            submittedAt: new Date(),
         };
 
-        // Save submission data to Firestore
-        const submissionData: any = {
-            ...sheetData,
+        // Data for Firestore
+        const firestoreData: any = {
+            ...submissionBaseData,
             submittedAt: serverTimestamp(),
+        };
+        
+        // Data for Google Sheet
+        const sheetData = {
+            ...submissionBaseData,
+            submittedAt: new Date(),
         };
 
         const refSource = sessionStorage.getItem('refSource');
         if (refSource) {
-            submissionData.refSource = refSource;
-            sheetData.refSource = refSource;
+            firestoreData.refSource = refSource;
+            (sheetData as any).refSource = refSource;
         }
 
-        await addDoc(collection(firestore, "submissions"), submissionData);
+        await addDoc(collection(firestore, "submissions"), firestoreData);
         
-        // Asynchronously write to Google Sheet
-        console.log("Calling Google Sheet function from submission-form...");
+        console.log("Calling Google Sheet server action from submission-form...");
         await writeToGoogleSheet(sheetData);
         
         setIsSubmitting(false);

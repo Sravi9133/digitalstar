@@ -20,7 +20,7 @@ import { CheckCircle, Loader2, Link as LinkIcon, Tv, Camera, Redo } from "lucide
 import { useToast } from "@/hooks/use-toast";
 import { app } from "@/lib/firebase";
 import { getFirestore, collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { writeToGoogleSheet } from "@/lib/sheets";
+import { writeToGoogleSheet } from "./actions";
 
 const formSchema = z.object({
   registrationId: z.string().min(5, "Registration/Candidate ID is required."),
@@ -55,28 +55,33 @@ export function ReelItFeelItForm({ competitionId, competitionName, postType = 'R
     try {
         const db = getFirestore(app);
         
-        const sheetData = {
+        const submissionBaseData = {
           competitionId,
           competitionName,
           ...values,
-          submittedAt: new Date(),
         };
 
-        const submissionData: any = {
-            ...sheetData,
+        // Data for Firestore
+        const firestoreData: any = {
+            ...submissionBaseData,
             submittedAt: serverTimestamp(),
+        };
+
+        // Data for Google Sheet
+        const sheetData = {
+            ...submissionBaseData,
+            submittedAt: new Date(),
         };
 
         const refSource = sessionStorage.getItem('refSource');
         if (refSource) {
-            submissionData.refSource = refSource;
-            sheetData.refSource = refSource;
+            firestoreData.refSource = refSource;
+            (sheetData as any).refSource = refSource;
         }
 
-        await addDoc(collection(db, "submissions"), submissionData);
+        await addDoc(collection(db, "submissions"), firestoreData);
         
-        // Asynchronously write to Google Sheet
-        console.log("Calling Google Sheet function from reel-it-feel-it-form...");
+        console.log("Calling Google Sheet server action from reel-it-feel-it-form...");
         await writeToGoogleSheet(sheetData);
 
         setIsSubmitting(false);

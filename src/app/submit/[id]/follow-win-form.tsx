@@ -31,7 +31,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { app } from "@/lib/firebase";
 import { getFirestore, collection, addDoc, serverTimestamp, Timestamp } from "firebase/firestore";
 import { Checkbox } from "@/components/ui/checkbox";
-import { writeToGoogleSheet } from "@/lib/sheets";
+import { writeToGoogleSheet } from "./actions";
 
 interface School {
     id: string;
@@ -122,30 +122,35 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
     try {
         const db = getFirestore(app);
         
-        const sheetData = {
+        const submissionBaseData = {
           competitionId,
           competitionName,
           ...values,
           school: selectedSchool?.name,
-          submittedAt: new Date(),
         };
 
-        const submissionData: any = {
-            ...sheetData,
+        // Data for Firestore
+        const firestoreData: any = {
+            ...submissionBaseData,
             schoolLink: selectedSchool?.link,
             submittedAt: serverTimestamp(),
+        };
+        
+        // Data for Google Sheet
+        const sheetData = {
+            ...submissionBaseData,
+            submittedAt: new Date(),
         };
 
         const refSource = sessionStorage.getItem('refSource');
         if (refSource) {
-            submissionData.refSource = refSource;
-            sheetData.refSource = refSource;
+            firestoreData.refSource = refSource;
+            (sheetData as any).refSource = refSource;
         }
 
-        await addDoc(collection(db, "submissions"), submissionData);
+        await addDoc(collection(db, "submissions"), firestoreData);
         
-        // Asynchronously write to Google Sheet
-        console.log("Calling Google Sheet function from follow-win-form...");
+        console.log("Calling Google Sheet server action from follow-win-form...");
         await writeToGoogleSheet(sheetData);
 
         setIsSubmitting(false);
