@@ -6,12 +6,15 @@ import type { Submission } from '@/types';
 
 // This function will be called from the server-side form submission logic.
 export async function writeToGoogleSheet(submissionData: Omit<Submission, 'id'>) {
+  console.log("Attempting to write to Google Sheet...");
   try {
     // Authenticate with Google Sheets API
     const credentialsJson = process.env.GOOGLE_SHEETS_CREDENTIALS;
     if (!credentialsJson) {
+      console.error("GOOGLE_SHEETS_CREDENTIALS environment variable not set.");
       throw new Error("GOOGLE_SHEETS_CREDENTIALS environment variable not set.");
     }
+    console.log("Successfully retrieved credentials from environment.");
     
     console.log("Attempting to parse credentials...");
     const credentials = JSON.parse(credentialsJson);
@@ -26,8 +29,10 @@ export async function writeToGoogleSheet(submissionData: Omit<Submission, 'id'>)
     const spreadsheetId = process.env.GOOGLE_SHEET_ID;
 
     if (!spreadsheetId) {
+        console.error("GOOGLE_SHEET_ID environment variable not set.");
         throw new Error("GOOGLE_SHEET_ID environment variable not set.");
     }
+    console.log(`Using Google Sheet ID: ${spreadsheetId}`);
 
     // Prepare the row data based on the Submission type
     // IMPORTANT: The order here MUST match the order of headers in your Google Sheet
