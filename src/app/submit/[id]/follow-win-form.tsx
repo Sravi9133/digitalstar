@@ -139,6 +139,7 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
         // Data for Google Sheet
         const sheetData = {
             ...submissionBaseData,
+            schoolLink: selectedSchool?.link,
             submittedAt: new Date(),
         };
 
@@ -149,16 +150,29 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
         }
 
         await addDoc(collection(db, "submissions"), firestoreData);
-        
-        console.log("Calling Google Sheet server action from follow-win-form...");
-        await writeToGoogleSheet(sheetData);
-
-        setIsSubmitting(false);
-        setIsSubmitted(true);
         toast({
             title: "Submission Successful!",
             description: `Your entry for ${competitionName} has been received.`,
-          });
+        });
+        
+        console.log("Calling Google Sheet server action from follow-win-form...");
+        const result = await writeToGoogleSheet(sheetData);
+
+        if (result.success) {
+            toast({
+                title: "Data Synced",
+                description: "Your submission has been saved to our records.",
+            });
+        } else {
+            toast({
+                title: "Sync Failed",
+                description: result.message,
+                variant: "destructive",
+            });
+        }
+        
+        setIsSubmitting(false);
+        setIsSubmitted(true);
     } catch (error) {
         console.error("Error adding document: ", error);
         setIsSubmitting(false);

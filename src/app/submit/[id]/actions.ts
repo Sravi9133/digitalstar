@@ -46,7 +46,7 @@ export async function writeToGoogleSheet(submissionData: Omit<Submission, 'id'>)
 
     // IMPORTANT: The order here MUST match the order of headers in your Google Sheet
     const row = [
-        new Date().toISOString(), // Use current time as fallback if submittedAt is missing
+        rowData.submittedAt ? new Date(rowData.submittedAt).toISOString() : new Date().toISOString(),
         rowData.competitionName || '',
         rowData.name || '',
         rowData.email || '',

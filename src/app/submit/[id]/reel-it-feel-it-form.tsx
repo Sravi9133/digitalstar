@@ -80,16 +80,29 @@ export function ReelItFeelItForm({ competitionId, competitionName, postType = 'R
         }
 
         await addDoc(collection(db, "submissions"), firestoreData);
-        
-        console.log("Calling Google Sheet server action from reel-it-feel-it-form...");
-        await writeToGoogleSheet(sheetData);
-
-        setIsSubmitting(false);
-        setIsSubmitted(true);
         toast({
             title: "Submission Successful!",
             description: `Your ${postType.toLowerCase()} for ${competitionName} has been submitted.`,
         });
+
+        console.log("Calling Google Sheet server action from reel-it-feel-it-form...");
+        const result = await writeToGoogleSheet(sheetData);
+
+        if (result.success) {
+            toast({
+                title: "Data Synced",
+                description: "Your submission has been saved to our records.",
+            });
+        } else {
+            toast({
+                title: "Sync Failed",
+                description: result.message,
+                variant: "destructive",
+            });
+        }
+
+        setIsSubmitting(false);
+        setIsSubmitted(true);
     } catch (error) {
         console.error("Error adding document: ", error);
         setIsSubmitting(false);

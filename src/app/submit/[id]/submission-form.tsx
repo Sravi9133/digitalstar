@@ -111,17 +111,29 @@ export function SubmissionForm({ competitionId, competitionName }: SubmissionFor
         }
 
         await addDoc(collection(firestore, "submissions"), firestoreData);
-        
-        console.log("Calling Google Sheet server action from submission-form...");
-        await writeToGoogleSheet(sheetData);
-        
-        setIsSubmitting(false);
-        setIsSubmitted(true);
         toast({
             title: "Submission Successful!",
             description: "Your entry has been received.",
         });
 
+        console.log("Calling Google Sheet server action from submission-form...");
+        const result = await writeToGoogleSheet(sheetData);
+
+        if (result.success) {
+            toast({
+                title: "Data Synced",
+                description: "Your submission has been saved to our records.",
+            });
+        } else {
+            toast({
+                title: "Sync Failed",
+                description: result.message,
+                variant: "destructive",
+            });
+        }
+        
+        setIsSubmitting(false);
+        setIsSubmitted(true);
     } catch (error) {
         console.error("Submission error:", error);
         setIsSubmitting(false);
