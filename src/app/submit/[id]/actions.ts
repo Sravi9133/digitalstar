@@ -21,9 +21,19 @@ export async function writeToGoogleSheet(submissionData: Omit<Submission, 'id'>)
     return { success: false, message: 'Server configuration error: Sheet ID missing.' };
   }
 
+  let credentials;
   try {
-    const credentials = JSON.parse(credentialsJson);
+    credentials = JSON.parse(credentialsJson);
+    console.log("SERVER ACTION: Successfully parsed credentials.");
+  } catch (error: any) {
+    console.error("SERVER ACTION CRITICAL ERROR: Failed to parse GOOGLE_SHEETS_CREDENTIALS.", error.message);
+    // Log the problematic string, but be careful with sensitive data in real logs
+    const redactedCreds = credentialsJson.replace(/"private_key":\s*".*?"/, '"private_key": "[REDACTED]"');
+    console.error("SERVER ACTION INFO: Attempted to parse:", redactedCreds);
+    return { success: false, message: 'Server configuration error: Malformed credentials.' };
+  }
 
+  try {
     const auth = new google.auth.GoogleAuth({
       credentials,
       scopes: ['https://www.googleapis.com/auth/spreadsheets'],
@@ -36,7 +46,7 @@ export async function writeToGoogleSheet(submissionData: Omit<Submission, 'id'>)
 
     // IMPORTANT: The order here MUST match the order of headers in your Google Sheet
     const row = [
-        rowData.submittedAt.toISOString(),
+        new Date().toISOString(), // Use current time as fallback if submittedAt is missing
         rowData.competitionName || '',
         rowData.name || '',
         rowData.email || '',
@@ -58,7 +68,7 @@ export async function writeToGoogleSheet(submissionData: Omit<Submission, 'id'>)
 
     const response = await sheets.spreadsheets.values.append({
       spreadsheetId,
-      range: 'Sheet1!A1',
+      range: 'Sheet1!A1', // Assumes you want to append to the first sheet
       valueInputOption: 'USER_ENTERED',
       requestBody: {
         values: [row],
