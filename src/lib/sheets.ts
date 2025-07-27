@@ -3,30 +3,27 @@
 
 import { google } from 'googleapis';
 import type { Submission } from '@/types';
-import * as dotenv from 'dotenv';
-
-// Force-load environment variables from .env file
-dotenv.config();
 
 // This function will be called from the server-side form submission logic.
 export async function writeToGoogleSheet(submissionData: Omit<Submission, 'id'>) {
-  console.log("Attempting to write to Google Sheet...");
-
-  const credentialsJson = process.env.GOOGLE_SHEETS_CREDENTIALS;
-  const spreadsheetId = process.env.GOOGLE_SHEET_ID;
-
-  if (!credentialsJson) {
-    console.error("GOOGLE_SHEETS_CREDENTIALS environment variable not set or not found.");
-    return { success: false, message: 'Server configuration error: Credentials missing.' };
-  }
-  if (!spreadsheetId) {
-    console.error("GOOGLE_SHEET_ID environment variable not set or not found.");
-    return { success: false, message: 'Server configuration error: Sheet ID missing.' };
-  }
-  
-  console.log("Credentials and Sheet ID found in environment variables.");
+  console.log("Starting writeToGoogleSheet function execution.");
 
   try {
+    const credentialsJson = process.env.GOOGLE_SHEETS_CREDENTIALS;
+    const spreadsheetId = process.env.GOOGLE_SHEET_ID;
+
+    if (!credentialsJson) {
+      console.error("CRITICAL: GOOGLE_SHEETS_CREDENTIALS environment variable not found.");
+      return { success: false, message: 'Server configuration error: Credentials missing.' };
+    }
+    console.log("Successfully found GOOGLE_SHEETS_CREDENTIALS.");
+    
+    if (!spreadsheetId) {
+      console.error("CRITICAL: GOOGLE_SHEET_ID environment variable not found.");
+      return { success: false, message: 'Server configuration error: Sheet ID missing.' };
+    }
+    console.log("Successfully found GOOGLE_SHEET_ID.");
+
     const credentials = JSON.parse(credentialsJson);
 
     const auth = new google.auth.GoogleAuth({
@@ -35,7 +32,6 @@ export async function writeToGoogleSheet(submissionData: Omit<Submission, 'id'>)
     });
 
     const sheets = google.sheets({ version: 'v4', auth });
-
     console.log("Successfully authenticated with Google Sheets API.");
 
     // IMPORTANT: The order here MUST match the order of headers in your Google Sheet
@@ -54,11 +50,11 @@ export async function writeToGoogleSheet(submissionData: Omit<Submission, 'id'>)
         submissionData.fileName || '',
         submissionData.fileUrl || '',
         submissionData.isWinner || false,
-        submissionData.rank || '',
+        String(submissionData.rank || ''),
         submissionData.refSource || 'Direct',
     ];
 
-    console.log("Appending row to sheet:", row);
+    console.log("Formatted row to be appended:", row);
 
     // Append the new row to the sheet
     const response = await sheets.spreadsheets.values.append({
@@ -74,9 +70,9 @@ export async function writeToGoogleSheet(submissionData: Omit<Submission, 'id'>)
     return { success: true, message: 'Successfully written to Google Sheet.' };
 
   } catch (error: any) {
-    console.error('Error writing to Google Sheet:', error.message, error.stack);
+    console.error('CRITICAL ERROR in writeToGoogleSheet:', error.message, error.stack);
     // Do not re-throw the error to prevent the user from seeing a failure,
     // as the primary data store (Firestore) was successful.
-    return { success: false, message: 'Failed to write to Google Sheet.' };
+    return { success: false, message: 'Failed to write to Google Sheet due to a server error.' };
   }
 }
