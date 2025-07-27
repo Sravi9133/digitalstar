@@ -7,6 +7,7 @@ export interface Competition {
   description: string;
   deadline: Date;
   icon: ReactNode;
+  prize?: string;
 }
 
 export type Submission = {

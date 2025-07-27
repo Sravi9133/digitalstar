@@ -15,6 +15,7 @@ const competitions: Competition[] = [
     id: "follow-win",
     name: "Follow & Win (Daily winner)",
     description: "Follow your school's social media and submit a screenshot to win daily prizes. Every day, we’ll pick lucky winners from valid entries for a chance to win LPU goodies!",
+    prize: "LPU Goodies",
     deadline: new Date("2025-09-30T23:59:59"),
     icon: <Gift className="w-8 h-8 text-primary" />,
   },
@@ -22,6 +23,7 @@ const competitions: Competition[] = [
     id: "reel-it-feel-it",
     name: "Reel It. Feel It.",
     description: "Create an Instagram Reel about your first days at LPU. Top 3 reels will win premium LPU merchandise and get featured on the official LPU Instagram handle!",
+    prize: "Premium LPU Merchandise",
     deadline: new Date("2025-10-15T23:59:59"),
     icon: <Tv className="w-8 h-8 text-primary" />,
   },
@@ -29,6 +31,7 @@ const competitions: Competition[] = [
     id: "my-first-day",
     name: "My First Day at LPU",
     description: "Take a selfie at LPU’s official Selfie Point, post it on Instagram using the designated hashtag, and tag the official LPU page.",
+    prize: "Featured on LPU Socials",
     deadline: new Date("2025-09-20T23:59:59"),
     icon: <Camera className="w-8 h-8 text-primary" />,
   },
@@ -114,6 +117,12 @@ export default async function Home() {
                     <CardDescription>{competition.description}</CardDescription>
                   </CardContent>
                   <CardFooter className="flex flex-col items-start gap-4">
+                     {competition.prize && (
+                        <div className="flex items-center gap-2 text-sm font-semibold text-primary">
+                            <Gift className="w-4 h-4" />
+                            <span>Prize: {competition.prize}</span>
+                        </div>
+                     )}
                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
                        <Calendar className="w-4 h-4" />
                        <span>Deadline: {competition.deadline.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>

@@ -13,18 +13,21 @@ const competitionsData: Omit<Competition, 'deadline'>[] = [
     id: "follow-win",
     name: "Follow & Win (Daily winner)",
     description: "Follow your school's social media and submit a screenshot to win daily prizes.",
+    prize: "LPU Goodies",
     icon: <Gift className="w-8 h-8 text-primary" />,
   },
   {
     id: "reel-it-feel-it",
     name: "Reel It. Feel It.",
     description: "Create an Instagram Reel about your first days at LPU.",
+    prize: "Premium LPU Merchandise",
     icon: <Tv className="w-8 h-8 text-primary" />,
   },
   {
     id: "my-first-day",
     name: "My First Day at LPU",
     description: "Take a selfie at the official Selfie Point and post it on Instagram.",
+    prize: "Featured on LPU Socials",
     icon: <Camera className="w-8 h-8 text-primary" />,
   },
 ];
@@ -77,7 +80,13 @@ export default async function SubmissionPage({ params }: { params: { id: string 
                     </div>
                     <h1 className="text-4xl md:text-5xl font-bold font-headline mb-2">{competition.name}</h1>
                     <p className="text-lg text-muted-foreground">{competition.id === 'follow-win' ? "Fill in your details to enter the lucky draw" : "Submission Form"}</p>
-                    <Button asChild variant="link" className="mt-4">
+                    {competition.prize && (
+                        <div className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-primary bg-primary/10 py-1 px-3 rounded-full">
+                            <Gift className="w-4 h-4" />
+                            <span>Prize: {competition.prize}</span>
+                        </div>
+                    )}
+                    <Button asChild variant="link" className="mt-4 block">
                         <Link href="/"><ArrowLeft className="mr-2 h-4 w-4" />Back to all competitions</Link>
                     </Button>
                 </div>
