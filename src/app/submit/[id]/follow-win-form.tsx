@@ -230,7 +230,7 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
                     <div className="text-center">
                         <p className="text-sm text-muted-foreground mb-2">Follow this page and submit a screenshot:</p>
                         <Button asChild variant="outline">
-                            <Link href={selectedSchoolUrl} target="_blank">
+                            <Link href={selectedSchoolUrl} target="_blank" rel="noopener noreferrer">
                                 <LinkIcon className="mr-2 h-4 w-4" />
                                 {schools.find(s => s.link === selectedSchoolUrl)?.name} Official Page
                             </Link>
@@ -242,12 +242,12 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
             <Card className="bg-muted/50 p-4 flex flex-col items-center justify-center gap-2">
                 <p className="text-sm text-muted-foreground -mt-1 mb-1">And please follow both subreddits:</p>
                 <Button asChild variant="link">
-                    <Link href="https://www.reddit.com/r/btech_/" target="_blank">
+                    <Link href="https://www.reddit.com/r/btech_/" target="_blank" rel="noopener noreferrer">
                         r/btech_ <ExternalLink className="ml-2 h-4 w-4" />
                     </Link>
                 </Button>
                 <Button asChild variant="link">
-                    <Link href="https://www.reddit.com/r/Lpu_/" target="_blank">
+                    <Link href="https://www.reddit.com/r/Lpu_/" target="_blank" rel="noopener noreferrer">
                         r/Lpu_ <ExternalLink className="ml-2 h-4 w-4" />
                     </Link>
                 </Button>
