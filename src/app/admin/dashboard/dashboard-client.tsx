@@ -317,7 +317,7 @@ function SubmissionsTable({ submissions, onMarkAsWinner, competitionId }: Submis
           <TableHead>Identifier</TableHead>
           <TableHead className="hidden md:table-cell">Details</TableHead>
           <TableHead>Links</TableHead>
-          <TableHead className="hidden md:table-cell">Referral</TableHead>
+          <TableHead>Referral</TableHead>
           <TableHead className="hidden lg:table-cell">Submitted At</TableHead>
           <TableHead>File</TableHead>
           <TableHead className="text-right">Actions</TableHead>
@@ -354,7 +354,7 @@ function SubmissionsTable({ submissions, onMarkAsWinner, competitionId }: Submis
                     )}
                 </div>
             </TableCell>
-            <TableCell className="hidden md:table-cell">
+            <TableCell>
                 {submission.refSource ? (
                     <Badge variant="secondary" className="whitespace-nowrap">
                         <Link2 className="mr-1.5 h-3 w-3"/>
