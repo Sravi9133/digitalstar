@@ -49,6 +49,7 @@ async function getAccessToken(client_email: string, private_key: string) {
       grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
       assertion: jwt,
     }),
+    cache: 'no-cache',
   });
 
   const tokens = await response.json();
@@ -62,7 +63,7 @@ async function getAccessToken(client_email: string, private_key: string) {
   return tokens.access_token;
 }
 
-export async function writeToGoogleSheet(submissionData: Omit<Submission, 'id'>) {
+export async function writeToGoogleSheet(submissionData: Omit<Submission, 'id' | 'submittedAt'>) {
   console.log("SERVER ACTION: writeToGoogleSheet started.");
 
   const credentialsJson = process.env.GOOGLE_SHEETS_CREDENTIALS;
@@ -130,6 +131,7 @@ export async function writeToGoogleSheet(submissionData: Omit<Submission, 'id'>)
         body: JSON.stringify({
             values: [row],
         }),
+        cache: 'no-cache',
     });
 
     const appendResult = await appendResponse.json();

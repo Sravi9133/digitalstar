@@ -67,11 +67,8 @@ export function ReelItFeelItForm({ competitionId, competitionName, postType = 'R
             submittedAt: serverTimestamp(),
         };
 
-        // Data for Google Sheet
-        const sheetData = {
-            ...submissionBaseData,
-            submittedAt: new Date(),
-        };
+        // Data for Google Sheet - Note: submittedAt is omitted
+        const sheetData = { ...submissionBaseData };
 
         const refSource = sessionStorage.getItem('refSource');
         if (refSource) {

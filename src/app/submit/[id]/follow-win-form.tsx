@@ -127,21 +127,17 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
           competitionName,
           ...values,
           school: selectedSchool?.name,
+          schoolLink: selectedSchool?.link,
         };
 
         // Data for Firestore
         const firestoreData: any = {
             ...submissionBaseData,
-            schoolLink: selectedSchool?.link,
             submittedAt: serverTimestamp(),
         };
         
-        // Data for Google Sheet
-        const sheetData = {
-            ...submissionBaseData,
-            schoolLink: selectedSchool?.link,
-            submittedAt: new Date(),
-        };
+        // Data for Google Sheet - Note: submittedAt is omitted
+        const sheetData = { ...submissionBaseData };
 
         const refSource = sessionStorage.getItem('refSource');
         if (refSource) {
