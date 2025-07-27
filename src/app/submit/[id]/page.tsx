@@ -13,7 +13,7 @@ const competitionsData: Omit<Competition, 'deadline'>[] = [
     id: "follow-win",
     name: "Follow & Win (Daily winner)",
     description: "Follow your school's social media and submit a screenshot to win daily prizes.",
-    prize: "🎁 25 winners/day (Lucky draw)\n🧧 Reward: LPU Goodie Pack worth Rs. 500\n📣 Winners announced on this platform",
+    prize: "🎁 25 winners/day (Lucky draw)\n🧧 Reward: LPU Goodie Pack worth Rs. 500\n📣 Winners will be announced on this platform",
     icon: <Gift className="w-8 h-8 text-primary" />,
   },
   {
