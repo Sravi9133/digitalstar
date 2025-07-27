@@ -24,7 +24,7 @@ import { getFirestore, collection, addDoc, serverTimestamp } from "firebase/fire
 const formSchema = z.object({
   registrationId: z.string().min(5, "Registration/Candidate ID is required."),
   postLink: z.string().url("Please enter a valid Instagram link."),
-  redditPostLink: z.string().url("Please enter a valid Reddit link."),
+  redditPostLink: z.string().url("Please enter a valid Reddit link.").or(z.literal('')).optional(),
 });
 
 type ReelItFeelItFormValues = z.infer<typeof formSchema>;
