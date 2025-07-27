@@ -1,27 +1,12 @@
 
 'use server';
 
-import { getFirestore, collection, addDoc, serverTimestamp, getDocs, query, orderBy, Timestamp, doc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, query, orderBy, Timestamp, doc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { app } from '@/lib/firebase';
 import type { Announcement } from '@/types';
 
 const db = getFirestore(app);
 const announcementsCol = collection(db, 'announcements');
-
-// CREATE
-export async function createAnnouncement(data: Omit<Announcement, 'id' | 'createdAt'>) {
-    try {
-        const docData = {
-            ...data,
-            createdAt: serverTimestamp(),
-        };
-        await addDoc(announcementsCol, docData);
-        return { success: true, message: 'Announcement created successfully.' };
-    } catch (error) {
-        console.error("Error creating announcement: ", error);
-        return { success: false, message: 'Failed to create announcement.' };
-    }
-}
 
 // READ
 export async function getAnnouncements(): Promise<Announcement[]> {

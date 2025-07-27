@@ -10,7 +10,7 @@ import { auth, app } from "@/lib/firebase";
 import { useEffect, useState, useMemo } from "react";
 import { getFirestore, collection, getDocs, Timestamp, doc, updateDoc, query, where, getDoc, serverTimestamp, setDoc, writeBatch, orderBy } from "firebase/firestore";
 import { Loader2 } from "lucide-react";
-import { createAnnouncement, deleteAnnouncement, getAnnouncements, toggleAnnouncementActive } from "./actions";
+import { deleteAnnouncement, getAnnouncements, toggleAnnouncementActive } from "./actions";
 
 const competitionDisplayNames: { [key: string]: string } = {
   "follow-win": "Follow & Win (Daily winner)",
@@ -42,8 +42,7 @@ function DashboardPageContent() {
         setAllSubmissions(submissionList);
 
         // Fetch announcements
-        const fetchedAnnouncements = await getAnnouncements();
-        setAnnouncements(fetchedAnnouncements);
+        await fetchAnnouncements();
 
         // Fetch competition meta
         const metaRef = doc(db, "competition_meta", "reel-it-feel-it");
@@ -59,6 +58,11 @@ function DashboardPageContent() {
         }
 
         setIsLoadingData(false);
+    };
+
+    const fetchAnnouncements = async () => {
+        const fetchedAnnouncements = await getAnnouncements();
+        setAnnouncements(fetchedAnnouncements);
     };
 
     useEffect(() => {
@@ -166,7 +170,7 @@ function DashboardPageContent() {
   const handleAnnouncementAction = async (action: () => Promise<any>) => {
     const result = await action();
     if (result.success) {
-      await fetchData(); // Refresh data on success
+      await fetchAnnouncements(); // Refresh announcements data on success
     }
     return result;
   };
@@ -197,7 +201,7 @@ function DashboardPageContent() {
             refFilter={refFilter}
             onRefFilterChange={setRefFilter}
             announcements={announcements}
-            onCreateAnnouncement={(data) => handleAnnouncementAction(() => createAnnouncement(data))}
+            onRefreshAnnouncements={fetchAnnouncements}
             onDeleteAnnouncement={(id) => handleAnnouncementAction(() => deleteAnnouncement(id))}
             onToggleAnnouncementActive={(id, isActive) => handleAnnouncementAction(() => toggleAnnouncementActive(id, isActive))}
         />

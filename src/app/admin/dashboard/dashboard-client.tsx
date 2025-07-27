@@ -37,6 +37,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Loader2 } from "lucide-react";
+import { addDoc, collection, getFirestore, serverTimestamp } from "firebase/firestore";
+import { app } from "@/lib/firebase";
 
 
 interface DashboardClientProps {
@@ -57,7 +59,7 @@ interface DashboardClientProps {
   refSources: string[];
   refFilter: string;
   onRefFilterChange: (value: string) => void;
-  onCreateAnnouncement: (data: Omit<Announcement, 'id' | 'createdAt'>) => Promise<{success: boolean; message: string}>;
+  onRefreshAnnouncements: () => void;
   onDeleteAnnouncement: (id: string) => Promise<{success: boolean; message: string}>;
   onToggleAnnouncementActive: (id: string, isActive: boolean) => Promise<{success: boolean; message: string}>;
 }
@@ -115,7 +117,7 @@ export function DashboardClient({
     refSources,
     refFilter,
     onRefFilterChange,
-    onCreateAnnouncement,
+    onRefreshAnnouncements,
     onDeleteAnnouncement,
     onToggleAnnouncementActive,
  }: DashboardClientProps) {
@@ -277,7 +279,7 @@ export function DashboardClient({
         <TabsContent value="announcements" className="space-y-4">
             <AnnouncementsManager 
                 announcements={announcements}
-                onCreate={onCreateAnnouncement}
+                onRefresh={onRefreshAnnouncements}
                 onDelete={onDeleteAnnouncement}
                 onToggleActive={onToggleAnnouncementActive}
             />
@@ -298,12 +300,12 @@ type AnnouncementFormValues = z.infer<typeof announcementFormSchema>;
 
 interface AnnouncementsManagerProps {
     announcements: Announcement[];
-    onCreate: (data: Omit<Announcement, 'id' | 'createdAt'>) => Promise<{success: boolean; message: string}>;
+    onRefresh: () => void;
     onDelete: (id: string) => Promise<{success: boolean; message: string}>;
     onToggleActive: (id: string, isActive: boolean) => Promise<{success: boolean; message: string}>;
 }
 
-function AnnouncementsManager({ announcements, onCreate, onDelete, onToggleActive }: AnnouncementsManagerProps) {
+function AnnouncementsManager({ announcements, onRefresh, onDelete, onToggleActive }: AnnouncementsManagerProps) {
     const { toast } = useToast();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const form = useForm<AnnouncementFormValues>({
@@ -318,12 +320,21 @@ function AnnouncementsManager({ announcements, onCreate, onDelete, onToggleActiv
 
     const onSubmit = async (values: AnnouncementFormValues) => {
         setIsSubmitting(true);
-        const result = await onCreate(values);
-        if (result.success) {
+        try {
+            const db = getFirestore(app);
+            const announcementsCol = collection(db, 'announcements');
+            const docData = {
+                ...values,
+                createdAt: serverTimestamp(),
+            };
+            await addDoc(announcementsCol, docData);
+            
             toast({ title: "Success", description: "Announcement created successfully." });
             form.reset();
-        } else {
-            toast({ title: "Error", description: result.message, variant: "destructive" });
+            onRefresh(); // Refresh the list
+        } catch (error) {
+            console.error("Error creating announcement:", error);
+            toast({ title: "Error", description: "Failed to create announcement.", variant: "destructive" });
         }
         setIsSubmitting(false);
     }
