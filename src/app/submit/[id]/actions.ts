@@ -1,10 +1,67 @@
 
 'use server';
 
-import { google } from 'googleapis';
 import type { Submission } from '@/types';
+import { createSign } from 'crypto';
 
-// This is a Server Action that can be called from client components.
+// Helper function to create a signed JWT
+async function createJwt(client_email: string, private_key: string) {
+  const header = {
+    alg: 'RS256',
+    typ: 'JWT',
+  };
+
+  const now = Math.floor(Date.now() / 1000);
+  const claimSet = {
+    iss: client_email,
+    scope: 'https://www.googleapis.com/auth/spreadsheets',
+    aud: 'https://oauth2.googleapis.com/token',
+    exp: now + 3600, // Token valid for 1 hour
+    iat: now,
+  };
+
+  const encodedHeader = Buffer.from(JSON.stringify(header)).toString('base64url');
+  const encodedClaimSet = Buffer.from(JSON.stringify(claimSet)).toString('base64url');
+  
+  const signatureInput = `${encodedHeader}.${encodedClaimSet}`;
+  
+  const sign = createSign('RSA-SHA256');
+  sign.update(signatureInput);
+  sign.end();
+  
+  const signature = sign.sign(private_key, 'base64url');
+
+  return `${signatureInput}.${signature}`;
+}
+
+// Helper function to get an access token
+async function getAccessToken(client_email: string, private_key: string) {
+  console.log('SERVER ACTION: Creating JWT for authentication...');
+  const jwt = await createJwt(client_email, private_key);
+  console.log('SERVER ACTION: JWT created. Requesting access token...');
+
+  const response = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: new URLSearchParams({
+      grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+      assertion: jwt,
+    }),
+  });
+
+  const tokens = await response.json();
+
+  if (!response.ok) {
+    console.error('SERVER ACTION ERROR: Failed to get access token.', tokens);
+    throw new Error('Could not retrieve access token.');
+  }
+  
+  console.log('SERVER ACTION: Access token retrieved successfully.');
+  return tokens.access_token;
+}
+
 export async function writeToGoogleSheet(submissionData: Omit<Submission, 'id'>) {
   console.log("SERVER ACTION: writeToGoogleSheet started.");
 
@@ -12,75 +69,81 @@ export async function writeToGoogleSheet(submissionData: Omit<Submission, 'id'>)
   const spreadsheetId = process.env.GOOGLE_SHEET_ID;
 
   if (!credentialsJson) {
-    console.error("SERVER ACTION ERROR: GOOGLE_SHEETS_CREDENTIALS environment variable not found.");
-    return { success: false, message: 'Server configuration error: Credentials missing.' };
+    const message = 'Server configuration error: GOOGLE_SHEETS_CREDENTIALS missing.';
+    console.error(`SERVER ACTION ERROR: ${message}`);
+    return { success: false, message };
   }
   
   if (!spreadsheetId) {
-    console.error("SERVER ACTION ERROR: GOOGLE_SHEET_ID environment variable not found.");
-    return { success: false, message: 'Server configuration error: Sheet ID missing.' };
+    const message = 'Server configuration error: GOOGLE_SHEET_ID missing.';
+    console.error(`SERVER ACTION ERROR: ${message}`);
+    return { success: false, message };
   }
 
   let credentials;
   try {
     credentials = JSON.parse(credentialsJson);
-    console.log("SERVER ACTION: Successfully parsed credentials.");
-  } catch (error: any) {
-    console.error("SERVER ACTION CRITICAL ERROR: Failed to parse GOOGLE_SHEETS_CREDENTIALS.", error.message);
-    // Log the problematic string, but be careful with sensitive data in real logs
-    const redactedCreds = credentialsJson.replace(/"private_key":\s*".*?"/, '"private_key": "[REDACTED]"');
-    console.error("SERVER ACTION INFO: Attempted to parse:", redactedCreds);
-    return { success: false, message: 'Server configuration error: Malformed credentials.' };
+  } catch (error) {
+    const message = 'Server configuration error: Malformed credentials JSON.';
+    console.error(`SERVER ACTION CRITICAL ERROR: ${message}`, error);
+    return { success: false, message };
   }
 
   try {
-    const auth = new google.auth.GoogleAuth({
-      credentials,
-      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-    });
-
-    const sheets = google.sheets({ version: 'v4', auth });
-    console.log("SERVER ACTION: Successfully authenticated with Google Sheets API.");
+    const { client_email, private_key } = credentials;
+    const accessToken = await getAccessToken(client_email, private_key.replace(/\\n/g, '\n'));
 
     const rowData = submissionData as any;
-
-    // IMPORTANT: The order here MUST match the order of headers in your Google Sheet
     const row = [
-        String(rowData.submittedAt ? new Date(rowData.submittedAt).toISOString() : new Date().toISOString()),
-        String(rowData.competitionName || ''),
-        String(rowData.name || ''),
-        String(rowData.email || ''),
-        String(rowData.phone || ''),
-        String(rowData.university || ''),
-        String(rowData.registrationId || ''),
-        String(rowData.instagramHandle || ''),
-        String(rowData.school || ''),
-        String(rowData.postLink || ''),
-        String(rowData.redditPostLink || ''),
-        String(rowData.fileName || ''),
-        String(rowData.fileUrl || ''),
-        String(rowData.isWinner || false),
-        String(rowData.rank || ''),
-        String(rowData.refSource || 'Direct'),
+      String(rowData.submittedAt ? new Date(rowData.submittedAt).toISOString() : new Date().toISOString()),
+      String(rowData.competitionName || ''),
+      String(rowData.name || ''),
+      String(rowData.email || ''),
+      String(rowData.phone || ''),
+      String(rowData.university || ''),
+      String(rowData.registrationId || ''),
+      String(rowData.instagramHandle || ''),
+      String(rowData.school || ''),
+      String(rowData.postLink || ''),
+      String(rowData.redditPostLink || ''),
+      String(rowData.fileName || ''),
+      String(rowData.fileUrl || ''),
+      String(rowData.isWinner || 'false'), // Ensure boolean is string
+      String(rowData.rank || ''),
+      String(rowData.refSource || 'Direct'),
     ];
 
     console.log("SERVER ACTION: Formatted row to be appended:", row);
+    
+    const range = 'Sheet1'; // Append to the whole sheet
+    const valueInputOption = 'USER_ENTERED';
+    const appendUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}:append?valueInputOption=${valueInputOption}`;
 
-    const response = await sheets.spreadsheets.values.append({
-      spreadsheetId,
-      range: 'Sheet1', // Append to the sheet, it will find the first empty row.
-      valueInputOption: 'USER_ENTERED',
-      requestBody: {
-        values: [row],
-      },
+    const appendResponse = await fetch(appendUrl, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            values: [row],
+        }),
     });
 
-    console.log("SERVER ACTION: Successfully wrote to Google Sheet. Response:", response.status, response.statusText);
+    const appendResult = await appendResponse.json();
+
+    if (!appendResponse.ok) {
+        console.error("SERVER ACTION ERROR: Failed to append data to sheet. API Response:", appendResult);
+        throw new Error('Google Sheets API append call failed.');
+    }
+
+    console.log("SERVER ACTION: Successfully wrote to Google Sheet. Response:", appendResult);
     return { success: true, message: 'Successfully written to Google Sheet.' };
 
   } catch (error: any) {
-    console.error('SERVER ACTION CRITICAL ERROR: The API call failed. Full error object:');
-    console.error(error); // Log the entire error object
+    console.error('SERVER ACTION CRITICAL ERROR: The API call process failed.', error);
+    // Log the entire error object for detailed debugging
+    console.error('Full error object:', JSON.stringify(error, null, 2));
     return { success: false, message: 'Failed to write to Google Sheet due to a server error.' };
   }
 }
