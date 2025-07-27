@@ -94,9 +94,11 @@ export async function writeToGoogleSheet(submissionData: Omit<Submission, 'id'>)
     const accessToken = await getAccessToken(client_email, private_key.replace(/\\n/g, '\n'));
 
     const rowData = submissionData as any;
+    // This order MUST match the Google Sheet columns exactly.
     const row = [
-      String(rowData.submittedAt ? new Date(rowData.submittedAt).toISOString() : new Date().toISOString()),
+      '', // S.No. - Intentionally left blank, can be filled by sheet formula
       String(rowData.competitionName || ''),
+      String(rowData.submittedAt ? new Date(rowData.submittedAt).toISOString() : new Date().toISOString()),
       String(rowData.name || ''),
       String(rowData.email || ''),
       String(rowData.phone || ''),
@@ -108,7 +110,7 @@ export async function writeToGoogleSheet(submissionData: Omit<Submission, 'id'>)
       String(rowData.redditPostLink || ''),
       String(rowData.fileName || ''),
       String(rowData.fileUrl || ''),
-      String(rowData.isWinner || 'false'), // Ensure boolean is string
+      String(rowData.isWinner || 'false'),
       String(rowData.rank || ''),
       String(rowData.refSource || 'Direct'),
     ];
