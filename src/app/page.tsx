@@ -15,7 +15,7 @@ const competitions: Competition[] = [
     id: "follow-win",
     name: "Follow & Win (Daily winner)",
     description: "Follow your school's social media and submit a screenshot to win daily prizes. Every day, we’ll pick lucky winners from valid entries for a chance to win LPU goodies!",
-    prize: "🎁 25 winners/day\n🧧 Reward: LPU Goodie Pack worth Rs. 500\n📣 Winners announced on this platform",
+    prize: "🎁 25 winners/day (Lucky draw)\n🧧 Reward: LPU Goodie Pack worth Rs. 500\n📣 Winners announced on this platform",
     deadline: new Date("2025-09-30T23:59:59"),
     icon: <Gift className="w-8 h-8 text-primary" />,
   },
