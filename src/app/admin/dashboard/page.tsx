@@ -1,15 +1,16 @@
 
 "use client";
 
-import type { Submission, CompetitionMeta } from "@/types";
+import type { Submission, CompetitionMeta, Announcement } from "@/types";
 import { DashboardClient } from "./dashboard-client";
 import { Header } from "@/components/header";
 import { useAuth } from "@/hooks/use-auth";
 import { useRouter } from "next/navigation";
 import { auth, app } from "@/lib/firebase";
 import { useEffect, useState, useMemo } from "react";
-import { getFirestore, collection, getDocs, Timestamp, doc, updateDoc, query, where, getDoc, serverTimestamp, setDoc, writeBatch } from "firebase/firestore";
+import { getFirestore, collection, getDocs, Timestamp, doc, updateDoc, query, where, getDoc, serverTimestamp, setDoc, writeBatch, orderBy } from "firebase/firestore";
 import { Loader2 } from "lucide-react";
+import { createAnnouncement, deleteAnnouncement, getAnnouncements, toggleAnnouncementActive } from "./actions";
 
 const competitionDisplayNames: { [key: string]: string } = {
   "follow-win": "Follow & Win (Daily winner)",
@@ -19,6 +20,7 @@ const competitionDisplayNames: { [key: string]: string } = {
 
 function DashboardPageContent() {
     const [allSubmissions, setAllSubmissions] = useState<Submission[]>([]);
+    const [announcements, setAnnouncements] = useState<Announcement[]>([]);
     const [isLoadingData, setIsLoadingData] = useState(true);
     const [reelItFeelItMeta, setReelItFeelItMeta] = useState<CompetitionMeta | null>(null);
     const [refFilter, setRefFilter] = useState('all');
@@ -26,6 +28,7 @@ function DashboardPageContent() {
 
     const fetchData = async () => {
         setIsLoadingData(true);
+        // Fetch submissions
         const submissionsCol = collection(db, "submissions");
         const submissionSnapshot = await getDocs(submissionsCol);
         const submissionList = submissionSnapshot.docs.map(doc => {
@@ -37,6 +40,10 @@ function DashboardPageContent() {
             } as Submission;
         }).sort((a, b) => b.submittedAt.getTime() - a.submittedAt.getTime());
         setAllSubmissions(submissionList);
+
+        // Fetch announcements
+        const fetchedAnnouncements = await getAnnouncements();
+        setAnnouncements(fetchedAnnouncements);
 
         // Fetch competition meta
         const metaRef = doc(db, "competition_meta", "reel-it-feel-it");
@@ -156,6 +163,14 @@ function DashboardPageContent() {
     }))
   };
 
+  const handleAnnouncementAction = async (action: () => Promise<any>) => {
+    const result = await action();
+    if (result.success) {
+      await fetchData(); // Refresh data on success
+    }
+    return result;
+  };
+
   if (isLoadingData) {
       return (
         <div className="flex flex-col min-h-screen">
@@ -181,6 +196,10 @@ function DashboardPageContent() {
             refSources={refSources}
             refFilter={refFilter}
             onRefFilterChange={setRefFilter}
+            announcements={announcements}
+            onCreateAnnouncement={(data) => handleAnnouncementAction(() => createAnnouncement(data))}
+            onDeleteAnnouncement={(id) => handleAnnouncementAction(() => deleteAnnouncement(id))}
+            onToggleAnnouncementActive={(id, isActive) => handleAnnouncementAction(() => toggleAnnouncementActive(id, isActive))}
         />
     </main>
     </div>

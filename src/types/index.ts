@@ -42,3 +42,12 @@ export type Submission = {
 export interface CompetitionMeta {
   resultAnnouncementDate: Date;
 }
+
+export interface Announcement {
+  id: string;
+  title: string;
+  message: string;
+  link?: string;
+  isActive: boolean;
+  createdAt: Date;
+}

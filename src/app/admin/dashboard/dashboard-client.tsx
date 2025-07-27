@@ -1,12 +1,12 @@
 
 "use client";
 
-import type { CompetitionMeta, Submission } from "@/types";
+import type { CompetitionMeta, Submission, Announcement } from "@/types";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { BarChart, Download, Users, Trophy, Award, ChevronDown, Calendar as CalendarIcon, Link2, Filter, Trash2 } from "lucide-react";
+import { BarChart, Download, Users, Trophy, Award, ChevronDown, Calendar as CalendarIcon, Link2, Filter, Trash2, PlusCircle, ExternalLink, Megaphone } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import * as XLSX from "xlsx";
@@ -28,7 +28,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Loader2 } from "lucide-react";
+
 
 interface DashboardClientProps {
   submissions: Submission[];
@@ -40,6 +49,7 @@ interface DashboardClientProps {
       count: number;
     }[];
   };
+  announcements: Announcement[];
   onMarkAsWinner: (submission: Submission, rank?: 1 | 2 | 3) => Promise<{success: boolean; message: string}>;
   onDeleteSubmissions: (ids: string[]) => Promise<{success: boolean; message: string}>;
   reelItFeelItMeta: CompetitionMeta | null;
@@ -47,6 +57,9 @@ interface DashboardClientProps {
   refSources: string[];
   refFilter: string;
   onRefFilterChange: (value: string) => void;
+  onCreateAnnouncement: (data: Omit<Announcement, 'id' | 'createdAt'>) => Promise<{success: boolean; message: string}>;
+  onDeleteAnnouncement: (id: string) => Promise<{success: boolean; message: string}>;
+  onToggleAnnouncementActive: (id: string, isActive: boolean) => Promise<{success: boolean; message: string}>;
 }
 
 // Helper function to convert data to XLSX and trigger download
@@ -93,7 +106,8 @@ const downloadAsXLSX = (data: Submission[], fileName: string, customHeaders?: st
 
 export function DashboardClient({ 
     submissions, 
-    stats, 
+    stats,
+    announcements,
     onMarkAsWinner,
     onDeleteSubmissions,
     reelItFeelItMeta, 
@@ -101,6 +115,9 @@ export function DashboardClient({
     refSources,
     refFilter,
     onRefFilterChange,
+    onCreateAnnouncement,
+    onDeleteAnnouncement,
+    onToggleAnnouncementActive,
  }: DashboardClientProps) {
     const { toast } = useToast();
     const [selectedSubmissionIds, setSelectedSubmissionIds] = useState<string[]>([]);
@@ -184,6 +201,7 @@ export function DashboardClient({
           {stats.submissionsPerCompetition.map(comp => (
             <TabsTrigger key={comp.id} value={comp.id}>{comp.name}</TabsTrigger>
           ))}
+          <TabsTrigger value="announcements">Announcements</TabsTrigger>
         </TabsList>
         <TabsContent value="overview" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -256,9 +274,195 @@ export function DashboardClient({
                 </TabsContent>
             )
         })}
+        <TabsContent value="announcements" className="space-y-4">
+            <AnnouncementsManager 
+                announcements={announcements}
+                onCreate={onCreateAnnouncement}
+                onDelete={onDeleteAnnouncement}
+                onToggleActive={onToggleAnnouncementActive}
+            />
+        </TabsContent>
       </Tabs>
     </>
   );
+}
+
+const announcementFormSchema = z.object({
+  title: z.string().min(5, "Title must be at least 5 characters long."),
+  message: z.string().min(10, "Message must be at least 10 characters long."),
+  link: z.string().url("Please enter a valid URL.").or(z.literal('')).optional(),
+  isActive: z.boolean().default(true),
+});
+
+type AnnouncementFormValues = z.infer<typeof announcementFormSchema>;
+
+interface AnnouncementsManagerProps {
+    announcements: Announcement[];
+    onCreate: (data: Omit<Announcement, 'id' | 'createdAt'>) => Promise<{success: boolean; message: string}>;
+    onDelete: (id: string) => Promise<{success: boolean; message: string}>;
+    onToggleActive: (id: string, isActive: boolean) => Promise<{success: boolean; message: string}>;
+}
+
+function AnnouncementsManager({ announcements, onCreate, onDelete, onToggleActive }: AnnouncementsManagerProps) {
+    const { toast } = useToast();
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const form = useForm<AnnouncementFormValues>({
+        resolver: zodResolver(announcementFormSchema),
+        defaultValues: {
+            title: "",
+            message: "",
+            link: "",
+            isActive: true,
+        },
+    });
+
+    const onSubmit = async (values: AnnouncementFormValues) => {
+        setIsSubmitting(true);
+        const result = await onCreate(values);
+        if (result.success) {
+            toast({ title: "Success", description: "Announcement created successfully." });
+            form.reset();
+        } else {
+            toast({ title: "Error", description: result.message, variant: "destructive" });
+        }
+        setIsSubmitting(false);
+    }
+    
+    const handleDelete = async (id: string) => {
+        const result = await onDelete(id);
+        if (result.success) {
+            toast({ title: "Success", description: "Announcement deleted." });
+        } else {
+            toast({ title: "Error", description: result.message, variant: "destructive" });
+        }
+    }
+
+    const handleToggle = async (id: string, isActive: boolean) => {
+        const result = await onToggleActive(id, isActive);
+        if (result.success) {
+            toast({ title: "Success", description: `Announcement ${isActive ? 'activated' : 'deactivated'}.` });
+        } else {
+            toast({ title: "Error", description: result.message, variant: "destructive" });
+        }
+    }
+
+    return (
+        <div className="grid gap-8 md:grid-cols-3">
+            <div className="md:col-span-1">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Create Announcement</CardTitle>
+                        <CardDescription>This will be displayed to all users on the homepage.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Form {...form}>
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                                <FormField control={form.control} name="title" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Title</FormLabel>
+                                        <FormControl><Input placeholder="e.g., New Competition Live!" {...field} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}/>
+                                 <FormField control={form.control} name="message" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Message</FormLabel>
+                                        <FormControl><Textarea placeholder="Describe the announcement..." {...field} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}/>
+                                <FormField control={form.control} name="link" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Link (Optional)</FormLabel>
+                                        <FormControl><Input placeholder="https://example.com" {...field} /></FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}/>
+                                <FormField control={form.control} name="isActive" render={({ field }) => (
+                                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                                        <div className="space-y-0.5">
+                                            <FormLabel>Active</FormLabel>
+                                            <CardDescription>
+                                                Publish this announcement immediately.
+                                            </CardDescription>
+                                        </div>
+                                        <FormControl>
+                                            <Switch
+                                            checked={field.value}
+                                            onCheckedChange={field.onChange}
+                                            />
+                                        </FormControl>
+                                    </FormItem>
+                                )}/>
+                                <Button type="submit" disabled={isSubmitting} className="w-full">
+                                    {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                    Create Announcement
+                                </Button>
+                            </form>
+                        </Form>
+                    </CardContent>
+                </Card>
+            </div>
+            <div className="md:col-span-2">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Manage Announcements</CardTitle>
+                        <CardDescription>View, activate, or delete existing announcements.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                       {announcements.length === 0 ? (
+                            <div className="text-center py-12 text-muted-foreground">
+                                <Megaphone className="mx-auto h-12 w-12" />
+                                <p className="mt-4">No announcements found.</p>
+                            </div>
+                       ) : (
+                        <div className="space-y-4">
+                            {announcements.map(ann => (
+                                <Card key={ann.id} className="flex items-center justify-between p-4">
+                                    <div className="space-y-1 overflow-hidden">
+                                        <p className="font-semibold truncate">{ann.title}</p>
+                                        <p className="text-sm text-muted-foreground truncate">{ann.message}</p>
+                                        {ann.link && (
+                                            <Link href={ann.link} target="_blank" className="text-xs text-primary hover:underline flex items-center gap-1">
+                                                <ExternalLink className="h-3 w-3" /> {ann.link}
+                                            </Link>
+                                        )}
+                                    </div>
+                                    <div className="flex items-center gap-4 ml-4">
+                                        <Switch
+                                            checked={ann.isActive}
+                                            onCheckedChange={(checked) => handleToggle(ann.id, checked)}
+                                            aria-label="Toggle announcement active state"
+                                        />
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button variant="ghost" size="icon" className="text-destructive">
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                    This will permanently delete the announcement titled "{ann.title}".
+                                                </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                <AlertDialogAction onClick={() => handleDelete(ann.id)}>Confirm Delete</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
+                                    </div>
+                                </Card>
+                            ))}
+                        </div>
+                       )}
+                    </CardContent>
+                </Card>
+            </div>
+        </div>
+    );
 }
 
 interface ResultDateManagerProps {

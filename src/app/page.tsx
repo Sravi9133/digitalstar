@@ -4,8 +4,11 @@ import Image from "next/image";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Calendar, Gift, Tv, Camera } from "lucide-react";
-import type { Competition } from "@/types";
+import type { Competition, Announcement } from "@/types";
 import { Header } from "@/components/header";
+import { getFirestore, collection, getDocs, query, where, orderBy, Timestamp } from "firebase/firestore";
+import { app } from "@/lib/firebase";
+import { AnnouncementBanner } from "@/components/announcement-banner";
 
 const competitions: Competition[] = [
   {
@@ -31,11 +34,38 @@ const competitions: Competition[] = [
   },
 ];
 
-export default function Home() {
+async function getAnnouncements(): Promise<Announcement[]> {
+  try {
+    const db = getFirestore(app);
+    const announcementsCol = collection(db, "announcements");
+    const q = query(announcementsCol, where("isActive", "==", true), orderBy("createdAt", "desc"));
+    const snapshot = await getDocs(q);
+    if (snapshot.empty) {
+      return [];
+    }
+    return snapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        createdAt: (data.createdAt as Timestamp).toDate(),
+      } as Announcement;
+    });
+  } catch (error) {
+    console.error("Error fetching announcements:", error);
+    return [];
+  }
+}
+
+
+export default async function Home() {
+  const announcements = await getAnnouncements();
+
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <Header />
       <main className="flex-grow">
+        <AnnouncementBanner announcements={announcements} />
         <section className="relative py-20 md:py-32 text-center text-white overflow-hidden">
             <div className="absolute inset-0">
                 <Image

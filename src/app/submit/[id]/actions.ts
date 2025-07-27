@@ -98,7 +98,7 @@ export async function writeToGoogleSheet(submissionData: Omit<Submission, 'id'>)
     const row = [
       '', // S.No. - Intentionally left blank, can be filled by sheet formula
       String(rowData.competitionName || ''),
-      String(rowData.submittedAt ? new Date(rowData.submittedAt).toISOString() : new Date().toISOString()),
+      new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }), // Format date for IST
       String(rowData.name || ''),
       String(rowData.email || ''),
       String(rowData.phone || ''),
