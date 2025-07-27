@@ -76,7 +76,8 @@ export function ReelItFeelItForm({ competitionId, competitionName, postType = 'R
         await addDoc(collection(db, "submissions"), submissionData);
         
         // Asynchronously write to Google Sheet
-        writeToGoogleSheet(sheetData);
+        console.log("Calling Google Sheet function from reel-it-feel-it-form...");
+        await writeToGoogleSheet(sheetData);
 
         setIsSubmitting(false);
         setIsSubmitted(true);

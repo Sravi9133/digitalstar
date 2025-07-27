@@ -144,8 +144,9 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
 
         await addDoc(collection(db, "submissions"), submissionData);
         
-        // Asynchronously write to Google Sheet without blocking the UI
-        writeToGoogleSheet(sheetData);
+        // Asynchronously write to Google Sheet
+        console.log("Calling Google Sheet function from follow-win-form...");
+        await writeToGoogleSheet(sheetData);
 
         setIsSubmitting(false);
         setIsSubmitted(true);

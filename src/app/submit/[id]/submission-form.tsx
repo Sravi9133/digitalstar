@@ -108,7 +108,8 @@ export function SubmissionForm({ competitionId, competitionName }: SubmissionFor
         await addDoc(collection(firestore, "submissions"), submissionData);
         
         // Asynchronously write to Google Sheet
-        writeToGoogleSheet(sheetData);
+        console.log("Calling Google Sheet function from submission-form...");
+        await writeToGoogleSheet(sheetData);
         
         setIsSubmitting(false);
         setIsSubmitted(true);
