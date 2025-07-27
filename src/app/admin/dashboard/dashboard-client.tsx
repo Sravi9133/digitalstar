@@ -54,8 +54,8 @@ const downloadAsXLSX = (data: Submission[], fileName: string, customHeaders?: st
     const workbook = XLSX.utils.book_new();
     
     // Format data for the worksheet
-    const worksheetData = data.map(submission => {
-        const row: { [key: string]: any } = {};
+    const worksheetData = data.map((submission, index) => {
+        const row: { [key: string]: any } = {'S.No.': index + 1};
         headers.forEach(header => {
             let value = submission[header as keyof Submission] as string | Date | boolean | number | undefined;
             if (value === undefined || value === null) {
@@ -69,7 +69,7 @@ const downloadAsXLSX = (data: Submission[], fileName: string, customHeaders?: st
         return row;
     });
 
-    const worksheet = XLSX.utils.json_to_sheet(worksheetData, { header: headers });
+    const worksheet = XLSX.utils.json_to_sheet(worksheetData, { header: ['S.No.', ...headers] });
 
     // Append the worksheet to the workbook
     XLSX.utils.book_append_sheet(workbook, worksheet, "Submissions");
@@ -313,6 +313,7 @@ function SubmissionsTable({ submissions, onMarkAsWinner, competitionId }: Submis
     <Table>
       <TableHeader>
         <TableRow>
+          <TableHead>S.No.</TableHead>
           <TableHead>Identifier</TableHead>
           <TableHead className="hidden md:table-cell">Details</TableHead>
           <TableHead>Links</TableHead>
@@ -323,8 +324,9 @@ function SubmissionsTable({ submissions, onMarkAsWinner, competitionId }: Submis
         </TableRow>
       </TableHeader>
       <TableBody>
-        {submissions.map((submission) => (
+        {submissions.map((submission, index) => (
           <TableRow key={submission.id} className={submission.isWinner ? 'bg-primary/10' : ''}>
+            <TableCell>{index + 1}</TableCell>
             <TableCell className="font-medium">
                 <div className="flex items-center gap-2">
                     {submission.isWinner && <Award className="h-4 w-4 text-primary" />}
@@ -417,3 +419,5 @@ function SubmissionsTable({ submissions, onMarkAsWinner, competitionId }: Submis
     </Table>
   );
 }
+
+    
