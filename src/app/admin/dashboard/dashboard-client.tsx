@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { BarChart, Download, Users, Trophy, Award, ChevronDown, Calendar as CalendarIcon, Link2 } from "lucide-react";
+import { BarChart, Download, Users, Trophy, Award, ChevronDown, Calendar as CalendarIcon, Link2, Filter } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import * as XLSX from "xlsx";
@@ -16,6 +16,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useState } from "react";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 
 interface DashboardClientProps {
   submissions: Submission[];
@@ -30,6 +32,9 @@ interface DashboardClientProps {
   onMarkAsWinner: (submission: Submission, rank?: 1 | 2 | 3) => Promise<{success: boolean; message: string}>;
   reelItFeelItMeta: CompetitionMeta | null;
   onSetReelItFeelItDate: (date: Date) => Promise<{success: boolean; message: string}>;
+  refSources: string[];
+  refFilter: string;
+  onRefFilterChange: (value: string) => void;
 }
 
 // Helper function to convert data to XLSX and trigger download
@@ -74,7 +79,16 @@ const downloadAsXLSX = (data: Submission[], fileName: string, customHeaders?: st
 }
 
 
-export function DashboardClient({ submissions, stats, onMarkAsWinner, reelItFeelItMeta, onSetReelItFeelItDate }: DashboardClientProps) {
+export function DashboardClient({ 
+    submissions, 
+    stats, 
+    onMarkAsWinner, 
+    reelItFeelItMeta, 
+    onSetReelItFeelItDate,
+    refSources,
+    refFilter,
+    onRefFilterChange,
+ }: DashboardClientProps) {
 
     const handleDownloadAll = () => {
         downloadAsXLSX(submissions, "all_submissions");
@@ -98,6 +112,19 @@ export function DashboardClient({ submissions, stats, onMarkAsWinner, reelItFeel
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-3xl font-bold tracking-tight font-headline">Dashboard</h2>
         <div className="flex items-center space-x-2">
+           <Select value={refFilter} onValueChange={onRefFilterChange}>
+              <SelectTrigger className="w-[180px]">
+                <Filter className="mr-2 h-4 w-4" />
+                <SelectValue placeholder="Filter by source" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Referrals</SelectItem>
+                <SelectItem value="direct">Direct</SelectItem>
+                {refSources.map(source => (
+                    <SelectItem key={source} value={source}>{source}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           <Button onClick={handleDownloadAll}>
             <Download className="mr-2 h-4 w-4" />
             download sheet
@@ -390,13 +417,3 @@ function SubmissionsTable({ submissions, onMarkAsWinner, competitionId }: Submis
     </Table>
   );
 }
-
-    
-
-    
-
-    
-
-    
-
-    

@@ -7,7 +7,7 @@ import { Header } from "@/components/header";
 import { useAuth } from "@/hooks/use-auth";
 import { useRouter } from "next/navigation";
 import { auth, app } from "@/lib/firebase";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { getFirestore, collection, getDocs, Timestamp, doc, updateDoc, query, where, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import { Loader2 } from "lucide-react";
 
@@ -18,9 +18,10 @@ const competitionDisplayNames: { [key: string]: string } = {
 };
 
 function DashboardPageContent() {
-    const [submissions, setSubmissions] = useState<Submission[]>([]);
+    const [allSubmissions, setAllSubmissions] = useState<Submission[]>([]);
     const [isLoadingData, setIsLoadingData] = useState(true);
     const [reelItFeelItMeta, setReelItFeelItMeta] = useState<CompetitionMeta | null>(null);
+    const [refFilter, setRefFilter] = useState('all');
     const db = getFirestore(app);
 
     const fetchData = async () => {
@@ -35,7 +36,7 @@ function DashboardPageContent() {
                 submittedAt: (data.submittedAt as Timestamp).toDate(),
             } as Submission;
         }).sort((a, b) => b.submittedAt.getTime() - a.submittedAt.getTime());
-        setSubmissions(submissionList);
+        setAllSubmissions(submissionList);
 
         // Fetch competition meta
         const metaRef = doc(db, "competition_meta", "reel-it-feel-it");
@@ -106,13 +107,33 @@ function DashboardPageContent() {
             return { success: false, message: "An unexpected error occurred while marking as winner." };
         }
     };
+    
+  const refSources = useMemo(() => {
+    const sources = new Set<string>();
+    allSubmissions.forEach(s => {
+        if(s.refSource) {
+            sources.add(s.refSource);
+        }
+    });
+    return Array.from(sources);
+  }, [allSubmissions]);
+
+  const filteredSubmissions = useMemo(() => {
+    if (refFilter === 'all') {
+        return allSubmissions;
+    }
+    if (refFilter === 'direct') {
+        return allSubmissions.filter(s => !s.refSource);
+    }
+    return allSubmissions.filter(s => s.refSource === refFilter);
+  }, [allSubmissions, refFilter]);
 
   const stats = {
-    totalSubmissions: submissions.length,
+    totalSubmissions: filteredSubmissions.length,
     submissionsPerCompetition: Object.keys(competitionDisplayNames).map(id => ({
         id: id,
         name: competitionDisplayNames[id],
-        count: submissions.filter(s => s.competitionId === id).length
+        count: filteredSubmissions.filter(s => s.competitionId === id).length
     }))
   };
 
@@ -132,11 +153,14 @@ function DashboardPageContent() {
     <Header />
     <main className="flex-1 space-y-4 p-4 md:p-8 pt-6">
         <DashboardClient 
-            submissions={submissions} 
+            submissions={filteredSubmissions} 
             stats={stats} 
             onMarkAsWinner={handleMarkAsWinner} 
             reelItFeelItMeta={reelItFeelItMeta}
             onSetReelItFeelItDate={handleSetReelItFeelItDate}
+            refSources={refSources}
+            refFilter={refFilter}
+            onRefFilterChange={setRefFilter}
         />
     </main>
     </div>
@@ -164,5 +188,3 @@ export default function DashboardPage() {
 
     return <DashboardPageContent />;
 }
-
-    
