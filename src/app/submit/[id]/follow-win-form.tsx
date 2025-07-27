@@ -40,7 +40,7 @@ interface School {
 
 const formSchema = z.object({
   registrationId: z.string().min(5, "Registration/Candidate ID is required."),
-  instagramHandle: z.string().min(3, "Instagram handle/link is required.").refine(val => val.startsWith('@') || val.startsWith('https://'), { message: "Must be a valid handle (e.g. @user) or link (e.g. https://...)" }),
+  instagramHandle: z.string().min(3, "Instagram handle/link is required."),
   school: z.string({
     required_error: "Please select a school.",
   }),
