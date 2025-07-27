@@ -68,7 +68,7 @@ export async function writeToGoogleSheet(submissionData: Omit<Submission, 'id'>)
 
     const response = await sheets.spreadsheets.values.append({
       spreadsheetId,
-      range: 'Sheet1!A1', // Assumes you want to append to the first sheet
+      range: 'Sheet1', // Corrected: Append to the sheet, not a specific cell.
       valueInputOption: 'USER_ENTERED',
       requestBody: {
         values: [row],
