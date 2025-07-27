@@ -46,7 +46,7 @@ export async function writeToGoogleSheet(submissionData: Omit<Submission, 'id'>)
 
     // IMPORTANT: The order here MUST match the order of headers in your Google Sheet
     const row = [
-        rowData.submittedAt ? new Date(rowData.submittedAt).toISOString() : new Date().toISOString(),
+        String(rowData.submittedAt ? new Date(rowData.submittedAt).toISOString() : new Date().toISOString()),
         String(rowData.competitionName || ''),
         String(rowData.name || ''),
         String(rowData.email || ''),
@@ -79,7 +79,8 @@ export async function writeToGoogleSheet(submissionData: Omit<Submission, 'id'>)
     return { success: true, message: 'Successfully written to Google Sheet.' };
 
   } catch (error: any) {
-    console.error('SERVER ACTION CRITICAL ERROR:', error.message, error.stack);
+    console.error('SERVER ACTION CRITICAL ERROR: The API call failed. Full error object:');
+    console.error(error); // Log the entire error object
     return { success: false, message: 'Failed to write to Google Sheet due to a server error.' };
   }
 }
