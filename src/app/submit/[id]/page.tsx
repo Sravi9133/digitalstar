@@ -33,7 +33,7 @@ function getCompetition(id: string): Omit<Competition, 'deadline'> | undefined {
   return competitionsData.find(c => c.id === id);
 }
 
-export default function SubmissionPage({ params }: { params: { id: string } }) {
+export default async function SubmissionPage({ params }: { params: { id: string } }) {
   const competition = getCompetition(params.id);
 
   if (!competition) {
