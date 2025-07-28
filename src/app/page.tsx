@@ -73,7 +73,7 @@ export default async function Home() {
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {competitions.map((competition) => (
-                <Card key={competition.id} className="flex flex-col transform hover:-translate-y-2 transition-transform duration-300 ease-in-out shadow-lg hover:shadow-2xl border-2 border-transparent hover:border-primary/50">
+                <Card key={competition.id} className="flex flex-col transform hover:-translate-y-2 transition-transform duration-300 ease-in-out shadow-lg hover:shadow-2xl hover:shadow-primary/30 border-2 border-transparent hover:border-primary/50 bg-gradient-to-br from-card to-muted/30">
                   <CardHeader>
                     <div className="flex items-center gap-4">
                       <div className="p-3 bg-primary/10 rounded-lg">
