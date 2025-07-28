@@ -30,7 +30,7 @@ function DashboardPageContent() {
         setIsLoadingData(true);
         // Fetch submissions
         const submissionsCol = collection(db, "submissions");
-        const submissionSnapshot = await getDocs(submissionsCol);
+        const submissionSnapshot = await getDocs(query(submissionsCol, orderBy("submittedAt", "desc")));
         const submissionList = submissionSnapshot.docs.map(doc => {
             const data = doc.data();
             return {
@@ -38,7 +38,7 @@ function DashboardPageContent() {
                 ...data,
                 submittedAt: (data.submittedAt as Timestamp).toDate(),
             } as Submission;
-        }).sort((a, b) => b.submittedAt.getTime() - a.submittedAt.getTime());
+        });
         setAllSubmissions(submissionList);
 
         // Fetch announcements
@@ -61,7 +61,18 @@ function DashboardPageContent() {
     };
 
     const fetchAnnouncements = async () => {
-        const fetchedAnnouncements = await getAnnouncements();
+        const db = getFirestore(app);
+        const announcementsCol = collection(db, "announcements");
+        const q = query(announcementsCol, orderBy("createdAt", "desc"));
+        const snapshot = await getDocs(q);
+        const fetchedAnnouncements = snapshot.docs.map(doc => {
+             const data = doc.data();
+            return {
+                id: doc.id,
+                ...data,
+                createdAt: (data.createdAt as Timestamp).toDate(),
+            } as Announcement;
+        });
         setAnnouncements(fetchedAnnouncements);
     };
 

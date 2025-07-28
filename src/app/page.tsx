@@ -4,11 +4,10 @@ import Image from "next/image";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Calendar, Gift, Tv, Camera } from "lucide-react";
-import type { Competition, Announcement } from "@/types";
+import type { Competition } from "@/types";
 import { Header } from "@/components/header";
-import { getFirestore, collection, getDocs, query, where, orderBy, Timestamp } from "firebase/firestore";
-import { app } from "@/lib/firebase";
 import { AnnouncementBanner } from "@/components/announcement-banner";
+import { getAnnouncements } from "./admin/dashboard/actions";
 
 const competitions: Competition[] = [
   {
@@ -36,36 +35,6 @@ const competitions: Competition[] = [
     icon: <Camera className="w-8 h-8 text-primary" />,
   },
 ];
-
-async function getAnnouncements(): Promise<Announcement[]> {
-  try {
-    const db = getFirestore(app);
-    const announcementsCol = collection(db, "announcements");
-    // Simpler query to avoid needing a composite index immediately.
-    // We filter by isActive and then sort in code.
-    const q = query(announcementsCol, where("isActive", "==", true));
-    const snapshot = await getDocs(q);
-    if (snapshot.empty) {
-      return [];
-    }
-    const announcements = snapshot.docs.map(doc => {
-      const data = doc.data();
-      return {
-        id: doc.id,
-        ...data,
-        createdAt: (data.createdAt as Timestamp).toDate(),
-      } as Announcement;
-    });
-
-    // Sort by creation date descending (newest first)
-    return announcements.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-    
-  } catch (error) {
-    console.error("Error fetching announcements:", error);
-    return [];
-  }
-}
-
 
 export default async function Home() {
   const announcements = await getAnnouncements();
