@@ -10,22 +10,21 @@ service cloud.firestore {
       allow write: if request.auth != null; // Only authenticated users can write
     }
 
-    // Allow anyone to create a submission.
-    // Allow admins to read/update/delete any submission.
-    // Allow the public to read ONLY winning submissions.
+    // Allow public to create submissions and read winning submissions
     match /submissions/{submissionId} {
       allow create: if true;
       allow read: if request.auth != null || resource.data.isWinner == true;
       allow update, delete: if request.auth != null;
     }
     
-    // Secure competition meta data for admin-only access
+    // Allow public read on competition meta, but only admins can write
     match /competition_meta/{competitionId} {
-        allow read, write: if request.auth != null;
+        allow read: if true;
+        allow write: if request.auth != null;
     }
 
     // Disallow all other access by default.
-    // This is important for security.
+    // NOTE: This rule must be at the end.
     match /{document=**} {
       allow read, write: if false;
     }
