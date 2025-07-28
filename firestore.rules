@@ -1,24 +1,30 @@
+
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /submissions/{submissionId} {
-      // 1. Admins (authenticated users) can do anything.
-      allow read, write: if request.auth != null;
-      
-      // 2. The public can create submissions.
-      allow create: if true;
 
-      // 3. The public can read documents, but ONLY if they are winners.
-      // This rule is specifically for the public winners page.
-      allow list, get: if resource.data.isWinner == true;
+    // Allow public, read-only access to announcements
+    match /announcements/{announcementId} {
+      allow read: if true;
+      allow write: if request.auth != null; // Only authenticated users can write
     }
 
+    // Allow anyone to create a submission, but only admins can manage them
+    match /submissions/{submissionId} {
+      allow create: if true;
+      allow read, update, delete: if request.auth != null;
+    }
+    
+    // Secure competition meta data
     match /competition_meta/{competitionId} {
-      // Allow public read access for the winners page
-      allow get: if true;
+        allow read: if true; // Allow anyone to read this
+        allow write: if request.auth != null; // Only admins can write
+    }
 
-      // Only allow admins (authenticated users) to write
-      allow write: if request.auth != null;
+    // Disallow all other access by default
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }
