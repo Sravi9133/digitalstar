@@ -81,7 +81,7 @@ export function Header() {
                             </Button>
                             </>
                         ) : (
-                           <p className="text-sm text-muted-foreground text-center">Login via the Admin page.</p>
+                           <p className="text-sm text-muted-foreground text-center">.</p>
                         )}
                         </div>
                     </div>
