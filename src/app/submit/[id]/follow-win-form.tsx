@@ -76,7 +76,9 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
           throw new Error('Failed to fetch school data');
         }
         const data = await response.json();
-        const programData: any[] = data;
+        
+        // The data is the array of programs directly
+        const programData: Program[] = data;
 
         if (Array.isArray(programData)) {
             const schoolsMap: Map<string, School> = new Map();
