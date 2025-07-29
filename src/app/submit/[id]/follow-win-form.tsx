@@ -80,6 +80,7 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
                 link: item["Instagram"],
             }));
             setSchools(formattedSchools);
+            setFilteredSchools(formattedSchools);
         } else {
             throw new Error("School data is not in the expected format.");
         }
@@ -105,27 +106,27 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
         instagramHandle: "",
     }
   });
-
+  
+  const handleFocus = () => {
+    setShowSuggestions(true);
+  };
+  
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     setSearchTerm(query);
-    if (query.length > 0) {
-      const filtered = schools.filter(school => 
-        school.name.toLowerCase().includes(query.toLowerCase())
-      );
-      setFilteredSchools(filtered);
-      setShowSuggestions(true);
-    } else {
-      setFilteredSchools([]);
-      setShowSuggestions(false);
-    }
-    form.setValue("school", "");
+    form.setValue("school", ""); // Reset if they are re-searching
     setSelectedSchoolUrl(null);
+
+    const filtered = schools.filter(school => 
+      school.name.toLowerCase().includes(query.toLowerCase())
+    );
+    setFilteredSchools(filtered);
+    setShowSuggestions(true);
   };
 
   const handleSchoolSelect = (school: School) => {
     setSearchTerm(school.name);
-    form.setValue("school", school.id);
+    form.setValue("school", school.id, { shouldValidate: true });
     setSelectedSchoolUrl(school.link || null);
     setShowSuggestions(false);
   }
@@ -133,6 +134,16 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
   async function onSubmit(values: FollowWinFormValues) {
     setIsSubmitting(true);
     const selectedSchool = schools.find(s => s.id === values.school);
+
+    if (!selectedSchool) {
+        toast({
+            title: "Invalid School",
+            description: "Please select a valid school from the list.",
+            variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+    }
 
     try {
         const db = getFirestore(app);
@@ -249,25 +260,32 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
                           <div className="relative">
                             <FormControl>
                               <Input
-                                placeholder="Start typing to search for your school..."
+                                placeholder="Search for your school..."
                                 value={searchTerm}
                                 onChange={handleSearchChange}
-                                onFocus={() => searchTerm && setShowSuggestions(true)}
+                                onFocus={handleFocus}
                                 onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
                                 disabled={schools.length === 0}
+                                autoComplete="off"
                               />
                             </FormControl>
-                            {showSuggestions && filteredSchools.length > 0 && (
+                            {showSuggestions && (
                               <div className="absolute z-10 w-full mt-1 bg-card border border-border rounded-md shadow-lg max-h-60 overflow-y-auto">
-                                {filteredSchools.map(school => (
-                                  <div
-                                    key={school.id}
-                                    className="cursor-pointer p-2 hover:bg-muted"
-                                    onMouseDown={() => handleSchoolSelect(school)}
-                                  >
-                                    {school.name}
-                                  </div>
-                                ))}
+                                {filteredSchools.length > 0 ? (
+                                    filteredSchools.map(school => (
+                                    <div
+                                        key={school.id}
+                                        className="cursor-pointer p-2 hover:bg-muted"
+                                        onMouseDown={() => handleSchoolSelect(school)}
+                                    >
+                                        {school.name}
+                                    </div>
+                                    ))
+                                ) : (
+                                    <div className="p-2 text-center text-sm text-muted-foreground">
+                                        No schools found.
+                                    </div>
+                                )}
                               </div>
                             )}
                           </div>
@@ -281,7 +299,7 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
             {selectedSchoolUrl && (
                  <Card className="bg-muted/50 p-4 flex items-center justify-center">
                     <div className="text-center">
-                        <p className="text-sm text-muted-foreground mb-2">Follow this page and submit a screenshot:</p>
+                        <p className="text-sm text-muted-foreground mb-2">Please follow this page:</p>
                         <Button asChild variant="outline">
                             <Link href={selectedSchoolUrl} target="_blank" rel="noopener noreferrer">
                                 <LinkIcon className="mr-2 h-4 w-4" />
@@ -330,7 +348,7 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
               )}
             />
 
-            <Button type="submit" disabled={isSubmitting || !selectedSchoolUrl || schools.length === 0} className="w-full font-bold text-lg py-6">
+            <Button type="submit" disabled={isSubmitting || schools.length === 0} className="w-full font-bold text-lg py-6">
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Submitting...
@@ -347,5 +365,3 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
     </Card>
   );
 }
-
-    
