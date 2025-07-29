@@ -27,10 +27,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { writeToGoogleSheet } from "./actions";
 
 interface Program {
-    programCode: string;
-    programName: string;
-    schoolName: string;
-    instagramPage: string;
+    ProgramCode: string;
+    ProgramName: string;
+    "School Name": string;
+    "Instagram Page": string;
 }
 
 interface School {
@@ -144,6 +144,7 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
 
     if (!query) {
         setFilteredSchools(schools);
+        setShowSuggestions(true);
         return;
     }
 
@@ -315,9 +316,6 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
                                         onMouseDown={() => handleSchoolSelect(school)}
                                     >
                                         <p className="font-semibold">{school.name}</p>
-                                        <p className="text-xs text-muted-foreground">
-                                            {school.programs.map(p => p.code).join(', ')}
-                                        </p>
                                     </div>
                                     ))
                                 ) : (
