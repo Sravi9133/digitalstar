@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { BarChart, Download, Users, Trophy, Award, ChevronDown, Calendar as CalendarIcon, Link2, Filter, Trash2, PlusCircle, ExternalLink, Megaphone, Pencil, Check, X } from "lucide-react";
+import { BarChart, Download, Users, Trophy, Award, ChevronDown, Calendar as CalendarIcon, Link2, Filter, Trash2, PlusCircle, ExternalLink, Megaphone, Pencil, Check, X, Edit } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import * as XLSX from "xlsx";
@@ -55,6 +55,7 @@ interface DashboardClientProps {
   onMarkAsWinner: (submission: Submission, rank?: 1 | 2 | 3) => Promise<{success: boolean; message: string}>;
   onDeleteSubmissions: (ids: string[]) => Promise<{success: boolean; message: string}>;
   onUpdateRefSource: (submissionId: string, newRefSource: string) => Promise<{success: boolean; message: string}>;
+  onBulkUpdateRefSource: (updates: Record<string, string>) => Promise<{success: boolean; message: string}>;
   reelItFeelItMeta: CompetitionMeta | null;
   onSetReelItFeelItDate: (date: Date) => Promise<{success: boolean; message: string}>;
   refSources: string[];
@@ -112,6 +113,7 @@ export function DashboardClient({
     onMarkAsWinner,
     onDeleteSubmissions,
     onUpdateRefSource,
+    onBulkUpdateRefSource,
     reelItFeelItMeta, 
     onSetReelItFeelItDate,
     refSources,
@@ -121,6 +123,8 @@ export function DashboardClient({
  }: DashboardClientProps) {
     const { toast } = useToast();
     const [selectedSubmissionIds, setSelectedSubmissionIds] = useState<string[]>([]);
+    const [isBulkEditing, setIsBulkEditing] = useState(false);
+    const [pendingRefChanges, setPendingRefChanges] = useState<Record<string, string>>({});
 
     const handleDownloadAll = () => {
         downloadAsXLSX(submissions, "all_submissions");
@@ -148,6 +152,22 @@ export function DashboardClient({
             toast({ title: "Error", description: result.message, variant: "destructive" });
         }
     }
+
+    const handleCancelBulkEdit = () => {
+        setIsBulkEditing(false);
+        setPendingRefChanges({});
+    }
+
+    const handleSaveBulkEdit = async () => {
+        const result = await onBulkUpdateRefSource(pendingRefChanges);
+        if (result.success) {
+            toast({ title: "Success", description: result.message });
+            handleCancelBulkEdit();
+        } else {
+            toast({ title: "Error", description: result.message, variant: "destructive" });
+        }
+    }
+
 
   return (
     <>
@@ -247,10 +267,26 @@ export function DashboardClient({
                         <CardHeader>
                             <div className="flex items-center justify-between">
                                 <CardTitle>{comp.name} Submissions</CardTitle>
-                                 <Button onClick={() => handleDownloadCompetition(comp.id, comp.name)} variant="outline" size="sm">
-                                    <Download className="mr-2 h-4 w-4" />
-                                    Download XLSX
-                                </Button>
+                                <div className="flex items-center gap-2">
+                                    {isBulkEditing ? (
+                                        <>
+                                            <Button onClick={handleSaveBulkEdit} size="sm">
+                                                <Check className="mr-2 h-4 w-4" /> Save All
+                                            </Button>
+                                            <Button onClick={handleCancelBulkEdit} variant="outline" size="sm">
+                                                <X className="mr-2 h-4 w-4" /> Cancel
+                                            </Button>
+                                        </>
+                                    ) : (
+                                        <Button onClick={() => setIsBulkEditing(true)} variant="outline" size="sm">
+                                            <Edit className="mr-2 h-4 w-4" /> Edit Referrals
+                                        </Button>
+                                    )}
+                                    <Button onClick={() => handleDownloadCompetition(comp.id, comp.name)} variant="outline" size="sm">
+                                        <Download className="mr-2 h-4 w-4" />
+                                        Download XLSX
+                                    </Button>
+                                </div>
                             </div>
                         </CardHeader>
                         {comp.id === 'reel-it-feel-it' && (
@@ -269,6 +305,10 @@ export function DashboardClient({
                                 competitionId={comp.id}
                                 selectedSubmissionIds={selectedSubmissionIds}
                                 setSelectedSubmissionIds={setSelectedSubmissionIds}
+                                isBulkEditing={isBulkEditing}
+                                setIsBulkEditing={setIsBulkEditing}
+                                pendingRefChanges={pendingRefChanges}
+                                setPendingRefChanges={setPendingRefChanges}
                             />
                         </CardContent>
                     </Card>
@@ -544,9 +584,24 @@ interface SubmissionsTableProps {
     competitionId: string;
     selectedSubmissionIds: string[];
     setSelectedSubmissionIds: React.Dispatch<React.SetStateAction<string[]>>;
+    isBulkEditing: boolean;
+    setIsBulkEditing: React.Dispatch<React.SetStateAction<boolean>>;
+    pendingRefChanges: Record<string, string>;
+    setPendingRefChanges: React.Dispatch<React.SetStateAction<Record<string, string>>>;
 }
 
-function SubmissionsTable({ submissions, onMarkAsWinner, onUpdateRefSource, competitionId, selectedSubmissionIds, setSelectedSubmissionIds }: SubmissionsTableProps) {
+function SubmissionsTable({ 
+    submissions, 
+    onMarkAsWinner, 
+    onUpdateRefSource, 
+    competitionId, 
+    selectedSubmissionIds, 
+    setSelectedSubmissionIds,
+    isBulkEditing,
+    setIsBulkEditing,
+    pendingRefChanges,
+    setPendingRefChanges
+}: SubmissionsTableProps) {
     const { toast } = useToast();
     const [editingSubmissionId, setEditingSubmissionId] = useState<string | null>(null);
     const [editingRefSource, setEditingRefSource] = useState("");
@@ -612,6 +667,13 @@ function SubmissionsTable({ submissions, onMarkAsWinner, onUpdateRefSource, comp
         } else {
             toast({ title: "Error", description: result.message, variant: "destructive" });
         }
+    }
+
+    const handleBulkRefChange = (submissionId: string, value: string) => {
+        setPendingRefChanges(prev => ({
+            ...prev,
+            [submissionId]: value
+        }));
     }
     
     const isAllSelected = submissions.length > 0 && submissions.every(s => selectedSubmissionIds.includes(s.id));
@@ -680,7 +742,14 @@ function SubmissionsTable({ submissions, onMarkAsWinner, onUpdateRefSource, comp
                 </div>
             </TableCell>
             <TableCell>
-                {editingSubmissionId === submission.id ? (
+                {isBulkEditing ? (
+                     <Input 
+                        value={pendingRefChanges[submission.id] ?? submission.refSource ?? ""} 
+                        onChange={(e) => handleBulkRefChange(submission.id, e.target.value)}
+                        className="h-8"
+                        placeholder="Enter source"
+                    />
+                ) : editingSubmissionId === submission.id ? (
                     <div className="flex items-center gap-1">
                         <Input 
                             value={editingRefSource} 
