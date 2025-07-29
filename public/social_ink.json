@@ -1,172 +1,2645 @@
 {
   "Account Links": [
     {
-      "Sr. No": 1,
-      "Faculty": "LFTS",
-      "School": "Computer Application",
-      "Instagram": "https://www.instagram.com/lpucomputerapplications/"
+      "ProgramCode": "P102",
+      "ProgramName": "Diploma Computer Science and Engineering (CSE)",
+      "School Name": "Polytechnic",
+      "Instagram Page": "https://www.instagram.com/lpu_polytechnic"
     },
     {
-      "Sr. No": 2,
-      "Faculty": "LFTS",
-      "School": "Bio Engineering and Biosciences",
-      "Instagram": "https://www.instagram.com/lpubioenggandbiosciences"
+      "ProgramCode": "P102-L",
+      "ProgramName": "Diploma Computer Science and Engineering (CSE) [Lateral Entry]",
+      "School Name": "Polytechnic",
+      "Instagram Page": "https://www.instagram.com/lpu_polytechnic"
     },
     {
-      "Sr. No": 3,
-      "Faculty": "LFTS",
-      "School": "Agriculture",
-      "Instagram": "https://www.instagram.com/LPUAgriculture"
+      "ProgramCode": "P102-NNP",
+      "ProgramName": "Diploma Artificial Intelligence and Machine Learning (AI and ML)",
+      "School Name": "Polytechnic",
+      "Instagram Page": "https://www.instagram.com/lpu_polytechnic"
     },
     {
-      "Sr. No": 4,
-      "Faculty": "LFTS",
-      "School": "Mechanical Engineering",
-      "Instagram": "https://www.instagram.com/LPUMechanicalEngineering"
+      "ProgramCode": "P105",
+      "ProgramName": "Diploma Electronics and Communication Engineering (ECE)",
+      "School Name": "Polytechnic",
+      "Instagram Page": "https://www.instagram.com/lpu_polytechnic"
     },
     {
-      "Sr. No": 5,
-      "Faculty": "LFTS",
-      "School": "Electronics and Electrical Engineering",
-      "Instagram": "https://www.instagram.com/lpu_eee/"
+      "ProgramCode": "P105-L",
+      "ProgramName": "Diploma Electronics and Communication Engineering (ECE) [Lateral Entry]",
+      "School Name": "Polytechnic",
+      "Instagram Page": "https://www.instagram.com/lpu_polytechnic"
     },
     {
-      "Sr. No": 6,
-      "Faculty": "LFTS",
-      "School": "Chemical Engineering and Physical Sciences",
-      "Instagram": "https://www.instagram.com/LPUChemicalEngg"
+      "ProgramCode": "P107",
+      "ProgramName": "Diploma Civil Engineering (CE)",
+      "School Name": "Polytechnic",
+      "Instagram Page": "https://www.instagram.com/lpu_polytechnic"
     },
     {
-      "Sr. No": 7,
-      "Faculty": "LFTS",
-      "School": "Polytechnic",
-      "Instagram": "https://www.instagram.com/lpu_polytechnic"
+      "ProgramCode": "P107-L",
+      "ProgramName": "Diploma Civil Engineering (CE) [Lateral Entry]",
+      "School Name": "Polytechnic",
+      "Instagram Page": "https://www.instagram.com/lpu_polytechnic"
     },
     {
-      "Sr. No": 8,
-      "Faculty": "LFTS",
-      "School": "Civil Engineering",
-      "Instagram": "https://www.instagram.com/lpu_civilengg/"
+      "ProgramCode": "P108",
+      "ProgramName": "Diploma Mechanical Engineering (ME)",
+      "School Name": "Polytechnic",
+      "Instagram Page": "https://www.instagram.com/lpu_polytechnic"
     },
     {
-      "Sr. No": 9,
-      "Faculty": "LFTS",
-      "School": "Computer Science and Engineering",
-      "Instagram": "https://www.instagram.com/cse_lpu/"
+      "ProgramCode": "P108-L",
+      "ProgramName": "Diploma Mechanical Engineering (ME) [Lateral Entry]",
+      "School Name": "Polytechnic",
+      "Instagram Page": "https://www.instagram.com/lpu_polytechnic"
     },
     {
-      "Sr. No": 10,
-      "Faculty": "LFBA",
-      "School": "Design-I [Fashion]",
-      "Instagram": "https://www.instagram.com/lpu_fashion_design/"
+      "ProgramCode": "P123",
+      "ProgramName": "B.Sc. Information Technology (IT)",
+      "School Name": "Computer Applications",
+      "Instagram Page": "https://www.instagram.com/lpucomputerapplications/"
     },
     {
-      "Sr. No": 11,
-      "Faculty": "LFBA",
-      "School": "Design-II [Interior & Furniture Design, and Product & Industrial Design]",
-      "Instagram": "https://www.instagram.com/LPUDesign"
+      "ProgramCode": "P123-L",
+      "ProgramName": "B.Sc. Information Technology [Lateral Entry]",
+      "School Name": "Computer Applications",
+      "Instagram Page": "https://www.instagram.com/lpucomputerapplications/"
     },
     {
-      "Sr. No": 12,
-      "Faculty": "LFBA",
-      "School": "Design-III [Multimedia & Animation]",
-      "Instagram": "https://www.instagram.com/lpu.multimediaandanimation/"
+      "ProgramCode": "P123-Y",
+      "ProgramName": "B Sc. Information Technology [2+2 with International Credit Transfer Option]",
+      "School Name": "Computer Applications",
+      "Instagram Page": "https://www.instagram.com/lpucomputerapplications/"
     },
     {
-      "Sr. No": 13,
-      "Faculty": "LFBA",
-      "School": "School of Liberal and Creative Arts [Film & Television]",
-      "Instagram": "https://www.instagram.com/lpufilm_and_television/"
+      "ProgramCode": "P124",
+      "ProgramName": "BCA (Bachelor of Computer Applications)",
+      "School Name": "Computer Applications",
+      "Instagram Page": "https://www.instagram.com/lpucomputerapplications/"
     },
     {
-      "Sr. No": 14,
-      "Faculty": "LFBA",
-      "School": "School of Liberal and Creative Arts [Journalism & Mass Communication]",
-      "Instagram": "https://instagram.com/LPUJournalism"
+      "ProgramCode": "P124-L",
+      "ProgramName": "BCA (Bachelor of Computer Applications) Lateral Entry",
+      "School Name": "Computer Applications",
+      "Instagram Page": "https://www.instagram.com/lpucomputerapplications/"
     },
     {
-      "Sr. No": 15,
-      "Faculty": "LFBA",
-      "School": "School of Liberal and Creative Arts [Theatre & Music]",
-      "Instagram": "https://www.instagram.com/lpu.theatreandmusic/"
+      "ProgramCode": "P124-NN7",
+      "ProgramName": "BCA Artificial Intelligence and Machine Learning tie up with IBM",
+      "School Name": "Computer Applications",
+      "Instagram Page": "https://www.instagram.com/lpucomputerapplications/"
     },
     {
-      "Sr. No": 16,
-      "Faculty": "LFBA",
-      "School": "Journalism, Films and Creative Arts-II [Fine Arts]",
-      "Instagram": "https://www.instagram.com/LPUFinearts"
+      "ProgramCode": "P124-NN8",
+      "ProgramName": "BCA Data Science tie up with IBM",
+      "School Name": "Computer Applications",
+      "Instagram Page": "https://www.instagram.com/lpucomputerapplications/"
     },
     {
-      "Sr. No": 17,
-      "Faculty": "LFBA",
-      "School": "Architecture & Planning [Planning]",
-      "Instagram": "https://www.instagram.com/LPUPlanning"
+      "ProgramCode": "P124-NN9",
+      "ProgramName": "BCA Cyber Security tie up with Comptia",
+      "School Name": "Computer Applications",
+      "Instagram Page": "https://www.instagram.com/lpucomputerapplications/"
     },
     {
-      "Sr. No": 18,
-      "Faculty": "LFBA",
-      "School": "Architecture & Planning [Architecture]",
-      "Instagram": "https://www.instagram.com/lpuarchitecture/"
+      "ProgramCode": "P124-NNA",
+      "ProgramName": "BCA Artificial Intelligence and Data Analytics",
+      "School Name": "Computer Applications",
+      "Instagram Page": "https://www.instagram.com/lpucomputerapplications/"
     },
     {
-      "Sr. No": 19,
-      "Faculty": "LFBA",
-      "School": "Law",
-      "Instagram": "https://instagram.com/LPUlawschool"
+      "ProgramCode": "P124-NNB",
+      "ProgramName": "BCA Virtual Reality with Artificial intelligence",
+      "School Name": "Computer Applications",
+      "Instagram Page": "https://www.instagram.com/lpucomputerapplications/"
     },
     {
-      "Sr. No": 20,
-      "Faculty": "LFBA",
-      "School": "Hotel Management (LPU School of Hotel Management and Tourism)",
-      "Instagram": "https://www.instagram.com/LPUHotelManagement"
+      "ProgramCode": "P131",
+      "ProgramName": "B.Tech. Biotechnology Engineering",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
     },
     {
-      "Sr. No": 21,
-      "Faculty": "LFBA",
-      "School": "Tourism (Airlines)",
-      "Instagram": "https://www.instagram.com/lputourismairlines/"
+      "ProgramCode": "P131-L",
+      "ProgramName": "B.Tech. Biotechnology [Lateral Entry]",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
     },
     {
-      "Sr. No": 22,
-      "Faculty": "LFBA",
-      "School": "School of Liberal and Creative Arts [Social Sciences & Languages]",
-      "Instagram": "https://www.instagram.com/lpu_social.sciences.languages"
+      "ProgramCode": "P131-Y",
+      "ProgramName": "B Tech. Biotechnology Engineering [2+2 with International Credit Transfer Option]",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
     },
     {
-      "Sr. No": 23,
-      "Faculty": "LFBA",
-      "School": "LIE (Department of Physical Education)",
-      "Instagram": "https://www.instagram.com/lpuphysicaledu"
+      "ProgramCode": "P132",
+      "ProgramName": "B.Tech. Computer Science and Engineering (CSE)",
+      "School Name": "Computer Science and Engineering",
+      "Instagram Page": "https://www.instagram.com/cse_lpu/"
     },
     {
-      "Sr. No": 24,
-      "Faculty": "LFBA",
-      "School": "LIE (Department of Education)/LSE (Department of Education)",
-      "Instagram": "https://www.instagram.com/lpu_education/"
+      "ProgramCode": "P132-HNF",
+      "ProgramName": "B.Tech. Hons. (CSE) - Data Science & Data Engineering in tie up with Transorg Analytics",
+      "School Name": "Computer Science and Engineering",
+      "Instagram Page": "https://www.instagram.com/cse_lpu/"
     },
     {
-      "Sr. No": 25,
-      "Faculty": "LFBA",
-      "School": "Mittal School of Business ",
-      "Instagram": "https://www.instagram.com/lpu_msb/"
+      "ProgramCode": "P132-HNG",
+      "ProgramName": "B.Tech. Hons. (CSE) - Cyber Security and Blockchain in tie up with Comptia",
+      "School Name": "Computer Science and Engineering",
+      "Instagram Page": "https://www.instagram.com/cse_lpu/"
     },
     {
-      "Sr. No": 26,
-      "Faculty": "LFAMS",
-      "School": "Physiotherapy and Paramedical Sciences [Physiotherapy]",
-      "Instagram": "https://www.instagram.com/LPUPhysiotherapy"
+      "ProgramCode": "P132-HNH",
+      "ProgramName": "B.Tech. Hons. (CSE) - Full Stack Software Development in tie up with GeeksforGeeks",
+      "School Name": "Computer Science and Engineering",
+      "Instagram Page": "https://www.instagram.com/cse_lpu/"
     },
     {
-      "Sr. No": 27,
-      "Faculty": "LFAMS",
-      "School": "Physiotherapy and Paramedical Sciences [Medical Laboratory Sciences]",
-      "Instagram": "https://www.instagram.com/LPUMLS"
+      "ProgramCode": "P132-HNY",
+      "ProgramName": "B.Tech. Hons. (CSE) - Applied AI in tie up with Kalvium",
+      "School Name": "Computer Science and Engineering",
+      "Instagram Page": "https://www.instagram.com/cse_lpu/"
     },
     {
-      "Sr. No": 28,
-      "Faculty": "LFAMS",
-      "School": "LIT (Pharmacy)/Department of Pharmaceutical Sciences",
-      "Instagram": "https://www.instagram.com/lpupharmaceutical/"
+      "ProgramCode": "P132-L",
+      "ProgramName": "B.Tech. Computer Science and Engineering [Lateral Entry]",
+      "School Name": "Computer Science and Engineering",
+      "Instagram Page": "https://www.instagram.com/cse_lpu/"
+    },
+    {
+      "ProgramCode": "P132-LNP",
+      "ProgramName": "B.Tech. (CSE) - Artificial Intelligence and Machine Learning [Lateral Entry]",
+      "School Name": "Computer Science and Engineering",
+      "Instagram Page": "https://www.instagram.com/cse_lpu/"
+    },
+    {
+      "ProgramCode": "P132-NN8",
+      "ProgramName": "B.Tech. (CSE) - Internet of Things and AI Analytics in tie up with Intel-Fice",
+      "School Name": "Computer Science and Engineering",
+      "Instagram Page": "https://www.instagram.com/cse_lpu/"
+    },
+    {
+      "ProgramCode": "P132-NNAA",
+      "ProgramName": "B.Tech. (CSE) - Artificial Intelligence and Data Analytics in tie up with Quantiphi",
+      "School Name": "Computer Science and Engineering",
+      "Instagram Page": "https://www.instagram.com/cse_lpu/"
+    },
+    {
+      "ProgramCode": "P132-NNAB",
+      "ProgramName": "B.Tech (CSE) - Cloud Computing and Gen AI in tie up with Google Cloud",
+      "School Name": "Computer Science and Engineering",
+      "Instagram Page": "https://www.instagram.com/cse_lpu/"
+    },
+    {
+      "ProgramCode": "P132-NNAC",
+      "ProgramName": "B.Tech (CSE) - Fintech and AI in tie up with Paytm",
+      "School Name": "Computer Science and Engineering",
+      "Instagram Page": "https://www.instagram.com/cse_lpu/"
+    },
+    {
+      "ProgramCode": "P132-NNAD",
+      "ProgramName": "B.Tech. (CSE) - Augmented Reality and Virtual Reality in tie up with BharatVerse",
+      "School Name": "Computer Science and Engineering",
+      "Instagram Page": "https://www.instagram.com/cse_lpu/"
+    },
+    {
+      "ProgramCode": "P132-NNG",
+      "ProgramName": "B.Tech. (CSE) - User Experience (UX) / User interface (UI) in tie up with IMAGINXP",
+      "School Name": "Computer Science and Engineering",
+      "Instagram Page": "https://www.instagram.com/cse_lpu/"
+    },
+    {
+      "ProgramCode": "P132-NNK",
+      "ProgramName": "B.Tech. (CSE) - AI & Data Engineering in tie up with Futurense",
+      "School Name": "Computer Science and Engineering",
+      "Instagram Page": "https://www.instagram.com/cse_lpu/"
+    },
+    {
+      "ProgramCode": "P132-NNL",
+      "ProgramName": "B.Tech. (CSE) - Software Product Engineering in tie up with Kalvium",
+      "School Name": "Computer Science and Engineering",
+      "Instagram Page": "https://www.instagram.com/cse_lpu/"
+    },
+    {
+      "ProgramCode": "P132-NNM",
+      "ProgramName": "B.Tech. (CSE) - Data Science with ML in tie up with UpGrad",
+      "School Name": "Computer Science and Engineering",
+      "Instagram Page": "https://www.instagram.com/cse_lpu/"
+    },
+    {
+      "ProgramCode": "P132-NNN",
+      "ProgramName": "B.Tech. (CSE) - DevOps Software Development and IT Operations in tie up with Xebia",
+      "School Name": "Computer Science and Engineering",
+      "Instagram Page": "https://www.instagram.com/cse_lpu/"
+    },
+    {
+      "ProgramCode": "P132-NNP",
+      "ProgramName": "B.Tech. (CSE) - Artificial Intelligence and Machine Learning (AI and ML)",
+      "School Name": "Computer Science and Engineering",
+      "Instagram Page": "https://www.instagram.com/cse_lpu/"
+    },
+    {
+      "ProgramCode": "P132-NNS",
+      "ProgramName": "B.Tech. (CSE) - Generative Artificial Intelligence [Gen AI] in tie up with Microsoft",
+      "School Name": "Computer Science and Engineering",
+      "Instagram Page": "https://www.instagram.com/cse_lpu/"
+    },
+    {
+      "ProgramCode": "P132-NNT",
+      "ProgramName": "B.Tech. (CSE) - Computer Science and Business Systems",
+      "School Name": "Computer Science and Engineering",
+      "Instagram Page": "https://www.instagram.com/cse_lpu/"
+    },
+    {
+      "ProgramCode": "P132-NNV",
+      "ProgramName": "B.Tech. (CSE) - Big Data and AI Analytics in tie up with IBM",
+      "School Name": "Computer Science and Engineering",
+      "Instagram Page": "https://www.instagram.com/cse_lpu/"
+    },
+    {
+      "ProgramCode": "P132-NNW",
+      "ProgramName": "B.Tech. (CSE) - Robotics and Artificial intelligence (AI)",
+      "School Name": "Computer Science and Engineering",
+      "Instagram Page": "https://www.instagram.com/cse_lpu/"
+    },
+    {
+      "ProgramCode": "P132-Y",
+      "ProgramName": "B.Tech. Computer Science and Engineering (CSE) [2+2 with International Credit Transfer Option]",
+      "School Name": "Computer Science and Engineering",
+      "Instagram Page": "https://www.instagram.com/cse_lpu/"
+    },
+    {
+      "ProgramCode": "P133",
+      "ProgramName": "B.Tech. Information Technology",
+      "School Name": "Computer Science and Engineering",
+      "Instagram Page": "https://www.instagram.com/cse_lpu/"
+    },
+    {
+      "ProgramCode": "P133-L",
+      "ProgramName": "B.Tech. Information Technology [Lateral Entry]",
+      "School Name": "Computer Science and Engineering",
+      "Instagram Page": "https://www.instagram.com/cse_lpu/"
+    },
+    {
+      "ProgramCode": "P135",
+      "ProgramName": "B.Tech. Electronics and Communication Engineering (ECE)",
+      "School Name": "Electronics and Electrical Engineering",
+      "Instagram Page": "https://www.instagram.com/lpu_eee/"
+    },
+    {
+      "ProgramCode": "P135-L",
+      "ProgramName": "B.Tech. Electronics and Communication Engineering [Lateral Entry]",
+      "School Name": "Electronics and Electrical Engineering",
+      "Instagram Page": "https://www.instagram.com/lpu_eee/"
+    },
+    {
+      "ProgramCode": "P135-NN3",
+      "ProgramName": "B.Tech. (ECE) - VLSI Design and Technology in Tie up with True Chip and Futurewiz",
+      "School Name": "Electronics and Electrical Engineering",
+      "Instagram Page": "https://www.instagram.com/lpu_eee/"
+    },
+    {
+      "ProgramCode": "P135-Y",
+      "ProgramName": "B.Tech. Electronics and Communication Engineering (ECE) [2+2 with International Credit Transfer Option]",
+      "School Name": "Electronics and Electrical Engineering",
+      "Instagram Page": "https://www.instagram.com/lpu_eee/"
+    },
+    {
+      "ProgramCode": "P135-YN8",
+      "ProgramName": "B.Tech Semiconductor Technology and VLSI design [3+1 with International Credit Transfer Option] Rochester Institute of Technology, New York, USA tie up with Ajuba",
+      "School Name": "Electronics and Electrical Engineering",
+      "Instagram Page": "https://www.instagram.com/lpu_eee/"
+    },
+    {
+      "ProgramCode": "P136",
+      "ProgramName": "B.Tech. Electrical Engineering (EE)",
+      "School Name": "Electronics and Electrical Engineering",
+      "Instagram Page": "https://www.instagram.com/lpu_eee/"
+    },
+    {
+      "ProgramCode": "P136-L",
+      "ProgramName": "B.Tech. Electrical Engineering [Lateral Entry]",
+      "School Name": "Electronics and Electrical Engineering",
+      "Instagram Page": "https://www.instagram.com/lpu_eee/"
+    },
+    {
+      "ProgramCode": "P136-NN2",
+      "ProgramName": "B.Tech. Electrical and Computer Engineering",
+      "School Name": "Electronics and Electrical Engineering",
+      "Instagram Page": "https://www.instagram.com/lpu_eee/"
+    },
+    {
+      "ProgramCode": "P137",
+      "ProgramName": "B.Tech. Civil Engineering",
+      "School Name": "Civil Engineering",
+      "Instagram Page": "https://www.instagram.com/lpu_civilengg/"
+    },
+    {
+      "ProgramCode": "P137-L",
+      "ProgramName": "B.Tech. Civil Engineering [Lateral Entry]",
+      "School Name": "Civil Engineering",
+      "Instagram Page": "https://www.instagram.com/lpu_civilengg/"
+    },
+    {
+      "ProgramCode": "P137-Y",
+      "ProgramName": "B Tech Civil Engineering [2+2 with International Credit Transfer Option]",
+      "School Name": "Civil Engineering",
+      "Instagram Page": "https://www.instagram.com/lpu_civilengg/"
+    },
+    {
+      "ProgramCode": "P138",
+      "ProgramName": "B.Tech. Mechanical Engineering",
+      "School Name": "Mechanical Engineering",
+      "Instagram Page": "https://www.instagram.com/LPUMechanicalEngineering"
+    },
+    {
+      "ProgramCode": "P138-L",
+      "ProgramName": "B.Tech. Mechanical Engineering [Lateral Entry]",
+      "School Name": "Mechanical Engineering",
+      "Instagram Page": "https://www.instagram.com/LPUMechanicalEngineering"
+    },
+    {
+      "ProgramCode": "P138-LN1",
+      "ProgramName": "B.Tech. Mechanical Engineering - Mechatronics [Lateral Entry]",
+      "School Name": "Mechanical Engineering",
+      "Instagram Page": "https://www.instagram.com/LPUMechanicalEngineering"
+    },
+    {
+      "ProgramCode": "P138-NN1",
+      "ProgramName": "B.Tech. Mechatronics Engineering",
+      "School Name": "Mechanical Engineering",
+      "Instagram Page": "https://www.instagram.com/LPUMechanicalEngineering"
+    },
+    {
+      "ProgramCode": "P138-NNB",
+      "ProgramName": "B.Tech. (ME - Artificial Intelligence and Machine Learning)",
+      "School Name": "Mechanical Engineering",
+      "Instagram Page": "https://www.instagram.com/LPUMechanicalEngineering"
+    },
+    {
+      "ProgramCode": "P138-Y",
+      "ProgramName": "B.Tech Mechanical Engineering [2+2 with International Credit Transfer Option]",
+      "School Name": "Mechanical Engineering",
+      "Instagram Page": "https://www.instagram.com/LPUMechanicalEngineering"
+    },
+    {
+      "ProgramCode": "P138-YN1",
+      "ProgramName": "B.Tech. Mechatronics Engineering [2+2 with International Credit Transfer Option]",
+      "School Name": "Mechanical Engineering",
+      "Instagram Page": "https://www.instagram.com/LPUMechanicalEngineering"
+    },
+    {
+      "ProgramCode": "P139",
+      "ProgramName": "B.Tech. Automobile Engineering",
+      "School Name": "Mechanical Engineering",
+      "Instagram Page": "https://www.instagram.com/LPUMechanicalEngineering"
+    },
+    {
+      "ProgramCode": "P139-L",
+      "ProgramName": "B.Tech. Automobile Engineering [Lateral Entry]",
+      "School Name": "Mechanical Engineering",
+      "Instagram Page": "https://www.instagram.com/LPUMechanicalEngineering"
+    },
+    {
+      "ProgramCode": "P139-Y",
+      "ProgramName": "B.Tech. Automobile Engineering [ 2+2 with International Credit Transfer Option]",
+      "School Name": "Mechanical Engineering",
+      "Instagram Page": "https://www.instagram.com/LPUMechanicalEngineering"
+    },
+    {
+      "ProgramCode": "P13A",
+      "ProgramName": "B.Tech. Electrical and Electronics Engineering (EEE)",
+      "School Name": "Electronics and Electrical Engineering",
+      "Instagram Page": "https://www.instagram.com/lpu_eee/"
+    },
+    {
+      "ProgramCode": "P13A-L",
+      "ProgramName": "B.Tech. Electrical and Electronics Engineering [Lateral Entry]",
+      "School Name": "Electronics and Electrical Engineering",
+      "Instagram Page": "https://www.instagram.com/lpu_eee/"
+    },
+    {
+      "ProgramCode": "P13AF",
+      "ProgramName": "B.Tech. Robotics and Automation",
+      "School Name": "Electronics and Electrical Engineering",
+      "Instagram Page": "https://www.instagram.com/lpu_eee/"
+    },
+    {
+      "ProgramCode": "P13AF-L",
+      "ProgramName": "B.Tech. Robotics and Automation [Lateral Entry]",
+      "School Name": "Electronics and Electrical Engineering",
+      "Instagram Page": "https://www.instagram.com/lpu_eee/"
+    },
+    {
+      "ProgramCode": "P13C",
+      "ProgramName": "B.Tech. Chemical Engineering",
+      "School Name": "Chemical Engineering and Physical Sciences",
+      "Instagram Page": "https://www.instagram.com/LPUChemicalEngg"
+    },
+    {
+      "ProgramCode": "P13C-L",
+      "ProgramName": "B.Tech. Chemical Engineering [Lateral Entry]",
+      "School Name": "Chemical Engineering and Physical Sciences",
+      "Instagram Page": "https://www.instagram.com/LPUChemicalEngg"
+    },
+    {
+      "ProgramCode": "P13E",
+      "ProgramName": "B.Tech. Aerospace Engineering",
+      "School Name": "Mechanical Engineering",
+      "Instagram Page": "https://www.instagram.com/LPUMechanicalEngineering"
+    },
+    {
+      "ProgramCode": "P13E-L",
+      "ProgramName": "B.Tech. Aerospace Engineering [Lateral Entry]",
+      "School Name": "Mechanical Engineering",
+      "Instagram Page": "https://www.instagram.com/LPUMechanicalEngineering"
+    },
+    {
+      "ProgramCode": "P13O",
+      "ProgramName": "B.Tech. Biomedical Engineering",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P13O-L",
+      "ProgramName": "B.Tech. Biomedical Engineering [Lateral Entry]",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P13Q",
+      "ProgramName": "B.Tech. Food Technology",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P13Q-L",
+      "ProgramName": "B.Tech. Food Technology [Lateral Entry]",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P163",
+      "ProgramName": "M.Sc. Information Technology",
+      "School Name": "Computer Applications",
+      "Instagram Page": "https://www.instagram.com/lpucomputerapplications/"
+    },
+    {
+      "ProgramCode": "P164-HN7",
+      "ProgramName": "MCA Hons. Artificial intelligence and Machine Learning tie up with IBM",
+      "School Name": "Computer Applications",
+      "Instagram Page": "https://www.instagram.com/lpucomputerapplications/"
+    },
+    {
+      "ProgramCode": "P164-HN8",
+      "ProgramName": "MCA Hons. Data Science tie up with TransOrg Analytics",
+      "School Name": "Computer Applications",
+      "Instagram Page": "https://www.instagram.com/lpucomputerapplications/"
+    },
+    {
+      "ProgramCode": "P164-HN9",
+      "ProgramName": "MCA Hons. Cyber Security",
+      "School Name": "Computer Applications",
+      "Instagram Page": "https://www.instagram.com/lpucomputerapplications/"
+    },
+    {
+      "ProgramCode": "P164-NN1",
+      "ProgramName": "MCA (Master of Computer Applications)",
+      "School Name": "Computer Applications",
+      "Instagram Page": "https://www.instagram.com/lpucomputerapplications/"
+    },
+    {
+      "ProgramCode": "P16AJ",
+      "ProgramName": "M.Sc. Data Science tie up with IBM",
+      "School Name": "Computer Applications",
+      "Instagram Page": "https://www.instagram.com/lpucomputerapplications/"
+    },
+    {
+      "ProgramCode": "P171",
+      "ProgramName": "M.Tech. Biotechnology",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P171",
+      "ProgramName": "M.Tech. Biotechnology",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P171-Y",
+      "ProgramName": "M Tech Biotechnology [1+1 with International Credit Transfer Option]",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P171-Y",
+      "ProgramName": "M Tech Biotechnology [1+1 with International Credit Transfer Option]",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P172",
+      "ProgramName": "M.Tech. Computer Science and Engineering",
+      "School Name": "Computer Science and Engineering",
+      "Instagram Page": "https://www.instagram.com/cse_lpu/"
+    },
+    {
+      "ProgramCode": "P172",
+      "ProgramName": "M.Tech. Computer Science and Engineering",
+      "School Name": "Computer Science and Engineering",
+      "Instagram Page": "https://www.instagram.com/cse_lpu/"
+    },
+    {
+      "ProgramCode": "P172-YNQ",
+      "ProgramName": "M.Tech. CSE (by Research) [1+1 with International Credit Transfer Option] tie up with Southern Federal University, Russia",
+      "School Name": "Computer Science and Engineering",
+      "Instagram Page": "https://www.instagram.com/cse_lpu/"
+    },
+    {
+      "ProgramCode": "P17AC",
+      "ProgramName": "M.Tech. Data Science and Analytics",
+      "School Name": "Computer Science and Engineering",
+      "Instagram Page": "https://www.instagram.com/cse_lpu/"
+    },
+    {
+      "ProgramCode": "P17AC",
+      "ProgramName": "M.Tech. Data Science and Analytics",
+      "School Name": "Computer Science and Engineering",
+      "Instagram Page": "https://www.instagram.com/cse_lpu/"
+    },
+    {
+      "ProgramCode": "P17AD",
+      "ProgramName": "M.Tech. Information Security and Cyber Forensics",
+      "School Name": "Computer Science and Engineering",
+      "Instagram Page": "https://www.instagram.com/cse_lpu/"
+    },
+    {
+      "ProgramCode": "P17AD",
+      "ProgramName": "M.Tech. Information Security and Cyber Forensics",
+      "School Name": "Computer Science and Engineering",
+      "Instagram Page": "https://www.instagram.com/cse_lpu/"
+    },
+    {
+      "ProgramCode": "P17E",
+      "ProgramName": "M.Tech. Aerospace Engineering",
+      "School Name": "Mechanical Engineering",
+      "Instagram Page": "https://www.instagram.com/LPUMechanicalEngineering"
+    },
+    {
+      "ProgramCode": "P17F",
+      "ProgramName": "M.Tech. VLSI Design",
+      "School Name": "Electronics and Electrical Engineering",
+      "Instagram Page": "https://www.instagram.com/lpu_eee/"
+    },
+    {
+      "ProgramCode": "P17J",
+      "ProgramName": "M.Tech. Power Systems",
+      "School Name": "Electronics and Electrical Engineering",
+      "Instagram Page": "https://www.instagram.com/lpu_eee/"
+    },
+    {
+      "ProgramCode": "P17J",
+      "ProgramName": "M.Tech. Power Systems",
+      "School Name": "Electronics and Electrical Engineering",
+      "Instagram Page": "https://www.instagram.com/lpu_eee/"
+    },
+    {
+      "ProgramCode": "P17M",
+      "ProgramName": "M.Tech. Transportation Engineering",
+      "School Name": "Civil Engineering",
+      "Instagram Page": "https://www.instagram.com/lpu_civilengg/"
+    },
+    {
+      "ProgramCode": "P17N",
+      "ProgramName": "M.Tech. Structural Engineering",
+      "School Name": "Civil Engineering",
+      "Instagram Page": "https://www.instagram.com/lpu_civilengg/"
+    },
+    {
+      "ProgramCode": "P17Q",
+      "ProgramName": "M.Tech. Food Technology",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P17Q",
+      "ProgramName": "M.Tech. Food Technology",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P17R",
+      "ProgramName": "M.Tech. Construction Management",
+      "School Name": "Civil Engineering",
+      "Instagram Page": "https://www.instagram.com/lpu_civilengg/"
+    },
+    {
+      "ProgramCode": "P17R",
+      "ProgramName": "M.Tech. Construction Management",
+      "School Name": "Civil Engineering",
+      "Instagram Page": "https://www.instagram.com/lpu_civilengg/"
+    },
+    {
+      "ProgramCode": "P17X",
+      "ProgramName": "M.Tech. Machine Learning and Artificial intelligence",
+      "School Name": "Computer Science and Engineering",
+      "Instagram Page": "https://www.instagram.com/cse_lpu/"
+    },
+    {
+      "ProgramCode": "P17X",
+      "ProgramName": "M.Tech. Machine Learning and Artificial intelligence",
+      "School Name": "Computer Science and Engineering",
+      "Instagram Page": "https://www.instagram.com/cse_lpu/"
+    },
+    {
+      "ProgramCode": "P1D2",
+      "ProgramName": "Ph.D. (Computer Science and Engineering) [Full Time Mode]",
+      "School Name": "Computer Science and Engineering",
+      "Instagram Page": "https://www.instagram.com/cse_lpu/"
+    },
+    {
+      "ProgramCode": "P1D2-T",
+      "ProgramName": "Ph.D. (Computer Science and Engineering) [Part Time Mode]",
+      "School Name": "Computer Science and Engineering",
+      "Instagram Page": "https://www.instagram.com/cse_lpu/"
+    },
+    {
+      "ProgramCode": "P1D4",
+      "ProgramName": "Ph.D. (Computer Applications) [Full Time Mode]",
+      "School Name": "Computer Applications",
+      "Instagram Page": "https://www.instagram.com/lpucomputerapplications/"
+    },
+    {
+      "ProgramCode": "P1D4-T",
+      "ProgramName": "Ph.D. (Computer Applications) [Part Time Mode]",
+      "School Name": "Computer Applications",
+      "Instagram Page": "https://www.instagram.com/lpucomputerapplications/"
+    },
+    {
+      "ProgramCode": "P1D5",
+      "ProgramName": "Ph.D. (Electronics and Communication Engineering) [Full Time Mode]",
+      "School Name": "Electronics and Electrical Engineering",
+      "Instagram Page": "https://www.instagram.com/lpu_eee/"
+    },
+    {
+      "ProgramCode": "P1D5-T",
+      "ProgramName": "Ph.D. (Electronics and Communication Engineering) [Part Time Mode]",
+      "School Name": "Electronics and Electrical Engineering",
+      "Instagram Page": "https://www.instagram.com/lpu_eee/"
+    },
+    {
+      "ProgramCode": "P1D6",
+      "ProgramName": "Ph.D. (Electrical Engineering) [Full Time Mode]",
+      "School Name": "Electronics and Electrical Engineering",
+      "Instagram Page": "https://www.instagram.com/lpu_eee/"
+    },
+    {
+      "ProgramCode": "P1D6-T",
+      "ProgramName": "Ph.D. (Electrical Engineering) [Part Time Mode]",
+      "School Name": "Electronics and Electrical Engineering",
+      "Instagram Page": "https://www.instagram.com/lpu_eee/"
+    },
+    {
+      "ProgramCode": "P1D7",
+      "ProgramName": "Ph.D. (Civil Engineering)[Full Time Mode]",
+      "School Name": "Civil Engineering",
+      "Instagram Page": "https://www.instagram.com/lpu_civilengg/"
+    },
+    {
+      "ProgramCode": "P1D7-T",
+      "ProgramName": "Ph.D. (Civil Engineering) [Part Time Mode]",
+      "School Name": "Civil Engineering",
+      "Instagram Page": "https://www.instagram.com/lpu_civilengg/"
+    },
+    {
+      "ProgramCode": "P1D8",
+      "ProgramName": "Ph.D. (Mechanical Engineering) [Full Time Mode]",
+      "School Name": "Mechanical Engineering",
+      "Instagram Page": "https://www.instagram.com/LPUMechanicalEngineering"
+    },
+    {
+      "ProgramCode": "P1D8-T",
+      "ProgramName": "Ph.D. (Mechanical Engineering) [Part Time Mode]",
+      "School Name": "Mechanical Engineering",
+      "Instagram Page": "https://www.instagram.com/LPUMechanicalEngineering"
+    },
+    {
+      "ProgramCode": "P1DC",
+      "ProgramName": "Ph.D. (Chemical Engineering) [Full Time Mode]",
+      "School Name": "Chemical Engineering and Physical Sciences",
+      "Instagram Page": "https://www.instagram.com/LPUChemicalEngg"
+    },
+    {
+      "ProgramCode": "P1DC-T",
+      "ProgramName": "Ph.D. (Chemical Engineering) [Part Time Mode]",
+      "School Name": "Chemical Engineering and Physical Sciences",
+      "Instagram Page": "https://www.instagram.com/LPUChemicalEngg"
+    },
+    {
+      "ProgramCode": "P1DE",
+      "ProgramName": "Ph.D. (Aerospace Engineering) [Full Time Mode]",
+      "School Name": "Mechanical Engineering",
+      "Instagram Page": "https://www.instagram.com/LPUMechanicalEngineering"
+    },
+    {
+      "ProgramCode": "P1DE-T",
+      "ProgramName": "Ph.D. (Aerospace Engineering) [Part Time Mode]",
+      "School Name": "Mechanical Engineering",
+      "Instagram Page": "https://www.instagram.com/LPUMechanicalEngineering"
+    },
+    {
+      "ProgramCode": "P1DV",
+      "ProgramName": "Ph.D. (Geospatial Information Science and Technology) [Full Time Mode]",
+      "School Name": "Electronics and Electrical Engineering",
+      "Instagram Page": "https://www.instagram.com/lpu_eee/"
+    },
+    {
+      "ProgramCode": "P1DV-T",
+      "ProgramName": "Ph.D. (Geospatial Information Science and Technology)[Part Time Mode]",
+      "School Name": "Electronics and Electrical Engineering",
+      "Instagram Page": "https://www.instagram.com/lpu_eee/"
+    },
+    {
+      "ProgramCode": "P220",
+      "ProgramName": "B.Sc. Biotechnology",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P223",
+      "ProgramName": "B.Sc. Microbiology",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P224",
+      "ProgramName": "B.Sc. Food Technology",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P225",
+      "ProgramName": "B.Sc. Nutrition and Dietetics",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P22A-NN5",
+      "ProgramName": "B.Sc. Zoology",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P22A-NN6",
+      "ProgramName": "B.Sc. Chemistry",
+      "School Name": "Chemical Engineering and Physical Sciences",
+      "Instagram Page": "https://www.instagram.com/LPUChemicalEngg"
+    },
+    {
+      "ProgramCode": "P22A-NN7",
+      "ProgramName": "B.Sc. Physics",
+      "School Name": "Chemical Engineering and Physical Sciences",
+      "Instagram Page": "https://www.instagram.com/LPUChemicalEngg"
+    },
+    {
+      "ProgramCode": "P22A-NN8",
+      "ProgramName": "B.Sc. Mathematics",
+      "School Name": "Chemical Engineering and Physical Sciences",
+      "Instagram Page": "https://www.instagram.com/LPUChemicalEngg"
+    },
+    {
+      "ProgramCode": "P22A-NN9",
+      "ProgramName": "B.Sc. Computer Science - Cyber Security tie up with Comptia",
+      "School Name": "Computer Applications",
+      "Instagram Page": "https://www.instagram.com/lpucomputerapplications/"
+    },
+    {
+      "ProgramCode": "P22G",
+      "ProgramName": "B.Sc. Forensic Sciences",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P240-HN3",
+      "ProgramName": "B.Sc. Hons./Hons. with Research (Biotechnology)",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P243-HN3",
+      "ProgramName": "B.Sc. Hons./Hons. with Research (Microbiology)",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P244-HN3",
+      "ProgramName": "B.Sc. Hons./Hons. with Research (Food Technology)",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P24A-HNB",
+      "ProgramName": "B.Sc. Hons./Hons. with Research (Zoology)",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P24A-HNC",
+      "ProgramName": "B.Sc.Hons./Hons. with Research (Physics)",
+      "School Name": "Chemical Engineering and Physical Sciences",
+      "Instagram Page": "https://www.instagram.com/LPUChemicalEngg"
+    },
+    {
+      "ProgramCode": "P24A-HND",
+      "ProgramName": "B.Sc. Hons./Hons. with Research (Chemistry)",
+      "School Name": "Chemical Engineering and Physical Sciences",
+      "Instagram Page": "https://www.instagram.com/LPUChemicalEngg"
+    },
+    {
+      "ProgramCode": "P24A-HNE",
+      "ProgramName": "B.Sc. Hons./Hons. with Research (Mathematics)",
+      "School Name": "Chemical Engineering and Physical Sciences",
+      "Instagram Page": "https://www.instagram.com/LPUChemicalEngg"
+    },
+    {
+      "ProgramCode": "P24B-H",
+      "ProgramName": "B.Sc. Hons. Agriculture",
+      "School Name": "Agriculture",
+      "Instagram Page": "https://www.instagram.com/LPUAgriculture"
+    },
+    {
+      "ProgramCode": "P24G-H",
+      "ProgramName": "B.Sc. Hons./Hons. with Research (Forensic Sciences)",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P260-H",
+      "ProgramName": "M.Sc. Hons. Biotechnology",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P261-H",
+      "ProgramName": "M.Sc. Hons. Botany",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P262-H",
+      "ProgramName": "M.Sc. Hons. Zoology",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P263-H",
+      "ProgramName": "M.Sc. Hons. Microbiology",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P264",
+      "ProgramName": "M.Sc. Food Science and Technology",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P265",
+      "ProgramName": "M.Sc. Nutrition and Dietetics",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P266-H",
+      "ProgramName": "M.Sc. Hons. Chemistry",
+      "School Name": "Chemical Engineering and Physical Sciences",
+      "Instagram Page": "https://www.instagram.com/LPUChemicalEngg"
+    },
+    {
+      "ProgramCode": "P268-H",
+      "ProgramName": "M.Sc. Hons. Physics",
+      "School Name": "Chemical Engineering and Physical Sciences",
+      "Instagram Page": "https://www.instagram.com/LPUChemicalEngg"
+    },
+    {
+      "ProgramCode": "P269",
+      "ProgramName": "M.Sc. Mathematics",
+      "School Name": "Chemical Engineering and Physical Sciences",
+      "Instagram Page": "https://www.instagram.com/LPUChemicalEngg"
+    },
+    {
+      "ProgramCode": "P269-NN-1",
+      "ProgramName": "M.A. Mathematics",
+      "School Name": "Chemical Engineering and Physical Sciences",
+      "Instagram Page": "https://www.instagram.com/LPUChemicalEngg"
+    },
+    {
+      "ProgramCode": "P26B-NN1",
+      "ProgramName": "M.Sc. Agronomy (Agriculture)",
+      "School Name": "Agriculture",
+      "Instagram Page": "https://www.instagram.com/LPUAgriculture"
+    },
+    {
+      "ProgramCode": "P26B-NN2",
+      "ProgramName": "M.Sc. Soil Science (Agriculture)",
+      "School Name": "Agriculture",
+      "Instagram Page": "https://www.instagram.com/LPUAgriculture"
+    },
+    {
+      "ProgramCode": "P26B-NN3",
+      "ProgramName": "M.Sc. Genetics and Plant Breeding (Agriculture)",
+      "School Name": "Agriculture",
+      "Instagram Page": "https://www.instagram.com/LPUAgriculture"
+    },
+    {
+      "ProgramCode": "P26B-NN5",
+      "ProgramName": "M.Sc. Entomology (Agriculture)",
+      "School Name": "Agriculture",
+      "Instagram Page": "https://www.instagram.com/LPUAgriculture"
+    },
+    {
+      "ProgramCode": "P26B-NN6",
+      "ProgramName": "M.Sc. Plant Pathology (Agriculture)",
+      "School Name": "Agriculture",
+      "Instagram Page": "https://www.instagram.com/LPUAgriculture"
+    },
+    {
+      "ProgramCode": "P26C",
+      "ProgramName": "M.Sc. Fruit Science (Horticulture)",
+      "School Name": "Agriculture",
+      "Instagram Page": "https://www.instagram.com/LPUAgriculture"
+    },
+    {
+      "ProgramCode": "P26E",
+      "ProgramName": "M.Sc. Vegetable Science (Horticulture)",
+      "School Name": "Agriculture",
+      "Instagram Page": "https://www.instagram.com/LPUAgriculture"
+    },
+    {
+      "ProgramCode": "P26F-NN1",
+      "ProgramName": "M.Sc. Floriculture and Landscaping (Horticulture )",
+      "School Name": "Agriculture",
+      "Instagram Page": "https://www.instagram.com/LPUAgriculture"
+    },
+    {
+      "ProgramCode": "P26G",
+      "ProgramName": "M.Sc. Forensic Sciences",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P26J",
+      "ProgramName": "M.Sc. Statistics and Data Analytics",
+      "School Name": "Chemical Engineering and Physical Sciences",
+      "Instagram Page": "https://www.instagram.com/LPUChemicalEngg"
+    },
+    {
+      "ProgramCode": "P29A-NK",
+      "ProgramName": "Integrated B.Sc. - B.Ed.",
+      "School Name": "LIE (Department of Education)/LSE (Department of Education)",
+      "Instagram Page": "https://www.instagram.com/lpu_education/"
+    },
+    {
+      "ProgramCode": "P2D0",
+      "ProgramName": "Ph.D. (Biotechnology) [Full Time Mode]",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P2D0-T",
+      "ProgramName": "Ph.D. (Biotechnology) [Part Time Mode]",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P2D1",
+      "ProgramName": "Ph.D. (Botany) [Full Time Mode]",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P2D1-T",
+      "ProgramName": "Ph.D. (Botany) [Part Time]",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P2D2",
+      "ProgramName": "Ph.D. (Zoology) [Full Time Mode]",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P2D2-T",
+      "ProgramName": "Ph.D. (Zoology) [Part Time Mode]",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P2D3",
+      "ProgramName": "Ph.D. (Microbiology) [Full Time Mode]",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P2D3-T",
+      "ProgramName": "Ph.D. (Microbiology) [Part Time Mode]",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P2D4-NN1",
+      "ProgramName": "Ph.D. (Food Science and Technology) [Full Time Mode]",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P2D4-TN1",
+      "ProgramName": "Ph.D. (Food Science and Technology) [Part Time Mode]",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P2D6",
+      "ProgramName": "Ph.D. (Chemistry) [Full Time Mode]",
+      "School Name": "Chemical Engineering and Physical Sciences",
+      "Instagram Page": "https://www.instagram.com/LPUChemicalEngg"
+    },
+    {
+      "ProgramCode": "P2D6-T",
+      "ProgramName": "Ph.D. (Chemistry) [Part Time Mode]",
+      "School Name": "Chemical Engineering and Physical Sciences",
+      "Instagram Page": "https://www.instagram.com/LPUChemicalEngg"
+    },
+    {
+      "ProgramCode": "P2D7",
+      "ProgramName": "Ph.D. (Biochemistry) [Full Time Mode]",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P2D7-T",
+      "ProgramName": "Ph.D. (Biochemistry) [Part Time Mode]",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P2D8",
+      "ProgramName": "Ph.D. (Physics) [Full Time Mode]",
+      "School Name": "Chemical Engineering and Physical Sciences",
+      "Instagram Page": "https://www.instagram.com/LPUChemicalEngg"
+    },
+    {
+      "ProgramCode": "P2D8-T",
+      "ProgramName": "Ph.D. (Physics) [Part Time Mode]",
+      "School Name": "Chemical Engineering and Physical Sciences",
+      "Instagram Page": "https://www.instagram.com/LPUChemicalEngg"
+    },
+    {
+      "ProgramCode": "P2D9",
+      "ProgramName": "Ph.D. (Mathematics) [Full Time Mode]",
+      "School Name": "Chemical Engineering and Physical Sciences",
+      "Instagram Page": "https://www.instagram.com/LPUChemicalEngg"
+    },
+    {
+      "ProgramCode": "P2D9-T",
+      "ProgramName": "Ph.D. (Mathematics) [Part Time Mode]",
+      "School Name": "Chemical Engineering and Physical Sciences",
+      "Instagram Page": "https://www.instagram.com/LPUChemicalEngg"
+    },
+    {
+      "ProgramCode": "P2DB-NN1",
+      "ProgramName": "Ph.D. (Agronomy) [Full Time Mode]",
+      "School Name": "Agriculture",
+      "Instagram Page": "https://www.instagram.com/LPUAgriculture"
+    },
+    {
+      "ProgramCode": "P2DB-NN3",
+      "ProgramName": "Ph.D. (Genetics & Plant Breeding) [Full Time Mode]",
+      "School Name": "Agriculture",
+      "Instagram Page": "https://www.instagram.com/LPUAgriculture"
+    },
+    {
+      "ProgramCode": "P2DB-NN5",
+      "ProgramName": "Ph.D. (Entomology) [Full Time Mode]",
+      "School Name": "Agriculture",
+      "Instagram Page": "https://www.instagram.com/LPUAgriculture"
+    },
+    {
+      "ProgramCode": "P2DB-NN6",
+      "ProgramName": "Ph.D. (Plant Pathology) [Full Time Mode]",
+      "School Name": "Agriculture",
+      "Instagram Page": "https://www.instagram.com/LPUAgriculture"
+    },
+    {
+      "ProgramCode": "P2DB-NN8",
+      "ProgramName": "Ph.D. (Soil Science) [Full Time Mode]",
+      "School Name": "Agriculture",
+      "Instagram Page": "https://www.instagram.com/LPUAgriculture"
+    },
+    {
+      "ProgramCode": "P2DC-NN1",
+      "ProgramName": "Ph.D. (Fruit Science) [Full Time Mode]",
+      "School Name": "Agriculture",
+      "Instagram Page": "https://www.instagram.com/LPUAgriculture"
+    },
+    {
+      "ProgramCode": "P2DD",
+      "ProgramName": "Ph.D. (Environmental Sciences) [Full Time Mode]",
+      "School Name": "Civil Engineering",
+      "Instagram Page": "https://www.instagram.com/lpu_civilengg/"
+    },
+    {
+      "ProgramCode": "P2DD-T",
+      "ProgramName": "Ph.D. (Environmental Sciences) [Part Time Mode]",
+      "School Name": "Civil Engineering",
+      "Instagram Page": "https://www.instagram.com/lpu_civilengg/"
+    },
+    {
+      "ProgramCode": "P2DE-NN1",
+      "ProgramName": "Ph.D. (Vegetable Science) [Full Time Mode]",
+      "School Name": "Agriculture",
+      "Instagram Page": "https://www.instagram.com/LPUAgriculture"
+    },
+    {
+      "ProgramCode": "P2DG",
+      "ProgramName": "Ph.D. (Forensic Sciences) [Full Time Mode]",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P2DG-T",
+      "ProgramName": "Ph.D. (Forensic Sciences) [Part Time Mode]",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P2DK",
+      "ProgramName": "Ph.D. (Statistics) [Full Time Mode]",
+      "School Name": "Chemical Engineering and Physical Sciences",
+      "Instagram Page": "https://www.instagram.com/LPUChemicalEngg"
+    },
+    {
+      "ProgramCode": "P2DK-T",
+      "ProgramName": "Ph.D. (Statistics)[Part Time Mode]",
+      "School Name": "Chemical Engineering and Physical Sciences",
+      "Instagram Page": "https://www.instagram.com/LPUChemicalEngg"
+    },
+    {
+      "ProgramCode": "P2DL",
+      "ProgramName": "Ph.D. (Bioinformatics) [Full Time Mode]",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P2DL-T",
+      "ProgramName": "Ph.D. (Bioinformatics) [Part Time Mode]",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P2DS",
+      "ProgramName": "Ph.D. (Molecular Biology and Genetic Engineering) [Full Time Mode]",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P2DS-T",
+      "ProgramName": "Ph.D. (Molecular Biology and Genetic Engineering) [Part Time Mode]",
+      "School Name": "Bio Engineering and Biosciences",
+      "Instagram Page": "https://www.instagram.com/lpubioenggandbiosciences"
+    },
+    {
+      "ProgramCode": "P301",
+      "ProgramName": "Diploma Business Administration (DBA)",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P320-NN1",
+      "ProgramName": "BBA (Information Technology)",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P320-NN4",
+      "ProgramName": "BBA Tourism and Hospitality",
+      "School Name": "Tourism (Airlines)",
+      "Instagram Page": "https://www.instagram.com/lputourismairlines/"
+    },
+    {
+      "ProgramCode": "P320-NN6",
+      "ProgramName": "BBA (Financial Markets) In tie up with NSE Academy",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P320-NNAA",
+      "ProgramName": "BBA (Artificial Intelligence and Machine Learning)",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P320-NNAD",
+      "ProgramName": "BBA (Industry Integrated)",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P320-NNB",
+      "ProgramName": "BBA (Business Analytics) In tie up with Institute of Analytics (IoA),UK",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P320-NNG",
+      "ProgramName": "BBA (International Finance) In tie up with US-CMA",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P320-NNM",
+      "ProgramName": "BBA Airlines and Airport Management",
+      "School Name": "Tourism (Airlines)",
+      "Instagram Page": "https://www.instagram.com/lputourismairlines/"
+    },
+    {
+      "ProgramCode": "P320-NNT",
+      "ProgramName": "BBA (Cargo, Logistics and Supply Chain Management)",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P320-NNV",
+      "ProgramName": "BBA (International Accounting) Integrated with UK-ACCA",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P320-NNX",
+      "ProgramName": "BBA (Corporate Finance) Integrated with US CPA",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P320-NNY",
+      "ProgramName": "BBA (Digital Marketing and Artificial Intelligence)",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P320-NNZ",
+      "ProgramName": "BBA (Fintech and Artificial Intelligence) in tie up with PayTM",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P321",
+      "ProgramName": "BBA (Bachelor of Business Administration)",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P321-L",
+      "ProgramName": "BBA (Bachelor of Business Administration) Lateral Entry",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P321-Y",
+      "ProgramName": "BBA [2+2 with International Credit Transfer Option]",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P322",
+      "ProgramName": "B.Com. (Bachelor of Commerce)",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P322-L",
+      "ProgramName": "B.Com. (Bachelor of Commerce) Lateral Entry",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P322-NN2",
+      "ProgramName": "B.Com. Management Accounting and International Finance Integrated with US-CMA",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P322-NN6",
+      "ProgramName": "B.Com. International Accounting Integrated with UK-ACCA",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P322-NN7",
+      "ProgramName": "B.Com. Corporate Finance Integrated with US CPA",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P322-NN8",
+      "ProgramName": "B.Com. (Industry Integrated)",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P322-Y",
+      "ProgramName": "B.Com [ 2+2 with International Credit Transfer Option]",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P323-NN1",
+      "ProgramName": "B.Sc. Economics",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P324-LN8",
+      "ProgramName": "B.Sc. Hotel and Hospitality Management [Lateral Entry]",
+      "School Name": "Hotel Management (LPU School of Hotel Management and Tourism)",
+      "Instagram Page": "https://www.instagram.com/LPUHotelManagement"
+    },
+    {
+      "ProgramCode": "P324-NN6",
+      "ProgramName": "B.Sc. Culinary Arts",
+      "School Name": "Hotel Management (LPU School of Hotel Management and Tourism)",
+      "Instagram Page": "https://www.instagram.com/LPUHotelManagement"
+    },
+    {
+      "ProgramCode": "P324-NN7",
+      "ProgramName": "B.Sc. Bakery and Pastry Management",
+      "School Name": "Hotel Management (LPU School of Hotel Management and Tourism)",
+      "Instagram Page": "https://www.instagram.com/LPUHotelManagement"
+    },
+    {
+      "ProgramCode": "P324-NN8",
+      "ProgramName": "B.Sc. Hotel and Hospitality Management",
+      "School Name": "Hotel Management (LPU School of Hotel Management and Tourism)",
+      "Instagram Page": "https://www.instagram.com/LPUHotelManagement"
+    },
+    {
+      "ProgramCode": "P325",
+      "ProgramName": "B.Sc. Airlines, Tourism and Hospitality",
+      "School Name": "Tourism (Airlines)",
+      "Instagram Page": "https://www.instagram.com/lputourismairlines/"
+    },
+    {
+      "ProgramCode": "P325-L",
+      "ProgramName": "B.Sc. Airlines, Tourism and Hospitality [Lateral Entry]",
+      "School Name": "Tourism (Airlines)",
+      "Instagram Page": "https://www.instagram.com/lputourismairlines/"
+    },
+    {
+      "ProgramCode": "P340-HNAE",
+      "ProgramName": "BBA Hons./Hons. with Research (Bachelor of Business Administration)",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P342-HN9",
+      "ProgramName": "B.Com. Hons./Hons. with Research (Bachelor of Commerce)",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P343-HN2",
+      "ProgramName": "B.Sc. Hons./Hons. with Research (Economics)",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P344",
+      "ProgramName": "Bachelor of Hotel Mngt and Catering Technology (BHMCT)",
+      "School Name": "Hotel Management (LPU School of Hotel Management and Tourism)",
+      "Instagram Page": "https://www.instagram.com/LPUHotelManagement"
+    },
+    {
+      "ProgramCode": "P344-L",
+      "ProgramName": "Bachelor of Hotel Management and Catering Technology (BHMCT) Lateral Entry",
+      "School Name": "Hotel Management (LPU School of Hotel Management and Tourism)",
+      "Instagram Page": "https://www.instagram.com/LPUHotelManagement"
+    },
+    {
+      "ProgramCode": "P344-Y",
+      "ProgramName": "Bachelor of Hotel Mgt and Catering Technology [2+2 with International Credit Transfer Option]",
+      "School Name": "Hotel Management (LPU School of Hotel Management and Tourism)",
+      "Instagram Page": "https://www.instagram.com/LPUHotelManagement"
+    },
+    {
+      "ProgramCode": "P362",
+      "ProgramName": "M.Com. (Master of Commerce)",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P363",
+      "ProgramName": "M.Sc. Economics",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P363-NN-1",
+      "ProgramName": "M.A. Economics",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P364-NN9",
+      "ProgramName": "M.Sc. Hospitality Management",
+      "School Name": "Hotel Management (LPU School of Hotel Management and Tourism)",
+      "Instagram Page": "https://www.instagram.com/LPUHotelManagement"
+    },
+    {
+      "ProgramCode": "P370-NN2F",
+      "ProgramName": "MBA International Business",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P370-NN3F",
+      "ProgramName": "MBA Hospital and Healthcare Management",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P370-NN6F",
+      "ProgramName": "MBA Financial Markets tie up with NSE Academy",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P370-NN7F",
+      "ProgramName": "MBA Supply Chain and Logistics tie up with Safeducate",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P370-NNAB",
+      "ProgramName": "MBA Data Science and Artificial intelligence",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P370-NNBF",
+      "ProgramName": "MBA Business Analytics tie up with EY",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P370-NNZ",
+      "ProgramName": "MBA Fintech and Artificial Intelligence",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P371-NNAF",
+      "ProgramName": "MBA (Master of Business Administration)",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P371-YNAF",
+      "ProgramName": "MBA [1+1 with International Credit Transfer Option]",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P375-NN3",
+      "ProgramName": "MBA Tourism, Aviation and Hospitality",
+      "School Name": "Tourism (Airlines)",
+      "Instagram Page": "https://www.instagram.com/lputourismairlines/"
+    },
+    {
+      "ProgramCode": "P390-NE",
+      "ProgramName": "Integrated BBA - MBA",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P391-HH",
+      "ProgramName": "BBA., LL.B. Hons.",
+      "School Name": "Law",
+      "Instagram Page": "https://instagram.com/LPUlawschool"
+    },
+    {
+      "ProgramCode": "P3D1",
+      "ProgramName": "Ph.D. (Management) [Full Time Mode]",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P3D1-T",
+      "ProgramName": "Ph.D. (Management) [Part Time Mode]",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P3D2",
+      "ProgramName": "Ph.D. (Commerce) [Full Time Mode]",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P3D2-T",
+      "ProgramName": "Ph.D. (Commerce) [Part Time Mode]",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P3D3",
+      "ProgramName": "Ph.D. (Economics) [Full Time Mode]",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P3D3-T",
+      "ProgramName": "Ph.D. (Economics) [Part Time Mode]",
+      "School Name": "Mittal School of Business",
+      "Instagram Page": "https://www.instagram.com/lpu_msb/"
+    },
+    {
+      "ProgramCode": "P3D4",
+      "ProgramName": "Ph.D. (Hotel Management) [Full Time Mode]",
+      "School Name": "Hotel Management (LPU School of Hotel Management and Tourism)",
+      "Instagram Page": "https://www.instagram.com/LPUHotelManagement"
+    },
+    {
+      "ProgramCode": "P3D4-T",
+      "ProgramName": "Ph.D. (Hotel Management) [Part Time Mode]",
+      "School Name": "Hotel Management (LPU School of Hotel Management and Tourism)",
+      "Instagram Page": "https://www.instagram.com/LPUHotelManagement"
+    },
+    {
+      "ProgramCode": "P3D5-NN1",
+      "ProgramName": "Ph.D. (Tourism Management) [Full Time Mode]",
+      "School Name": "Tourism (Airlines)",
+      "Instagram Page": "https://www.instagram.com/lputourismairlines/"
+    },
+    {
+      "ProgramCode": "P3D5-TN1",
+      "ProgramName": "Ph.D. (Tourism Management) [Part Time Mode]",
+      "School Name": "Tourism (Airlines)",
+      "Instagram Page": "https://www.instagram.com/lputourismairlines/"
+    },
+    {
+      "ProgramCode": "P41B",
+      "ProgramName": "Diploma Library and information Sciences (D. Lib.I.Sc.)",
+      "School Name": "School of Liberal and Creative Arts [Social Sciences & Languages]",
+      "Instagram Page": "https://www.instagram.com/lpu_social.sciences.languages"
+    },
+    {
+      "ProgramCode": "P420",
+      "ProgramName": "Bachelor of Arts (B.A.)",
+      "School Name": "School of Liberal and Creative Arts [Social Sciences & Languages]",
+      "Instagram Page": "https://www.instagram.com/lpu_social.sciences.languages"
+    },
+    {
+      "ProgramCode": "P421",
+      "ProgramName": "B.A. Fine Arts",
+      "School Name": "Journalism, Films and Creative Arts-II [Fine Arts]",
+      "Instagram Page": "https://www.instagram.com/LPUFinearts"
+    },
+    {
+      "ProgramCode": "P422-NN5",
+      "ProgramName": "B.A. Music Vocal",
+      "School Name": "School of Liberal and Creative Arts [Theatre & Music]",
+      "Instagram Page": "https://www.instagram.com/lpu.theatreandmusic/"
+    },
+    {
+      "ProgramCode": "P422-NN7",
+      "ProgramName": "B.A. Theatre",
+      "School Name": "School of Liberal and Creative Arts [Theatre & Music]",
+      "Instagram Page": "https://www.instagram.com/lpu.theatreandmusic/"
+    },
+    {
+      "ProgramCode": "P42K",
+      "ProgramName": "Bachelor of Social Work (BSW)",
+      "School Name": "School of Liberal and Creative Arts [Social Sciences & Languages]",
+      "Instagram Page": "https://www.instagram.com/lpu_social.sciences.languages"
+    },
+    {
+      "ProgramCode": "P440-HN4",
+      "ProgramName": "B.A. Hons./Hons. with Research (Bachelor of Arts)",
+      "School Name": "School of Liberal and Creative Arts [Social Sciences & Languages]",
+      "Instagram Page": "https://www.instagram.com/lpu_social.sciences.languages"
+    },
+    {
+      "ProgramCode": "P441",
+      "ProgramName": "Bachelor of Fine Arts (BFA)",
+      "School Name": "Journalism, Films and Creative Arts-II [Fine Arts]",
+      "Instagram Page": "https://www.instagram.com/LPUFinearts"
+    },
+    {
+      "ProgramCode": "P442-NN5",
+      "ProgramName": "BPA Music Vocal",
+      "School Name": "School of Liberal and Creative Arts [Theatre & Music]",
+      "Instagram Page": "https://www.instagram.com/lpu.theatreandmusic/"
+    },
+    {
+      "ProgramCode": "P442-NN7",
+      "ProgramName": "BPA Theatre",
+      "School Name": "School of Liberal and Creative Arts [Theatre & Music]",
+      "Instagram Page": "https://www.instagram.com/lpu.theatreandmusic/"
+    },
+    {
+      "ProgramCode": "P44K-H",
+      "ProgramName": "BSW Hons./Hons. with Research (Bachelor of Social Work)",
+      "School Name": "School of Liberal and Creative Arts [Social Sciences & Languages]",
+      "Instagram Page": "https://www.instagram.com/lpu_social.sciences.languages"
+    },
+    {
+      "ProgramCode": "P463",
+      "ProgramName": "M.A. English",
+      "School Name": "School of Liberal and Creative Arts [Social Sciences & Languages]",
+      "Instagram Page": "https://www.instagram.com/lpu_social.sciences.languages"
+    },
+    {
+      "ProgramCode": "P464",
+      "ProgramName": "M.A. Punjabi",
+      "School Name": "School of Liberal and Creative Arts [Social Sciences & Languages]",
+      "Instagram Page": "https://www.instagram.com/lpu_social.sciences.languages"
+    },
+    {
+      "ProgramCode": "P465",
+      "ProgramName": "M.A. Hindi",
+      "School Name": "School of Liberal and Creative Arts [Social Sciences & Languages]",
+      "Instagram Page": "https://www.instagram.com/lpu_social.sciences.languages"
+    },
+    {
+      "ProgramCode": "P466",
+      "ProgramName": "M.A. History",
+      "School Name": "School of Liberal and Creative Arts [Social Sciences & Languages]",
+      "Instagram Page": "https://www.instagram.com/lpu_social.sciences.languages"
+    },
+    {
+      "ProgramCode": "P467",
+      "ProgramName": "M.A. Sociology",
+      "School Name": "School of Liberal and Creative Arts [Social Sciences & Languages]",
+      "Instagram Page": "https://www.instagram.com/lpu_social.sciences.languages"
+    },
+    {
+      "ProgramCode": "P468",
+      "ProgramName": "M.A. Political Science",
+      "School Name": "School of Liberal and Creative Arts [Social Sciences & Languages]",
+      "Instagram Page": "https://www.instagram.com/lpu_social.sciences.languages"
+    },
+    {
+      "ProgramCode": "P469-NN1",
+      "ProgramName": "M.Sc. Geography",
+      "School Name": "School of Liberal and Creative Arts [Social Sciences & Languages]",
+      "Instagram Page": "https://www.instagram.com/lpu_social.sciences.languages"
+    },
+    {
+      "ProgramCode": "P46A",
+      "ProgramName": "M.A. Psychology",
+      "School Name": "School of Liberal and Creative Arts [Social Sciences & Languages]",
+      "Instagram Page": "https://www.instagram.com/lpu_social.sciences.languages"
+    },
+    {
+      "ProgramCode": "P46A-NN2",
+      "ProgramName": "M.Sc. Forensic Psychology",
+      "School Name": "School of Liberal and Creative Arts [Social Sciences & Languages]",
+      "Instagram Page": "https://www.instagram.com/lpu_social.sciences.languages"
+    },
+    {
+      "ProgramCode": "P46G-NN1",
+      "ProgramName": "M.A. (Applied Clinical Psychology)",
+      "School Name": "School of Liberal and Creative Arts [Social Sciences & Languages]",
+      "Instagram Page": "https://www.instagram.com/lpu_social.sciences.languages"
+    },
+    {
+      "ProgramCode": "P46G-NN2A",
+      "ProgramName": "M.A. (Clinical Psychology) with Rehabilitation Council Of India (RCI Approved)",
+      "School Name": "School of Liberal and Creative Arts [Social Sciences & Languages]",
+      "Instagram Page": "https://www.instagram.com/lpu_social.sciences.languages"
+    },
+    {
+      "ProgramCode": "P46K",
+      "ProgramName": "Master of Social Work (MSW)",
+      "School Name": "School of Liberal and Creative Arts [Social Sciences & Languages]",
+      "Instagram Page": "https://www.instagram.com/lpu_social.sciences.languages"
+    },
+    {
+      "ProgramCode": "P471",
+      "ProgramName": "Master of Fine Arts (MFA)",
+      "School Name": "Journalism, Films and Creative Arts-II [Fine Arts]",
+      "Instagram Page": "https://www.instagram.com/LPUFinearts"
+    },
+    {
+      "ProgramCode": "P472",
+      "ProgramName": "Master of Performing Arts (MPA)",
+      "School Name": "School of Liberal and Creative Arts [Theatre & Music]",
+      "Instagram Page": "https://www.instagram.com/lpu.theatreandmusic/"
+    },
+    {
+      "ProgramCode": "P490-HH",
+      "ProgramName": "B.A., LL.B. Hons.",
+      "School Name": "Law",
+      "Instagram Page": "https://instagram.com/LPUlawschool"
+    },
+    {
+      "ProgramCode": "P490-NK",
+      "ProgramName": "Integrated B.A. - B.Ed.",
+      "School Name": "LIE (Department of Education)/LSE (Department of Education)",
+      "Instagram Page": "https://www.instagram.com/lpu_education/"
+    },
+    {
+      "ProgramCode": "P4AB",
+      "ProgramName": "Bachelor of Library and information Sciences (B. Lib. I.Sc.)",
+      "School Name": "School of Liberal and Creative Arts [Social Sciences & Languages]",
+      "Instagram Page": "https://www.instagram.com/lpu_social.sciences.languages"
+    },
+    {
+      "ProgramCode": "P4AE",
+      "ProgramName": "LL.B.",
+      "School Name": "Law",
+      "Instagram Page": "https://instagram.com/LPUlawschool"
+    },
+    {
+      "ProgramCode": "P4BB",
+      "ProgramName": "Master of Library and information Sciences (M. Lib. I. Sc.)",
+      "School Name": "School of Liberal and Creative Arts [Social Sciences & Languages]",
+      "Instagram Page": "https://www.instagram.com/lpu_social.sciences.languages"
+    },
+    {
+      "ProgramCode": "P4BE-NN1",
+      "ProgramName": "LL.M.",
+      "School Name": "Law",
+      "Instagram Page": "https://instagram.com/LPUlawschool"
+    },
+    {
+      "ProgramCode": "P4D1",
+      "ProgramName": "Ph.D. (Fine Arts) [Full Time Mode]",
+      "School Name": "Journalism, Films and Creative Arts-II [Fine Arts]",
+      "Instagram Page": "https://www.instagram.com/LPUFinearts"
+    },
+    {
+      "ProgramCode": "P4D1-T",
+      "ProgramName": "Ph.D. (Fine Arts) [Part Time Mode]",
+      "School Name": "Journalism, Films and Creative Arts-II [Fine Arts]",
+      "Instagram Page": "https://www.instagram.com/LPUFinearts"
+    },
+    {
+      "ProgramCode": "P4D2-NN1",
+      "ProgramName": "Ph.D. (Performing Arts-Music) [Full Time Mode]",
+      "School Name": "School of Liberal and Creative Arts [Theatre & Music]",
+      "Instagram Page": "https://www.instagram.com/lpu.theatreandmusic/"
+    },
+    {
+      "ProgramCode": "P4D2-NNA",
+      "ProgramName": "Ph.D. (Performing Arts-Theatre) [Full Time Mode]",
+      "School Name": "School of Liberal and Creative Arts [Theatre & Music]",
+      "Instagram Page": "https://www.instagram.com/lpu.theatreandmusic/"
+    },
+    {
+      "ProgramCode": "P4D2-TN1",
+      "ProgramName": "Ph.D. (Performing Arts-Music) [Part Time Mode]",
+      "School Name": "School of Liberal and Creative Arts [Theatre & Music]",
+      "Instagram Page": "https://www.instagram.com/lpu.theatreandmusic/"
+    },
+    {
+      "ProgramCode": "P4D2-TNA",
+      "ProgramName": "Ph.D. (Performing Arts-Theatre) [Part Time Mode]",
+      "School Name": "School of Liberal and Creative Arts [Theatre & Music]",
+      "Instagram Page": "https://www.instagram.com/lpu.theatreandmusic/"
+    },
+    {
+      "ProgramCode": "P4D3",
+      "ProgramName": "Ph.D. (English) [Full Time Mode]",
+      "School Name": "School of Liberal and Creative Arts [Social Sciences & Languages]",
+      "Instagram Page": "https://www.instagram.com/lpu_social.sciences.languages"
+    },
+    {
+      "ProgramCode": "P4D3-T",
+      "ProgramName": "Ph.D. (English) [Part Time Mode]",
+      "School Name": "School of Liberal and Creative Arts [Social Sciences & Languages]",
+      "Instagram Page": "https://www.instagram.com/lpu_social.sciences.languages"
+    },
+    {
+      "ProgramCode": "P4D4",
+      "ProgramName": "Ph.D. (Punjabi) [Full Time Mode]",
+      "School Name": "School of Liberal and Creative Arts [Social Sciences & Languages]",
+      "Instagram Page": "https://www.instagram.com/lpu_social.sciences.languages"
+    },
+    {
+      "ProgramCode": "P4D4-T",
+      "ProgramName": "Ph.D. (Punjabi) [Part Time Mode]",
+      "School Name": "School of Liberal and Creative Arts [Social Sciences & Languages]",
+      "Instagram Page": "https://www.instagram.com/lpu_social.sciences.languages"
+    },
+    {
+      "ProgramCode": "P4D5",
+      "ProgramName": "Ph.D. (Hindi) [Full Time Mode]",
+      "School Name": "School of Liberal and Creative Arts [Social Sciences & Languages]",
+      "Instagram Page": "https://www.instagram.com/lpu_social.sciences.languages"
+    },
+    {
+      "ProgramCode": "P4D5-T",
+      "ProgramName": "Ph.D. (Hindi) [Part Time Mode]",
+      "School Name": "School of Liberal and Creative Arts [Social Sciences & Languages]",
+      "Instagram Page": "https://www.instagram.com/lpu_social.sciences.languages"
+    },
+    {
+      "ProgramCode": "P4D6",
+      "ProgramName": "Ph.D. (History) [Full Time Mode]",
+      "School Name": "School of Liberal and Creative Arts [Social Sciences & Languages]",
+      "Instagram Page": "https://www.instagram.com/lpu_social.sciences.languages"
+    },
+    {
+      "ProgramCode": "P4D6-T",
+      "ProgramName": "Ph.D. (History) [Part Time Mode]",
+      "School Name": "School of Liberal and Creative Arts [Social Sciences & Languages]",
+      "Instagram Page": "https://www.instagram.com/lpu_social.sciences.languages"
+    },
+    {
+      "ProgramCode": "P4D7",
+      "ProgramName": "Ph.D. (Sociology) [Full Time Mode]",
+      "School Name": "School of Liberal and Creative Arts [Social Sciences & Languages]",
+      "Instagram Page": "https://www.instagram.com/lpu_social.sciences.languages"
+    },
+    {
+      "ProgramCode": "P4D7-T",
+      "ProgramName": "Ph.D. (Sociology) [Part Time Mode]",
+      "School Name": "School of Liberal and Creative Arts [Social Sciences & Languages]",
+      "Instagram Page": "https://www.instagram.com/lpu_social.sciences.languages"
+    },
+    {
+      "ProgramCode": "P4D8",
+      "ProgramName": "Ph.D. (Political Science) [Full Time Mode]",
+      "School Name": "School of Liberal and Creative Arts [Social Sciences & Languages]",
+      "Instagram Page": "https://www.instagram.com/lpu_social.sciences.languages"
+    },
+    {
+      "ProgramCode": "P4D8-T",
+      "ProgramName": "Ph.D. (Political Science) [Part Time Mode]",
+      "School Name": "School of Liberal and Creative Arts [Social Sciences & Languages]",
+      "Instagram Page": "https://www.instagram.com/lpu_social.sciences.languages"
+    },
+    {
+      "ProgramCode": "P4D9",
+      "ProgramName": "Ph.D. (Geography) [Full Time Mode]",
+      "School Name": "School of Liberal and Creative Arts [Social Sciences & Languages]",
+      "Instagram Page": "https://www.instagram.com/lpu_social.sciences.languages"
+    },
+    {
+      "ProgramCode": "P4D9-T",
+      "ProgramName": "Ph.D. (Geography) [Part Time Mode]",
+      "School Name": "School of Liberal and Creative Arts [Social Sciences & Languages]",
+      "Instagram Page": "https://www.instagram.com/lpu_social.sciences.languages"
+    },
+    {
+      "ProgramCode": "P4DA",
+      "ProgramName": "Ph.D. (Psychology) [Full Time Mode]",
+      "School Name": "School of Liberal and Creative Arts [Social Sciences & Languages]",
+      "Instagram Page": "https://www.instagram.com/lpu_social.sciences.languages"
+    },
+    {
+      "ProgramCode": "P4DA-T",
+      "ProgramName": "Ph.D. (Psychology) [Part Time Mode]",
+      "School Name": "School of Liberal and Creative Arts [Social Sciences & Languages]",
+      "Instagram Page": "https://www.instagram.com/lpu_social.sciences.languages"
+    },
+    {
+      "ProgramCode": "P4DE",
+      "ProgramName": "Ph.D. (Law) [Full Time Mode]",
+      "School Name": "Law",
+      "Instagram Page": "https://instagram.com/LPUlawschool"
+    },
+    {
+      "ProgramCode": "P4DE-T",
+      "ProgramName": "Ph.D. (Law) [Part Time Mode]",
+      "School Name": "Law",
+      "Instagram Page": "https://instagram.com/LPUlawschool"
+    },
+    {
+      "ProgramCode": "P4DF",
+      "ProgramName": "Ph.D. (Public Administration) [Full Time Mode]",
+      "School Name": "School of Liberal and Creative Arts [Social Sciences & Languages]",
+      "Instagram Page": "https://www.instagram.com/lpu_social.sciences.languages"
+    },
+    {
+      "ProgramCode": "P4DF-T",
+      "ProgramName": "Ph.D. (Public Administration) [Part Time Mode]",
+      "School Name": "School of Liberal and Creative Arts [Social Sciences & Languages]",
+      "Instagram Page": "https://www.instagram.com/lpu_social.sciences.languages"
+    },
+    {
+      "ProgramCode": "P4DK",
+      "ProgramName": "Ph.D. (Social Work) [Full Time Mode]",
+      "School Name": "School of Liberal and Creative Arts [Social Sciences & Languages]",
+      "Instagram Page": "https://www.instagram.com/lpu_social.sciences.languages"
+    },
+    {
+      "ProgramCode": "P4DK-T",
+      "ProgramName": "Ph.D. (Social Work) [Part Time]",
+      "School Name": "School of Liberal and Creative Arts [Social Sciences & Languages]",
+      "Instagram Page": "https://www.instagram.com/lpu_social.sciences.languages"
+    },
+    {
+      "ProgramCode": "P501",
+      "ProgramName": "Diploma Medical Lab. Technology (DMLT)",
+      "School Name": "Physiotherapy",
+      "Instagram Page": "https://www.instagram.com/LPUPhysiotherapy"
+    },
+    {
+      "ProgramCode": "P520-NNJ",
+      "ProgramName": "B.Sc. (Child and Elderly Care)",
+      "School Name": "Physiotherapy and Paramedical Sciences [Medical Laboratory Sciences]",
+      "Instagram Page": "https://www.instagram.com/LPUMLS"
+    },
+    {
+      "ProgramCode": "P521",
+      "ProgramName": "B.Sc. Medical Laboratory Technology",
+      "School Name": "Physiotherapy",
+      "Instagram Page": "https://www.instagram.com/LPUPhysiotherapy"
+    },
+    {
+      "ProgramCode": "P521-L",
+      "ProgramName": "B.Sc. Medical Laboratory Technology [Lateral Entry]",
+      "School Name": "Physiotherapy",
+      "Instagram Page": "https://www.instagram.com/LPUPhysiotherapy"
+    },
+    {
+      "ProgramCode": "P540-LNN-D",
+      "ProgramName": "B.Pharm. (Bachelor of Pharmacy) [Lateral Entry]",
+      "School Name": "LIT (Pharmacy)/Department of Pharmaceutical Sciences",
+      "Instagram Page": "https://www.instagram.com/lpupharmaceutical/"
+    },
+    {
+      "ProgramCode": "P540-NNN-D",
+      "ProgramName": "B.Pharm. (Bachelor of Pharmacy)",
+      "School Name": "LIT (Pharmacy)/Department of Pharmaceutical Sciences",
+      "Instagram Page": "https://www.instagram.com/lpupharmaceutical/"
+    },
+    {
+      "ProgramCode": "P541-NN5",
+      "ProgramName": "B.Sc. (Optometry)",
+      "School Name": "Physiotherapy",
+      "Instagram Page": "https://www.instagram.com/LPUPhysiotherapy"
+    },
+    {
+      "ProgramCode": "P541-NN6",
+      "ProgramName": "B.Sc. (Anaesthesia and Operation Theatre Technology)",
+      "School Name": "Physiotherapy",
+      "Instagram Page": "https://www.instagram.com/LPUPhysiotherapy"
+    },
+    {
+      "ProgramCode": "P541-NN7",
+      "ProgramName": "B.Sc. (Cardiovascular Technology) in tie up with Emversity",
+      "School Name": "Physiotherapy",
+      "Instagram Page": "https://www.instagram.com/LPUPhysiotherapy"
+    },
+    {
+      "ProgramCode": "P541-NNA",
+      "ProgramName": "B.Sc. (Respiratory Therapy) in tie up with Emversity",
+      "School Name": "Physiotherapy",
+      "Instagram Page": "https://www.instagram.com/LPUPhysiotherapy"
+    },
+    {
+      "ProgramCode": "P541-NNB",
+      "ProgramName": "B.Sc. (Dialysis Therapy Technology and Dialysis Therapy) in tie up with Emversity",
+      "School Name": "Physiotherapy",
+      "Instagram Page": "https://www.instagram.com/LPUPhysiotherapy"
+    },
+    {
+      "ProgramCode": "P541-NNC",
+      "ProgramName": "B.Sc. (Medical Radiology and Imaging Technology) in tie up with Emversity",
+      "School Name": "Physiotherapy",
+      "Instagram Page": "https://www.instagram.com/LPUPhysiotherapy"
+    },
+    {
+      "ProgramCode": "P542",
+      "ProgramName": "Bachelor of Physiotherapy (BPT)",
+      "School Name": "Physiotherapy",
+      "Instagram Page": "https://www.instagram.com/LPUPhysiotherapy"
+    },
+    {
+      "ProgramCode": "P542-L",
+      "ProgramName": "BPT (Bachelor of Physiotherapy) [Lateral Entry]",
+      "School Name": "Physiotherapy",
+      "Instagram Page": "https://www.instagram.com/LPUPhysiotherapy"
+    },
+    {
+      "ProgramCode": "P564",
+      "ProgramName": "M.Sc. Clinical Microbiology",
+      "School Name": "Physiotherapy",
+      "Instagram Page": "https://www.instagram.com/LPUPhysiotherapy"
+    },
+    {
+      "ProgramCode": "P565",
+      "ProgramName": "M.Sc. Clinical Biochemistry",
+      "School Name": "Physiotherapy",
+      "Instagram Page": "https://www.instagram.com/LPUPhysiotherapy"
+    },
+    {
+      "ProgramCode": "P568",
+      "ProgramName": "M.Sc. Clinical Embryology in tie up with Cooper Surgical India (Origio India Pvt. Ltd)",
+      "School Name": "Physiotherapy",
+      "Instagram Page": "https://www.instagram.com/LPUPhysiotherapy"
+    },
+    {
+      "ProgramCode": "P570-NN1-D",
+      "ProgramName": "M.Pharm. Pharmaceutics",
+      "School Name": "LIT (Pharmacy)/Department of Pharmaceutical Sciences",
+      "Instagram Page": "https://www.instagram.com/lpupharmaceutical/"
+    },
+    {
+      "ProgramCode": "P570-NN2-D",
+      "ProgramName": "M.Pharm. Pharmacology",
+      "School Name": "LIT (Pharmacy)/Department of Pharmaceutical Sciences",
+      "Instagram Page": "https://www.instagram.com/lpupharmaceutical/"
+    },
+    {
+      "ProgramCode": "P570-NN3-D",
+      "ProgramName": "M.Pharm. Pharmaceutical Chemistry",
+      "School Name": "LIT (Pharmacy)/Department of Pharmaceutical Sciences",
+      "Instagram Page": "https://www.instagram.com/lpupharmaceutical/"
+    },
+    {
+      "ProgramCode": "P570-NN7",
+      "ProgramName": "M.Pharm. Ayurveda",
+      "School Name": "LIT (Pharmacy)/Department of Pharmaceutical Sciences",
+      "Instagram Page": "https://www.instagram.com/lpupharmaceutical/"
+    },
+    {
+      "ProgramCode": "P570-NNB-D",
+      "ProgramName": "M.Pharm. Pharmaceutical Analysis",
+      "School Name": "LIT (Pharmacy)/Department of Pharmaceutical Sciences",
+      "Instagram Page": "https://www.instagram.com/lpupharmaceutical/"
+    },
+    {
+      "ProgramCode": "P570-NND-D",
+      "ProgramName": "M.Pharm. Pharmacy Practice tie up with CMC Ludhiana",
+      "School Name": "LIT (Pharmacy)/Department of Pharmaceutical Sciences",
+      "Instagram Page": "https://www.instagram.com/lpupharmaceutical/"
+    },
+    {
+      "ProgramCode": "P572-NN1",
+      "ProgramName": "MPT Orthopedics",
+      "School Name": "Physiotherapy",
+      "Instagram Page": "https://www.instagram.com/LPUPhysiotherapy"
+    },
+    {
+      "ProgramCode": "P572-NN2",
+      "ProgramName": "MPT Neurology",
+      "School Name": "Physiotherapy",
+      "Instagram Page": "https://www.instagram.com/LPUPhysiotherapy"
+    },
+    {
+      "ProgramCode": "P572-NN5",
+      "ProgramName": "MPT Sports",
+      "School Name": "Physiotherapy",
+      "Instagram Page": "https://www.instagram.com/LPUPhysiotherapy"
+    },
+    {
+      "ProgramCode": "P5D0-NN1",
+      "ProgramName": "Ph.D. (Pharmaceutics) [Full Time Mode]",
+      "School Name": "LIT (Pharmacy)/Department of Pharmaceutical Sciences",
+      "Instagram Page": "https://www.instagram.com/lpupharmaceutical/"
+    },
+    {
+      "ProgramCode": "P5D0-NN2",
+      "ProgramName": "Ph.D. (Pharmacology) [Full Time Mode]",
+      "School Name": "LIT (Pharmacy)/Department of Pharmaceutical Sciences",
+      "Instagram Page": "https://www.instagram.com/lpupharmaceutical/"
+    },
+    {
+      "ProgramCode": "P5D0-NN3",
+      "ProgramName": "Ph.D. (Pharmaceutical Chemistry) [Full Time Mode]",
+      "School Name": "LIT (Pharmacy)/Department of Pharmaceutical Sciences",
+      "Instagram Page": "https://www.instagram.com/lpupharmaceutical/"
+    },
+    {
+      "ProgramCode": "P5D0-NN3",
+      "ProgramName": "Ph.D. (Pharmaceutical Chemistry) [Full Time Mode]",
+      "School Name": "Physiotherapy and Paramedical Sciences [Medical Laboratory Sciences]",
+      "Instagram Page": "https://www.instagram.com/LPUMLS"
+    },
+    {
+      "ProgramCode": "P5D0-NN6",
+      "ProgramName": "Ph.D. (Pharmacognosy) [Full Time Mode]",
+      "School Name": "LIT (Pharmacy)/Department of Pharmaceutical Sciences",
+      "Instagram Page": "https://www.instagram.com/lpupharmaceutical/"
+    },
+    {
+      "ProgramCode": "P5D0-NN8",
+      "ProgramName": "Ph.D. (Ayurvedic Pharmacy) [Full Time Mode]",
+      "School Name": "LIT (Pharmacy)/Department of Pharmaceutical Sciences",
+      "Instagram Page": "https://www.instagram.com/lpupharmaceutical/"
+    },
+    {
+      "ProgramCode": "P5D0-NNB",
+      "ProgramName": "Ph.D. (Pharmaceutical Analysis) [Full Time Mode]",
+      "School Name": "LIT (Pharmacy)/Department of Pharmaceutical Sciences",
+      "Instagram Page": "https://www.instagram.com/lpupharmaceutical/"
+    },
+    {
+      "ProgramCode": "P5D0-NND",
+      "ProgramName": "Ph.D. (Pharmacy Practice) [Full Time Mode]",
+      "School Name": "LIT (Pharmacy)/Department of Pharmaceutical Sciences",
+      "Instagram Page": "https://www.instagram.com/lpupharmaceutical/"
+    },
+    {
+      "ProgramCode": "P5D0-NND",
+      "ProgramName": "Ph.D. (Pharmacy Practice) [Full Time Mode]",
+      "School Name": "Physiotherapy and Paramedical Sciences [Medical Laboratory Sciences]",
+      "Instagram Page": "https://www.instagram.com/LPUMLS"
+    },
+    {
+      "ProgramCode": "P5D0-TN1",
+      "ProgramName": "Ph.D. (Pharmaceutics) [Part Time Mode]",
+      "School Name": "LIT (Pharmacy)/Department of Pharmaceutical Sciences",
+      "Instagram Page": "https://www.instagram.com/lpupharmaceutical/"
+    },
+    {
+      "ProgramCode": "P5D0-TN2",
+      "ProgramName": "Ph.D. (Pharmacology) [Part Time Mode]",
+      "School Name": "LIT (Pharmacy)/Department of Pharmaceutical Sciences",
+      "Instagram Page": "https://www.instagram.com/lpupharmaceutical/"
+    },
+    {
+      "ProgramCode": "P5D0-TN3",
+      "ProgramName": "Ph.D. (Pharmaceutical Chemistry) [Part Time Mode]",
+      "School Name": "LIT (Pharmacy)/Department of Pharmaceutical Sciences",
+      "Instagram Page": "https://www.instagram.com/lpupharmaceutical/"
+    },
+    {
+      "ProgramCode": "P5D0-TN6",
+      "ProgramName": "Ph.D. (Pharmacognosy) [Part Time Mode]",
+      "School Name": "LIT (Pharmacy)/Department of Pharmaceutical Sciences",
+      "Instagram Page": "https://www.instagram.com/lpupharmaceutical/"
+    },
+    {
+      "ProgramCode": "P5D0-TN8",
+      "ProgramName": "Ph.D. (Ayurvedic Pharmacy) [Part Time Mode]",
+      "School Name": "LIT (Pharmacy)/Department of Pharmaceutical Sciences",
+      "Instagram Page": "https://www.instagram.com/lpupharmaceutical/"
+    },
+    {
+      "ProgramCode": "P5D0-TNB",
+      "ProgramName": "Ph.D. (Pharmaceutical Analysis) [Part Time Mode]",
+      "School Name": "LIT (Pharmacy)/Department of Pharmaceutical Sciences",
+      "Instagram Page": "https://www.instagram.com/lpupharmaceutical/"
+    },
+    {
+      "ProgramCode": "P5D0-TNB",
+      "ProgramName": "Ph.D. (Pharmaceutical Analysis) [Part Time Mode]",
+      "School Name": "Physiotherapy and Paramedical Sciences [Medical Laboratory Sciences]",
+      "Instagram Page": "https://www.instagram.com/LPUMLS"
+    },
+    {
+      "ProgramCode": "P5D0-TND",
+      "ProgramName": "Ph.D. (Pharmacy Practice) [Part Time Mode]",
+      "School Name": "LIT (Pharmacy)/Department of Pharmaceutical Sciences",
+      "Instagram Page": "https://www.instagram.com/lpupharmaceutical/"
+    },
+    {
+      "ProgramCode": "P5D0-TND",
+      "ProgramName": "Ph.D. (Pharmacy Practice) [Part Time Mode]",
+      "School Name": "Physiotherapy and Paramedical Sciences [Medical Laboratory Sciences]",
+      "Instagram Page": "https://www.instagram.com/LPUMLS"
+    },
+    {
+      "ProgramCode": "P5D4",
+      "ProgramName": "Ph.D. (Clinical Microbiology) [Full Time Mode]",
+      "School Name": "Physiotherapy",
+      "Instagram Page": "https://www.instagram.com/LPUPhysiotherapy"
+    },
+    {
+      "ProgramCode": "P5D4-T",
+      "ProgramName": "Ph.D. (Clinical Microbiology) [Part Time Mode]",
+      "School Name": "Physiotherapy",
+      "Instagram Page": "https://www.instagram.com/LPUPhysiotherapy"
+    },
+    {
+      "ProgramCode": "P5D5",
+      "ProgramName": "Ph.D. (Clinical Biochemistry) [Full Time Mode]",
+      "School Name": "Physiotherapy",
+      "Instagram Page": "https://www.instagram.com/LPUPhysiotherapy"
+    },
+    {
+      "ProgramCode": "P5D5-T",
+      "ProgramName": "Ph.D. (Clinical Biochemistry) [Part Time Mode]",
+      "School Name": "Physiotherapy",
+      "Instagram Page": "https://www.instagram.com/LPUPhysiotherapy"
+    },
+    {
+      "ProgramCode": "P5D8",
+      "ProgramName": "Ph.D. (Clinical Embryology) [Full Time Mode]",
+      "School Name": "Physiotherapy",
+      "Instagram Page": "https://www.instagram.com/LPUPhysiotherapy"
+    },
+    {
+      "ProgramCode": "P622",
+      "ProgramName": "B.Sc. Health and Physical Education",
+      "School Name": "LIE (Department of Physical Education)",
+      "Instagram Page": "https://www.instagram.com/lpuphysicaledu"
+    },
+    {
+      "ProgramCode": "P625",
+      "ProgramName": "Bachelor of Physical Education and Sports (BPES)",
+      "School Name": "LIE (Department of Physical Education)",
+      "Instagram Page": "https://www.instagram.com/lpuphysicaledu"
+    },
+    {
+      "ProgramCode": "P6A1",
+      "ProgramName": "B.Ed. (Bachelor of Education)",
+      "School Name": "LIE (Department of Education)/LSE (Department of Education)",
+      "Instagram Page": "https://www.instagram.com/lpu_education/"
+    },
+    {
+      "ProgramCode": "P6A2",
+      "ProgramName": "B.P.Ed. (Bachelor of Physical Education)",
+      "School Name": "LIE (Department of Physical Education)",
+      "Instagram Page": "https://www.instagram.com/lpuphysicaledu"
+    },
+    {
+      "ProgramCode": "P6B1",
+      "ProgramName": "M.Ed. (Master of Education)",
+      "School Name": "LIE (Department of Education)/LSE (Department of Education)",
+      "Instagram Page": "https://www.instagram.com/lpu_education/"
+    },
+    {
+      "ProgramCode": "P6B2",
+      "ProgramName": "M.P.Ed. (Master of Physical Education)",
+      "School Name": "LIE (Department of Physical Education)",
+      "Instagram Page": "https://www.instagram.com/lpuphysicaledu"
+    },
+    {
+      "ProgramCode": "P6D1",
+      "ProgramName": "Ph.D. (Education) [Full Time Mode]",
+      "School Name": "LIE (Department of Education)/LSE (Department of Education)",
+      "Instagram Page": "https://www.instagram.com/lpu_education/"
+    },
+    {
+      "ProgramCode": "P6D1-T",
+      "ProgramName": "Ph.D. (Education) [Part Time Mode]",
+      "School Name": "LIE (Department of Education)/LSE (Department of Education)",
+      "Instagram Page": "https://www.instagram.com/lpu_education/"
+    },
+    {
+      "ProgramCode": "P6D2",
+      "ProgramName": "Ph.D. (Physical Education) [Full Time Mode]",
+      "School Name": "LIE (Department of Physical Education)",
+      "Instagram Page": "https://www.instagram.com/lpuphysicaledu"
+    },
+    {
+      "ProgramCode": "P6D2-T",
+      "ProgramName": "Ph.D. (Physical Education) [Part Time Mode]",
+      "School Name": "LIE (Department of Physical Education)",
+      "Instagram Page": "https://www.instagram.com/lpuphysicaledu"
+    },
+    {
+      "ProgramCode": "P6F1-NM",
+      "ProgramName": "Integrated B.Ed. - M.Ed.",
+      "School Name": "LIE (Department of Education)/LSE (Department of Education)",
+      "Instagram Page": "https://www.instagram.com/lpu_education/"
+    },
+    {
+      "ProgramCode": "P6F1-NM",
+      "ProgramName": "Integrated B.Ed. - M.Ed.",
+      "School Name": "LIE (Department of Education)/LSE (Department of Education)",
+      "Instagram Page": "https://www.instagram.com/lpu_education/"
+    },
+    {
+      "ProgramCode": "P701",
+      "ProgramName": "Diploma Architectural Assistantship (DAA)",
+      "School Name": "Architecture & Planning [Architecture]",
+      "Instagram Page": "https://www.instagram.com/lpuarchitecture/"
+    },
+    {
+      "ProgramCode": "P722-LNF",
+      "ProgramName": "B.Sc. Fashion Design [Lateral Entry]",
+      "School Name": "Design-I [Fashion]",
+      "Instagram Page": "https://www.instagram.com/lpu_fashion_design/"
+    },
+    {
+      "ProgramCode": "P722-LNJ",
+      "ProgramName": "B.Sc. Interior and Furniture Design [Lateral Entry]",
+      "School Name": "Design-II [Interior & Furniture Design, and Product & Industrial Design]",
+      "Instagram Page": "https://www.instagram.com/LPUDesign"
+    },
+    {
+      "ProgramCode": "P722-NNF",
+      "ProgramName": "B.Sc. Fashion Design",
+      "School Name": "Design-I [Fashion]",
+      "Instagram Page": "https://www.instagram.com/lpu_fashion_design/"
+    },
+    {
+      "ProgramCode": "P722-NNG",
+      "ProgramName": "B.Sc. Gaming Design",
+      "School Name": "Design-III [Multimedia & Animation]",
+      "Instagram Page": "https://www.instagram.com/lpu.multimediaandanimation/"
+    },
+    {
+      "ProgramCode": "P722-NNH",
+      "ProgramName": "B.Sc. Graphics Design",
+      "School Name": "Design-III [Multimedia & Animation]",
+      "Instagram Page": "https://www.instagram.com/lpu.multimediaandanimation/"
+    },
+    {
+      "ProgramCode": "P722-NNJ",
+      "ProgramName": "B.Sc. Interior and Furniture Design",
+      "School Name": "Design-II [Interior & Furniture Design, and Product & Industrial Design]",
+      "Instagram Page": "https://www.instagram.com/LPUDesign"
+    },
+    {
+      "ProgramCode": "P722-NNL",
+      "ProgramName": "B.Sc. Animation and VFX Design",
+      "School Name": "Design-III [Multimedia & Animation]",
+      "Instagram Page": "https://www.instagram.com/lpu.multimediaandanimation/"
+    },
+    {
+      "ProgramCode": "P724",
+      "ProgramName": "B.A. Journalism and Mass Communication",
+      "School Name": "School of Liberal and Creative Arts [Journalism & Mass Communication]",
+      "Instagram Page": "https://instagram.com/LPUJournalism"
+    },
+    {
+      "ProgramCode": "P727",
+      "ProgramName": "B.Sc. Film and TV Production",
+      "School Name": "School of Liberal and Creative Arts [Film & Television]",
+      "Instagram Page": "https://www.instagram.com/lpufilm_and_television/"
+    },
+    {
+      "ProgramCode": "P741",
+      "ProgramName": "B. Architecture (Bachelor of Architecture)",
+      "School Name": "Architecture & Planning [Architecture]",
+      "Instagram Page": "https://www.instagram.com/lpuarchitecture/"
+    },
+    {
+      "ProgramCode": "P742-LN1",
+      "ProgramName": "B.Design Interior and Furniture [Lateral Entry]",
+      "School Name": "Design-II [Interior & Furniture Design, and Product & Industrial Design]",
+      "Instagram Page": "https://www.instagram.com/LPUDesign"
+    },
+    {
+      "ProgramCode": "P742-LN2",
+      "ProgramName": "B.Design Product and Industrial [Lateral Entry]",
+      "School Name": "Design-II [Interior & Furniture Design, and Product & Industrial Design]",
+      "Instagram Page": "https://www.instagram.com/LPUDesign"
+    },
+    {
+      "ProgramCode": "P742-LN3",
+      "ProgramName": "B.Design Fashion [Lateral Entry]",
+      "School Name": "Design-I [Fashion]",
+      "Instagram Page": "https://www.instagram.com/lpu_fashion_design/"
+    },
+    {
+      "ProgramCode": "P742-LNM",
+      "ProgramName": "B.Design User Interface/ User Experience (UI/UX) [Lateral Entry]",
+      "School Name": "Design-II [Interior & Furniture Design, and Product & Industrial Design]",
+      "Instagram Page": "https://www.instagram.com/LPUDesign"
+    },
+    {
+      "ProgramCode": "P742-NN1",
+      "ProgramName": "B.Design Interior and Furniture",
+      "School Name": "Design-II [Interior & Furniture Design, and Product & Industrial Design]",
+      "Instagram Page": "https://www.instagram.com/LPUDesign"
+    },
+    {
+      "ProgramCode": "P742-NN2",
+      "ProgramName": "B.Design Product and Industrial",
+      "School Name": "Design-II [Interior & Furniture Design, and Product & Industrial Design]",
+      "Instagram Page": "https://www.instagram.com/LPUDesign"
+    },
+    {
+      "ProgramCode": "P742-NN3",
+      "ProgramName": "B.Design Fashion",
+      "School Name": "Design-I [Fashion]",
+      "Instagram Page": "https://www.instagram.com/lpu_fashion_design/"
+    },
+    {
+      "ProgramCode": "P742-NN5",
+      "ProgramName": "B.Design Graphics",
+      "School Name": "Design-III [Multimedia & Animation]",
+      "Instagram Page": "https://www.instagram.com/lpu.multimediaandanimation/"
+    },
+    {
+      "ProgramCode": "P742-NN6",
+      "ProgramName": "B.Design Film and TV Production",
+      "School Name": "School of Liberal and Creative Arts [Film & Television]",
+      "Instagram Page": "https://www.instagram.com/lpufilm_and_television/"
+    },
+    {
+      "ProgramCode": "P742-NN8",
+      "ProgramName": "B.Design Gaming",
+      "School Name": "Design-III [Multimedia & Animation]",
+      "Instagram Page": "https://www.instagram.com/lpu.multimediaandanimation/"
+    },
+    {
+      "ProgramCode": "P742-NNL",
+      "ProgramName": "B.Design Animation and VFX",
+      "School Name": "Design-III [Multimedia & Animation]",
+      "Instagram Page": "https://www.instagram.com/lpu.multimediaandanimation/"
+    },
+    {
+      "ProgramCode": "P742-NNM",
+      "ProgramName": "B.Design User interface/ User Experience (UI/UX)",
+      "School Name": "Design-II [Interior & Furniture Design, and Product & Industrial Design]",
+      "Instagram Page": "https://www.instagram.com/LPUDesign"
+    },
+    {
+      "ProgramCode": "P742-YN3",
+      "ProgramName": "B Design Fashion [2+2 with International Credit Transfer Option]",
+      "School Name": "Design-I [Fashion]",
+      "Instagram Page": "https://www.instagram.com/lpu_fashion_design/"
+    },
+    {
+      "ProgramCode": "P762-NNF",
+      "ProgramName": "M.Sc. Fashion Design",
+      "School Name": "Design-I [Fashion]",
+      "Instagram Page": "https://www.instagram.com/lpu_fashion_design/"
+    },
+    {
+      "ProgramCode": "P762-NNJ",
+      "ProgramName": "M.Sc. Interior and Furniture Design",
+      "School Name": "Design-II [Interior & Furniture Design, and Product & Industrial Design]",
+      "Instagram Page": "https://www.instagram.com/LPUDesign"
+    },
+    {
+      "ProgramCode": "P762-NNK",
+      "ProgramName": "M.Sc. Product and Industrial Design",
+      "School Name": "Design-II [Interior & Furniture Design, and Product & Industrial Design]",
+      "Instagram Page": "https://www.instagram.com/LPUDesign"
+    },
+    {
+      "ProgramCode": "P762-NNL",
+      "ProgramName": "M.Sc. Animation and VFX Design",
+      "School Name": "Design-III [Multimedia & Animation]",
+      "Instagram Page": "https://www.instagram.com/lpu.multimediaandanimation/"
+    },
+    {
+      "ProgramCode": "P762-NNM",
+      "ProgramName": "M.Sc. UI/UX Design",
+      "School Name": "Design-II [Interior & Furniture Design, and Product & Industrial Design]",
+      "Instagram Page": "https://www.instagram.com/LPUDesign"
+    },
+    {
+      "ProgramCode": "P764",
+      "ProgramName": "M.A. Journalism and Mass Communication",
+      "School Name": "School of Liberal and Creative Arts [Journalism & Mass Communication]",
+      "Instagram Page": "https://instagram.com/LPUJournalism"
+    },
+    {
+      "ProgramCode": "P767",
+      "ProgramName": "M.Sc. Film and TV Production",
+      "School Name": "School of Liberal and Creative Arts [Film & Television]",
+      "Instagram Page": "https://www.instagram.com/lpufilm_and_television/"
+    },
+    {
+      "ProgramCode": "P771-NN2",
+      "ProgramName": "Master of Architecture",
+      "School Name": "Architecture & Planning [Architecture]",
+      "Instagram Page": "https://www.instagram.com/lpuarchitecture/"
+    },
+    {
+      "ProgramCode": "P772-NN1",
+      "ProgramName": "M.Design Interior and Furniture",
+      "School Name": "Design-II [Interior & Furniture Design, and Product & Industrial Design]",
+      "Instagram Page": "https://www.instagram.com/LPUDesign"
+    },
+    {
+      "ProgramCode": "P772-NN2",
+      "ProgramName": "M.Design Product and industrial",
+      "School Name": "Design-II [Interior & Furniture Design, and Product & Industrial Design]",
+      "Instagram Page": "https://www.instagram.com/LPUDesign"
+    },
+    {
+      "ProgramCode": "P772-NNM",
+      "ProgramName": "M.Design User interface/ User Experience (UI/UX)",
+      "School Name": "Design-II [Interior & Furniture Design, and Product & Industrial Design]",
+      "Instagram Page": "https://www.instagram.com/LPUDesign"
+    },
+    {
+      "ProgramCode": "P773-NN1",
+      "ProgramName": "M.Tech. (Urban Planning)",
+      "School Name": "Architecture & Planning [Planning]",
+      "Instagram Page": "https://www.instagram.com/LPUPlanning"
+    },
+    {
+      "ProgramCode": "P793-NQ",
+      "ProgramName": "Integrated B. Plan - M. Plan",
+      "School Name": "Architecture & Planning [Planning]",
+      "Instagram Page": "https://www.instagram.com/LPUPlanning"
+    },
+    {
+      "ProgramCode": "P7D1",
+      "ProgramName": "Ph.D. (Architecture) [Full Time Mode]",
+      "School Name": "Architecture & Planning [Architecture]",
+      "Instagram Page": "https://www.instagram.com/lpuarchitecture/"
+    },
+    {
+      "ProgramCode": "P7D1-T",
+      "ProgramName": "Ph.D. (Architecture) [Part Time Mode]",
+      "School Name": "Architecture & Planning [Architecture]",
+      "Instagram Page": "https://www.instagram.com/lpuarchitecture/"
+    },
+    {
+      "ProgramCode": "P7D2-NN1",
+      "ProgramName": "Ph.D. (Interior and Furniture Design) [Full Time Mode]",
+      "School Name": "Design-II [Interior & Furniture Design, and Product & Industrial Design]",
+      "Instagram Page": "https://www.instagram.com/LPUDesign"
+    },
+    {
+      "ProgramCode": "P7D2-NN2",
+      "ProgramName": "Ph.D. (Product and Industrial Design) [Full Time Mode]",
+      "School Name": "Design-II [Interior & Furniture Design, and Product & Industrial Design]",
+      "Instagram Page": "https://www.instagram.com/LPUDesign"
+    },
+    {
+      "ProgramCode": "P7D2-NN3",
+      "ProgramName": "Ph.D. (Fashion) [Full Time Mode]",
+      "School Name": "Design-I [Fashion]",
+      "Instagram Page": "https://www.instagram.com/lpu_fashion_design/"
+    },
+    {
+      "ProgramCode": "P7D2-NN6",
+      "ProgramName": "Ph.D. (Film and TV Production) [Full Time Mode]",
+      "School Name": "School of Liberal and Creative Arts [Film & Television]",
+      "Instagram Page": "https://www.instagram.com/lpufilm_and_television/"
+    },
+    {
+      "ProgramCode": "P7D2-NN9",
+      "ProgramName": "Ph.D. (User Experience) [Full Time Mode]",
+      "School Name": "Design-II [Interior & Furniture Design, and Product & Industrial Design]",
+      "Instagram Page": "https://www.instagram.com/LPUDesign"
+    },
+    {
+      "ProgramCode": "P7D2-NNE",
+      "ProgramName": "Ph.D. (Animation and Visual Design) [Full Time Mode]",
+      "School Name": "Design-III [Multimedia & Animation]",
+      "Instagram Page": "https://www.instagram.com/lpu.multimediaandanimation/"
+    },
+    {
+      "ProgramCode": "P7D2-TN1",
+      "ProgramName": "Ph.D. (Interior and Furniture Design) [Part Time Mode]",
+      "School Name": "Design-II [Interior & Furniture Design, and Product & Industrial Design]",
+      "Instagram Page": "https://www.instagram.com/LPUDesign"
+    },
+    {
+      "ProgramCode": "P7D2-TN2",
+      "ProgramName": "Ph.D. (Product and Industrial Design) [Part Time Mode]",
+      "School Name": "Design-II [Interior & Furniture Design, and Product & Industrial Design]",
+      "Instagram Page": "https://www.instagram.com/LPUDesign"
+    },
+    {
+      "ProgramCode": "P7D2-TN3",
+      "ProgramName": "Ph.D. (Fashion) [Part Time Mode]",
+      "School Name": "Design-I [Fashion]",
+      "Instagram Page": "https://www.instagram.com/lpu_fashion_design/"
+    },
+    {
+      "ProgramCode": "P7D2-TN6",
+      "ProgramName": "Ph.D. (Film and TV Production) [Part Time Mode]",
+      "School Name": "School of Liberal and Creative Arts [Film & Television]",
+      "Instagram Page": "https://www.instagram.com/lpufilm_and_television/"
+    },
+    {
+      "ProgramCode": "P7D2-TN9",
+      "ProgramName": "Ph.D. (User Experience) [Part Time Mode]",
+      "School Name": "Design-II [Interior & Furniture Design, and Product & Industrial Design]",
+      "Instagram Page": "https://www.instagram.com/LPUDesign"
+    },
+    {
+      "ProgramCode": "P7D2-TNE",
+      "ProgramName": "Ph.D. (Animation and Visual Design) [Part Time Mode]",
+      "School Name": "Design-III [Multimedia & Animation]",
+      "Instagram Page": "https://www.instagram.com/lpu.multimediaandanimation/"
+    },
+    {
+      "ProgramCode": "P7D3",
+      "ProgramName": "Ph.D. (Planning) [Full time mode]",
+      "School Name": "Architecture & Planning [Planning]",
+      "Instagram Page": "https://www.instagram.com/LPUPlanning"
+    },
+    {
+      "ProgramCode": "P7D3-T",
+      "ProgramName": "Ph.D. (Planning) [Part Time Mode]",
+      "School Name": "Architecture & Planning [Planning]",
+      "Instagram Page": "https://www.instagram.com/LPUPlanning"
+    },
+    {
+      "ProgramCode": "P7D4",
+      "ProgramName": "Ph.D. (Journalism and Mass Communication) [Full Time Mode]",
+      "School Name": "School of Liberal and Creative Arts [Journalism & Mass Communication]",
+      "Instagram Page": "https://instagram.com/LPUJournalism"
+    },
+    {
+      "ProgramCode": "P7D4-T",
+      "ProgramName": "Ph.D. (Journalism and Mass Communication) [Part Time Mode]",
+      "School Name": "School of Liberal and Creative Arts [Journalism & Mass Communication]",
+      "Instagram Page": "https://instagram.com/LPUJournalism"
     }
   ]
+  
 }

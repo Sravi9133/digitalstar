@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -26,10 +25,17 @@ import { getFirestore, collection, addDoc, serverTimestamp, Timestamp } from "fi
 import { Checkbox } from "@/components/ui/checkbox";
 import { writeToGoogleSheet } from "./actions";
 
+interface Program {
+    programCode: string;
+    programName: string;
+    schoolName: string;
+    instagramPage: string;
+}
+
 interface School {
-    id: string;
     name: string;
     link: string;
+    programs: { code: string; name: string }[];
 }
 
 const formSchema = z.object({
@@ -53,7 +59,6 @@ interface FollowWinFormProps {
 export function FollowWinForm({ competitionId, competitionName }: FollowWinFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [selectedSchoolUrl, setSelectedSchoolUrl] = useState<string | null>(null);
   const [schools, setSchools] = useState<School[]>([]);
   const [isLoadingSchools, setIsLoadingSchools] = useState(true);
   const { toast } = useToast();
@@ -70,17 +75,33 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
           throw new Error('Failed to fetch school data');
         }
         const data = await response.json();
-        
-        const schoolData = data["Account Links"];
+        const programData: any[] = data;
 
-        if (Array.isArray(schoolData)) {
-            const formattedSchools = schoolData.map((item: any) => ({
-                id: String(item["Sr. No"]),
-                name: item["School"],
-                link: item["Instagram"],
-            }));
+        if (Array.isArray(programData)) {
+            const schoolsMap: Map<string, School> = new Map();
+
+            programData.forEach(item => {
+                const schoolName = item["School Name"];
+                if (!schoolName) return;
+
+                if (!schoolsMap.has(schoolName)) {
+                    schoolsMap.set(schoolName, {
+                        name: schoolName,
+                        link: item["Instagram Page"],
+                        programs: []
+                    });
+                }
+
+                schoolsMap.get(schoolName)?.programs.push({
+                    code: item["ProgramCode"],
+                    name: item["ProgramName"]
+                });
+            });
+            
+            const formattedSchools = Array.from(schoolsMap.values());
             setSchools(formattedSchools);
             setFilteredSchools(formattedSchools);
+
         } else {
             throw new Error("School data is not in the expected format.");
         }
@@ -106,34 +127,47 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
         instagramHandle: "",
     }
   });
+
+  const selectedSchoolUrl = schools.find(s => s.name === form.watch('school'))?.link;
   
   const handleFocus = () => {
+    setFilteredSchools(schools);
     setShowSuggestions(true);
   };
   
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     setSearchTerm(query);
-    form.setValue("school", ""); // Reset if they are re-searching
-    setSelectedSchoolUrl(null);
+    form.setValue("school", ""); 
 
-    const filtered = schools.filter(school => 
-      school.name.toLowerCase().includes(query.toLowerCase())
-    );
+    if (!query) {
+        setFilteredSchools(schools);
+        return;
+    }
+
+    const lowerCaseQuery = query.toLowerCase();
+    const filtered = schools.filter(school => {
+        const inSchoolName = school.name.toLowerCase().includes(lowerCaseQuery);
+        const inProgram = school.programs.some(p => 
+            p.name.toLowerCase().includes(lowerCaseQuery) || 
+            p.code.toLowerCase().includes(lowerCaseQuery)
+        );
+        return inSchoolName || inProgram;
+    });
+
     setFilteredSchools(filtered);
     setShowSuggestions(true);
   };
 
   const handleSchoolSelect = (school: School) => {
     setSearchTerm(school.name);
-    form.setValue("school", school.id, { shouldValidate: true });
-    setSelectedSchoolUrl(school.link || null);
+    form.setValue("school", school.name, { shouldValidate: true });
     setShowSuggestions(false);
   }
 
   async function onSubmit(values: FollowWinFormValues) {
     setIsSubmitting(true);
-    const selectedSchool = schools.find(s => s.id === values.school);
+    const selectedSchool = schools.find(s => s.name === values.school);
 
     if (!selectedSchool) {
         toast({
@@ -260,7 +294,7 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
                           <div className="relative">
                             <FormControl>
                               <Input
-                                placeholder="Search for your school..."
+                                placeholder="Search for your school or program code..."
                                 value={searchTerm}
                                 onChange={handleSearchChange}
                                 onFocus={handleFocus}
@@ -274,11 +308,14 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
                                 {filteredSchools.length > 0 ? (
                                     filteredSchools.map(school => (
                                     <div
-                                        key={school.id}
+                                        key={school.name}
                                         className="cursor-pointer p-2 hover:bg-muted"
                                         onMouseDown={() => handleSchoolSelect(school)}
                                     >
-                                        {school.name}
+                                        <p className="font-semibold">{school.name}</p>
+                                        <p className="text-xs text-muted-foreground">
+                                            {school.programs.map(p => p.code).join(', ')}
+                                        </p>
                                     </div>
                                     ))
                                 ) : (
@@ -303,7 +340,7 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
                         <Button asChild variant="outline">
                             <Link href={selectedSchoolUrl} target="_blank" rel="noopener noreferrer">
                                 <LinkIcon className="mr-2 h-4 w-4" />
-                                {schools.find(s => s.link === selectedSchoolUrl)?.name} Official Page
+                                {form.getValues('school')} Official Page
                             </Link>
                         </Button>
                     </div>
@@ -365,3 +402,4 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
     </Card>
   );
 }
+
