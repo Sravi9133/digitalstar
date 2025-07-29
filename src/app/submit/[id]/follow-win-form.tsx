@@ -15,13 +15,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Check, CheckCircle, Loader2, Link as LinkIcon, ExternalLink } from "lucide-react";
@@ -65,6 +58,10 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
   const [isLoadingSchools, setIsLoadingSchools] = useState(true);
   const { toast } = useToast();
 
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredSchools, setFilteredSchools] = useState<School[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
   useEffect(() => {
     async function fetchSchools() {
       try {
@@ -100,7 +97,7 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
     }
     fetchSchools();
   }, [toast]);
-
+  
   const form = useForm<FollowWinFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -109,10 +106,28 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
     }
   });
 
-  function handleSchoolChange(schoolId: string) {
-    const school = schools.find(s => s.id === schoolId);
-    setSelectedSchoolUrl(school?.link || null);
-    form.setValue("school", schoolId);
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
+    setSearchTerm(query);
+    if (query.length > 0) {
+      const filtered = schools.filter(school => 
+        school.name.toLowerCase().includes(query.toLowerCase())
+      );
+      setFilteredSchools(filtered);
+      setShowSuggestions(true);
+    } else {
+      setFilteredSchools([]);
+      setShowSuggestions(false);
+    }
+    form.setValue("school", "");
+    setSelectedSchoolUrl(null);
+  };
+
+  const handleSchoolSelect = (school: School) => {
+    setSearchTerm(school.name);
+    form.setValue("school", school.id);
+    setSelectedSchoolUrl(school.link || null);
+    setShowSuggestions(false);
   }
 
   async function onSubmit(values: FollowWinFormValues) {
@@ -130,13 +145,11 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
           schoolLink: selectedSchool?.link,
         };
 
-        // Data for Firestore
         const firestoreData: any = {
             ...submissionBaseData,
             submittedAt: serverTimestamp(),
         };
         
-        // Data for Google Sheet - Note: submittedAt is omitted
         const sheetData = { ...submissionBaseData };
 
         const refSource = sessionStorage.getItem('refSource');
@@ -151,7 +164,6 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
             description: `Your entry for ${competitionName} has been received.`,
         });
         
-        console.log("Calling Google Sheet server action from follow-win-form...");
         const result = await writeToGoogleSheet(sheetData);
 
         if (result.success) {
@@ -231,22 +243,35 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Select Your School</FormLabel>
-                       {isLoadingSchools ? (
-                        <Skeleton className="h-10 w-full" />
+                        {isLoadingSchools ? (
+                          <Skeleton className="h-10 w-full" />
                         ) : (
-                      <Select onValueChange={handleSchoolChange} defaultValue={field.value} disabled={schools.length === 0}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Choose your school" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {schools.map(school => (
-                            <SelectItem key={school.id} value={school.id}>{school.name}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                       )}
+                          <div className="relative">
+                            <FormControl>
+                              <Input
+                                placeholder="Start typing to search for your school..."
+                                value={searchTerm}
+                                onChange={handleSearchChange}
+                                onFocus={() => searchTerm && setShowSuggestions(true)}
+                                onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                                disabled={schools.length === 0}
+                              />
+                            </FormControl>
+                            {showSuggestions && filteredSchools.length > 0 && (
+                              <div className="absolute z-10 w-full mt-1 bg-card border border-border rounded-md shadow-lg max-h-60 overflow-y-auto">
+                                {filteredSchools.map(school => (
+                                  <div
+                                    key={school.id}
+                                    className="cursor-pointer p-2 hover:bg-muted"
+                                    onMouseDown={() => handleSchoolSelect(school)}
+                                  >
+                                    {school.name}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
                       <FormMessage />
                     </FormItem>
                   )}
@@ -322,3 +347,5 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
     </Card>
   );
 }
+
+    
