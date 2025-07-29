@@ -77,8 +77,7 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
         }
         const data = await response.json();
         
-        // The data is the array of programs directly
-        const programData: Program[] = data;
+        const programData: Program[] = data['Account Links'];
 
         if (Array.isArray(programData)) {
             const schoolsMap: Map<string, School> = new Map();
