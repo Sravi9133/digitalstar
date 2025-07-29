@@ -111,6 +111,18 @@ function DashboardPageContent() {
         }
     }
 
+    const handleUpdateRefSource = async (submissionId: string, newRefSource: string): Promise<{success: boolean, message: string}> => {
+        try {
+            const submissionRef = doc(db, "submissions", submissionId);
+            await updateDoc(submissionRef, { refSource: newRefSource });
+            await fetchData(); // Refetch to show the update
+            return { success: true, message: "Referral source updated." };
+        } catch (error) {
+            console.error("Error updating referral source: ", error);
+            return { success: false, message: "Failed to update referral source." };
+        }
+    };
+
     const handleMarkAsWinner = async (submission: Submission, rank?: 1 | 2 | 3): Promise<{success: boolean, message: string}> => {
         // For "Follow & Win", check if the user has already won
         if (submission.competitionId === 'follow-win' && submission.registrationId) {
@@ -198,6 +210,7 @@ function DashboardPageContent() {
             stats={stats} 
             onMarkAsWinner={handleMarkAsWinner} 
             onDeleteSubmissions={handleDeleteSubmissions}
+            onUpdateRefSource={handleUpdateRefSource}
             reelItFeelItMeta={reelItFeelItMeta}
             onSetReelItFeelItDate={handleSetReelItFeelItDate}
             refSources={refSources}

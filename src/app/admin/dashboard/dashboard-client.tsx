@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { BarChart, Download, Users, Trophy, Award, ChevronDown, Calendar as CalendarIcon, Link2, Filter, Trash2, PlusCircle, ExternalLink, Megaphone } from "lucide-react";
+import { BarChart, Download, Users, Trophy, Award, ChevronDown, Calendar as CalendarIcon, Link2, Filter, Trash2, PlusCircle, ExternalLink, Megaphone, Pencil, Check, X } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import * as XLSX from "xlsx";
@@ -54,6 +54,7 @@ interface DashboardClientProps {
   announcements: Announcement[];
   onMarkAsWinner: (submission: Submission, rank?: 1 | 2 | 3) => Promise<{success: boolean; message: string}>;
   onDeleteSubmissions: (ids: string[]) => Promise<{success: boolean; message: string}>;
+  onUpdateRefSource: (submissionId: string, newRefSource: string) => Promise<{success: boolean; message: string}>;
   reelItFeelItMeta: CompetitionMeta | null;
   onSetReelItFeelItDate: (date: Date) => Promise<{success: boolean; message: string}>;
   refSources: string[];
@@ -110,6 +111,7 @@ export function DashboardClient({
     announcements,
     onMarkAsWinner,
     onDeleteSubmissions,
+    onUpdateRefSource,
     reelItFeelItMeta, 
     onSetReelItFeelItDate,
     refSources,
@@ -263,6 +265,7 @@ export function DashboardClient({
                             <SubmissionsTable 
                                 submissions={competitionSubmissions}
                                 onMarkAsWinner={onMarkAsWinner} 
+                                onUpdateRefSource={onUpdateRefSource}
                                 competitionId={comp.id}
                                 selectedSubmissionIds={selectedSubmissionIds}
                                 setSelectedSubmissionIds={setSelectedSubmissionIds}
@@ -537,13 +540,16 @@ function ResultDateManager({ meta, onSetDate }: ResultDateManagerProps) {
 interface SubmissionsTableProps {
     submissions: Submission[];
     onMarkAsWinner: (submission: Submission, rank?: 1 | 2 | 3) => Promise<{success: boolean; message: string}>;
+    onUpdateRefSource: (submissionId: string, newRefSource: string) => Promise<{success: boolean; message: string}>;
     competitionId: string;
     selectedSubmissionIds: string[];
     setSelectedSubmissionIds: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
-function SubmissionsTable({ submissions, onMarkAsWinner, competitionId, selectedSubmissionIds, setSelectedSubmissionIds }: SubmissionsTableProps) {
+function SubmissionsTable({ submissions, onMarkAsWinner, onUpdateRefSource, competitionId, selectedSubmissionIds, setSelectedSubmissionIds }: SubmissionsTableProps) {
     const { toast } = useToast();
+    const [editingSubmissionId, setEditingSubmissionId] = useState<string | null>(null);
+    const [editingRefSource, setEditingRefSource] = useState("");
 
     if (submissions.length === 0) {
         return <p className="text-center text-muted-foreground py-8">No submissions for this competition yet.</p>
@@ -587,6 +593,26 @@ function SubmissionsTable({ submissions, onMarkAsWinner, competitionId, selected
             setSelectedSubmissionIds(prev => prev.filter(id => !submissionIds.includes(id)));
         }
     };
+
+    const handleEditRefSource = (submission: Submission) => {
+        setEditingSubmissionId(submission.id);
+        setEditingRefSource(submission.refSource || "");
+    }
+
+    const handleCancelEdit = () => {
+        setEditingSubmissionId(null);
+        setEditingRefSource("");
+    }
+
+    const handleSaveRefSource = async (submissionId: string) => {
+        const result = await onUpdateRefSource(submissionId, editingRefSource);
+        if (result.success) {
+            toast({ title: "Success", description: "Referral source updated." });
+            handleCancelEdit();
+        } else {
+            toast({ title: "Error", description: result.message, variant: "destructive" });
+        }
+    }
     
     const isAllSelected = submissions.length > 0 && submissions.every(s => selectedSubmissionIds.includes(s.id));
 
@@ -654,13 +680,35 @@ function SubmissionsTable({ submissions, onMarkAsWinner, competitionId, selected
                 </div>
             </TableCell>
             <TableCell>
-                {submission.refSource ? (
-                    <Badge variant="secondary" className="whitespace-nowrap">
-                        <Link2 className="mr-1.5 h-3 w-3"/>
-                        {submission.refSource}
-                    </Badge>
+                {editingSubmissionId === submission.id ? (
+                    <div className="flex items-center gap-1">
+                        <Input 
+                            value={editingRefSource} 
+                            onChange={(e) => setEditingRefSource(e.target.value)}
+                            className="h-8"
+                            placeholder="Enter source"
+                        />
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-green-500" onClick={() => handleSaveRefSource(submission.id)}>
+                            <Check className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500" onClick={handleCancelEdit}>
+                            <X className="h-4 w-4" />
+                        </Button>
+                    </div>
                 ) : (
-                    <span className="text-xs text-muted-foreground">Direct</span>
+                    <div className="group flex items-center gap-2">
+                        {submission.refSource ? (
+                            <Badge variant="secondary" className="whitespace-nowrap">
+                                <Link2 className="mr-1.5 h-3 w-3"/>
+                                {submission.refSource}
+                            </Badge>
+                        ) : (
+                            <span className="text-xs text-muted-foreground">Direct</span>
+                        )}
+                         <Button variant="ghost" size="icon" className="h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => handleEditRefSource(submission)}>
+                            <Pencil className="h-3 w-3" />
+                         </Button>
+                    </div>
                 )}
             </TableCell>
             <TableCell className="hidden lg:table-cell">{submission.submittedAt.toLocaleString()}</TableCell>
