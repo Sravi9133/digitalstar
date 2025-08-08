@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { BarChart, Download, Users, Trophy, Award, ChevronDown, Calendar as CalendarIcon, Link2, Filter, Trash2, PlusCircle, ExternalLink, Megaphone, Pencil, Check, X, Edit } from "lucide-react";
+import { BarChart, Download, Users, Trophy, Award, ChevronDown, Calendar as CalendarIcon, Link2, Filter, Trash2, PlusCircle, ExternalLink, Megaphone, Pencil, Check, X, Edit, Copy } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import * as XLSX from "xlsx";
@@ -306,7 +306,6 @@ export function DashboardClient({
                                 selectedSubmissionIds={selectedSubmissionIds}
                                 setSelectedSubmissionIds={setSelectedSubmissionIds}
                                 isBulkEditing={isBulkEditing}
-                                setIsBulkEditing={setIsBulkEditing}
                                 pendingRefChanges={pendingRefChanges}
                                 setPendingRefChanges={setPendingRefChanges}
                             />
@@ -585,7 +584,6 @@ interface SubmissionsTableProps {
     selectedSubmissionIds: string[];
     setSelectedSubmissionIds: React.Dispatch<React.SetStateAction<string[]>>;
     isBulkEditing: boolean;
-    setIsBulkEditing: React.Dispatch<React.SetStateAction<boolean>>;
     pendingRefChanges: Record<string, string>;
     setPendingRefChanges: React.Dispatch<React.SetStateAction<Record<string, string>>>;
 }
@@ -598,13 +596,13 @@ function SubmissionsTable({
     selectedSubmissionIds, 
     setSelectedSubmissionIds,
     isBulkEditing,
-    setIsBulkEditing,
     pendingRefChanges,
     setPendingRefChanges
 }: SubmissionsTableProps) {
     const { toast } = useToast();
     const [editingSubmissionId, setEditingSubmissionId] = useState<string | null>(null);
     const [editingRefSource, setEditingRefSource] = useState("");
+    const [bulkApplyValue, setBulkApplyValue] = useState("");
 
     if (submissions.length === 0) {
         return <p className="text-center text-muted-foreground py-8">No submissions for this competition yet.</p>
@@ -675,10 +673,41 @@ function SubmissionsTable({
             [submissionId]: value
         }));
     }
+
+    const handleApplyBulkValue = () => {
+        if (selectedSubmissionIds.length === 0) {
+            toast({ title: "No submissions selected", description: "Please select submissions to apply the value.", variant: "destructive"});
+            return;
+        }
+        const newChanges: Record<string, string> = {};
+        selectedSubmissionIds.forEach(id => {
+            newChanges[id] = bulkApplyValue;
+        });
+        setPendingRefChanges(prev => ({
+            ...prev,
+            ...newChanges
+        }));
+        toast({ title: "Applied", description: `Set referral source to "${bulkApplyValue}" for ${selectedSubmissionIds.length} submissions.`});
+    }
     
     const isAllSelected = submissions.length > 0 && submissions.every(s => selectedSubmissionIds.includes(s.id));
 
   return (
+    <>
+    {isBulkEditing && selectedSubmissionIds.length > 0 && (
+        <div className="flex items-center gap-2 p-4 border-b bg-muted/50">
+            <Input 
+                placeholder={`Apply value to ${selectedSubmissionIds.length} selected items...`}
+                value={bulkApplyValue}
+                onChange={(e) => setBulkApplyValue(e.target.value)}
+                className="max-w-xs"
+            />
+            <Button size="sm" onClick={handleApplyBulkValue}>
+                <Copy className="mr-2 h-4 w-4" />
+                Apply to Selected
+            </Button>
+        </div>
+    )}
     <Table>
       <TableHeader>
         <TableRow>
@@ -833,5 +862,6 @@ function SubmissionsTable({
         ))}
       </TableBody>
     </Table>
+  </>
   );
 }
