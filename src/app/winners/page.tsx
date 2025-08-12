@@ -298,8 +298,8 @@ function FollowAndWinWinners({ winners }: { winners: Submission[] }) {
             <ScrollArea className="flex-grow pr-4 h-[60vh]">
                 <div className="space-y-4 pb-8">
                 {winnersForCurrentDate.length > 0 ? (
-                    winnersForCurrentDate.map((winner) => (
-                        <WinnerCard key={winner.id} winner={winner} />
+                    winnersForCurrentDate.map((winner, index) => (
+                        <WinnerCard key={winner.id} winner={winner} index={index} />
                     ))
                 ) : (
                     <div className="text-center py-16">
@@ -364,7 +364,7 @@ function AutoScrollingWinnerList({ competitionName, winners }: { competitionName
             <ScrollArea className="flex-grow h-0 pr-4" viewportRef={scrollRef}>
                 <div className="space-y-4 pb-8" ref={contentRef}>
                     {displayWinners.map((winner, index) => (
-                        <WinnerCard key={`${winner.id}-${index}`} winner={winner} />
+                        <WinnerCard key={`${winner.id}-${index}`} winner={winner} index={index % sortedWinners.length} />
                     ))}
                 </div>
             </ScrollArea>
@@ -384,7 +384,7 @@ function getRankBadge(rank?: 1 | 2 | 3) {
     )
 }
 
-function WinnerCard({ winner }: { winner: Submission }) {
+function WinnerCard({ winner, index }: { winner: Submission, index: number }) {
     const identifier = winner.name || winner.registrationId || "Anonymous";
     const avatarFallback = identifier.substring(0, 2).toUpperCase();
 
@@ -409,7 +409,10 @@ function WinnerCard({ winner }: { winner: Submission }) {
     }
 
     return (
-        <Card className="transform hover:-translate-y-1 transition-transform duration-300 ease-in-out shadow-lg hover:shadow-primary/20">
+        <Card className="transform hover:-translate-y-1 transition-transform duration-300 ease-in-out shadow-lg hover:shadow-primary/20 relative">
+            <div className="absolute top-2 right-2 bg-primary/10 text-primary font-bold text-xs w-6 h-6 flex items-center justify-center rounded-full">
+                {index + 1}
+            </div>
             <CardHeader>
                 <div className="flex items-center gap-4">
                     <Avatar>
