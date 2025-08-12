@@ -55,7 +55,7 @@ export async function getAnnouncements(): Promise<Announcement[]> {
 
 export async function processWinners(
   competitionId: string,
-  winnersDataJson: string, // Changed from object array to JSON string
+  winnersDataJson: string, 
   regNoColumn: string
 ): Promise<{ success: boolean; message: string }> {
   console.log("SERVER ACTION: processWinners started.");
@@ -83,26 +83,33 @@ export async function processWinners(
         return { success: false, message };
     }
 
-    // Query Firestore for all submissions matching the competition and registration IDs
-    const submissionsRef = collection(db, "submissions");
+    console.log(`SERVER ACTION: Found ${registrationIds.length} registration IDs to process.`);
+
     // Firestore 'in' queries are limited to 30 items. We need to batch the requests.
     const registrationIdChunks: string[][] = [];
     for (let i = 0; i < registrationIds.length; i += 30) {
         registrationIdChunks.push(registrationIds.slice(i, i + 30));
     }
     
+    console.log(`SERVER ACTION: Splitting into ${registrationIdChunks.length} chunks for querying.`);
+
     const batch = writeBatch(db);
     let totalMatches = 0;
 
-    for (const chunk of registrationIdChunks) {
+    for (const [index, chunk] of registrationIdChunks.entries()) {
+         console.log(`SERVER ACTION: Querying chunk ${index + 1}/${registrationIdChunks.length} with ${chunk.length} IDs.`);
          const q = query(submissionsRef, where("competitionId", "==", competitionId), where("registrationId", "in", chunk));
          const snapshot = await getDocs(q);
 
          if (!snapshot.empty) {
             totalMatches += snapshot.size;
+            console.log(`SERVER ACTION: Found ${snapshot.size} matching submissions in chunk ${index + 1}.`);
             snapshot.docs.forEach(doc => {
+                console.log(`SERVER ACTION: Adding update for submission ID ${doc.id} to the batch.`);
                 batch.update(doc.ref, { isWinner: true });
             });
+         } else {
+             console.log(`SERVER ACTION: No matches found in chunk ${index + 1}.`);
          }
     }
     
@@ -112,11 +119,16 @@ export async function processWinners(
         return { success: false, message };
     }
 
+    console.log(`SERVER ACTION: Committing batch with ${totalMatches} updates.`);
     await batch.commit();
     
     const successMessage = `${totalMatches} submission(s) successfully marked as winners.`;
+    console.log(`SERVER ACTION: ${successMessage}`);
+
     if(totalMatches < registrationIds.length) {
-        return { success: true, message: `${successMessage} Note: ${registrationIds.length - totalMatches} registration IDs from the file did not match any submissions.` };
+        const note = `Note: ${registrationIds.length - totalMatches} registration IDs from the file did not match any submissions in this competition.`;
+        console.warn(`SERVER ACTION: ${note}`);
+        return { success: true, message: `${successMessage} ${note}` };
     }
 
     return { success: true, message: successMessage };
