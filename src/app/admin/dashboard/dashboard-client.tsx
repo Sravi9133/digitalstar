@@ -39,6 +39,8 @@ import { Switch } from "@/components/ui/switch";
 import { Loader2 } from "lucide-react";
 import { addDoc, collection, deleteDoc, doc, getFirestore, serverTimestamp, updateDoc } from "firebase/firestore";
 import { app } from "@/lib/firebase";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 
 interface DashboardClientProps {
@@ -531,22 +533,41 @@ function WinnerUploadCard({ competitions, onUpload }: WinnerUploadCardProps) {
     const [competitionId, setCompetitionId] = useState("");
     const [file, setFile] = useState<File | null>(null);
     const [fileName, setFileName] = useState("");
+    const [fileContent, setFileContent] = useState("");
+    const [parsedData, setParsedData] = useState<any[] | null>(null);
+    const [showPreview, setShowPreview] = useState(false);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFile = e.target.files?.[0];
         if (selectedFile) {
-            if (selectedFile.type === 'text/csv') {
+            if (selectedFile.type === 'text/csv' || selectedFile.name.endsWith('.csv')) {
                 setFile(selectedFile);
                 setFileName(selectedFile.name);
+
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const content = event.target?.result as string;
+                    setFileContent(content);
+                    try {
+                        const workbook = XLSX.read(content, { type: "string" });
+                        const sheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[sheetName];
+                        const data = XLSX.utils.sheet_to_json(worksheet);
+                        setParsedData(data);
+                    } catch (error) {
+                         toast({ title: "Parsing Error", description: "Could not parse CSV file. Please check its format.", variant: "destructive" });
+                         resetState();
+                    }
+                };
+                reader.readAsText(selectedFile);
             } else {
                 toast({ title: "Invalid File Type", description: "Please upload a .csv file.", variant: "destructive" });
-                setFile(null);
-                setFileName("");
+                resetState();
             }
         }
     }
 
-    const handleUpload = async () => {
+    const handleProcessRequest = () => {
         if (!competitionId) {
             toast({ title: "Error", description: "Please select a competition.", variant: "destructive" });
             return;
@@ -555,33 +576,41 @@ function WinnerUploadCard({ competitions, onUpload }: WinnerUploadCardProps) {
             toast({ title: "Error", description: "Please select a file to upload.", variant: "destructive" });
             return;
         }
+        setShowPreview(true);
+    };
 
+    const handleConfirmProcess = async () => {
         setIsProcessing(true);
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-            const content = e.target?.result as string;
-            const result = await onUpload(competitionId, content);
-            toast({
-                title: result.success ? "Success" : "Error",
-                description: result.message,
-                variant: result.success ? "default" : "destructive",
-            });
-            if (result.success) {
-                // Reset form
-                setCompetitionId("");
-                setFile(null);
-                setFileName("");
-            }
-            setIsProcessing(false);
-        };
-        reader.onerror = () => {
-            toast({ title: "Error", description: "Failed to read the file.", variant: "destructive" });
-            setIsProcessing(false);
+        setShowPreview(false);
+
+        const result = await onUpload(competitionId, fileContent);
+        toast({
+            title: result.success ? "Success" : "Error",
+            description: result.message,
+            variant: result.success ? "default" : "destructive",
+        });
+
+        if (result.success) {
+            resetState();
         }
-        reader.readAsText(file);
+        setIsProcessing(false);
+    }
+    
+    const resetState = () => {
+        setFile(null);
+        setFileName("");
+        setFileContent("");
+        setParsedData(null);
+        // keep competitionId selected for convenience
+    }
+
+    const cancelUpload = () => {
+        resetState();
+        setShowPreview(false);
     }
 
     return (
+        <>
         <Card className="lg:col-span-1">
             <CardHeader>
                 <CardTitle className="text-sm font-medium">Upload Winners (CSV)</CardTitle>
@@ -590,7 +619,7 @@ function WinnerUploadCard({ competitions, onUpload }: WinnerUploadCardProps) {
                 </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-                <Select value={competitionId} onValueChange={setCompetitionId}>
+                <Select value={competitionId} onValueChange={setCompetitionId} disabled={isProcessing}>
                     <SelectTrigger>
                         <SelectValue placeholder="Select a competition" />
                     </SelectTrigger>
@@ -614,10 +643,11 @@ function WinnerUploadCard({ competitions, onUpload }: WinnerUploadCardProps) {
                         className="hidden"
                         accept=".csv"
                         onChange={handleFileChange}
+                        disabled={isProcessing}
                     />
                 </div>
                 
-                <Button onClick={handleUpload} disabled={isProcessing || !file || !competitionId} className="w-full">
+                <Button onClick={handleProcessRequest} disabled={isProcessing || !file || !competitionId} className="w-full">
                     {isProcessing ? (
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     ) : (
@@ -627,6 +657,47 @@ function WinnerUploadCard({ competitions, onUpload }: WinnerUploadCardProps) {
                 </Button>
             </CardContent>
         </Card>
+        
+        <Dialog open={showPreview} onOpenChange={setShowPreview}>
+            <DialogContent className="max-w-4xl">
+                <DialogHeader>
+                    <DialogTitle>Confirm Winner Upload</DialogTitle>
+                    <DialogDescription>
+                        You are about to mark the following entries as winners for the <span className="font-bold text-foreground">{competitions.find(c => c.id === competitionId)?.name}</span> competition. Please review the data before confirming.
+                    </DialogDescription>
+                </DialogHeader>
+                
+                <ScrollArea className="max-h-[50vh] border rounded-md">
+                     <Table>
+                        <TableHeader>
+                            <TableRow>
+                                {parsedData && parsedData.length > 0 && Object.keys(parsedData[0]).map(header => (
+                                    <TableHead key={header}>{header}</TableHead>
+                                ))}
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {parsedData?.map((row, rowIndex) => (
+                                <TableRow key={rowIndex}>
+                                    {Object.values(row).map((cell: any, cellIndex) => (
+                                        <TableCell key={cellIndex}>{String(cell)}</TableCell>
+                                    ))}
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </ScrollArea>
+               
+                <DialogFooter>
+                    <Button variant="outline" onClick={cancelUpload}>Cancel</Button>
+                    <Button onClick={handleConfirmProcess}>
+                        <Check className="mr-2 h-4 w-4" />
+                        Confirm & Process {parsedData?.length || 0} Winners
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+        </>
     );
 }
 
