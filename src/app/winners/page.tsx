@@ -65,7 +65,7 @@ const getCompetitionIcon = (id: string) => {
 
 export default function WinnersPage() {
     const [winners, setWinners] = useState<Submission[]>([]);
-    const [reelItFeelItMeta, setReelItFeelItMeta] = useState<CompetitionMeta | null>([]);
+    const [reelItFeelItMeta, setReelItFeelItMeta] = useState<CompetitionMeta | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const { toast } = useToast();
 
@@ -190,20 +190,23 @@ export default function WinnersPage() {
                     )}
                     {Object.entries(groupedOtherWinners).map(([competitionName, competitionWinners]) => {
                         const compId = competitionWinners[0].competitionId;
-                        if (compId === 'reel-it-feel-it' && showReelItFeelItAnnouncement) {
+                        if (compId === 'reel-it-feel-it' && showReelItFeelItAnnouncement && competitionWinners.length === 0) {
                             return <AnnouncementCard key={competitionName} competitionName={competitionName} meta={reelItFeelItMeta!} />;
                         }
-                        return (
-                            <div key={competitionName} className="flex-1 flex flex-col h-[70vh]">
-                                <AutoScrollingWinnerList 
-                                    competitionName={competitionName}
-                                    winners={competitionWinners}
-                                    onRemoveWinner={handleRemoveWinner}
-                                />
-                            </div>
-                        )
+                        if (competitionWinners.length > 0) {
+                            return (
+                                <div key={competitionName} className="flex-1 flex flex-col h-[70vh]">
+                                    <AutoScrollingWinnerList 
+                                        competitionName={competitionName}
+                                        winners={competitionWinners}
+                                        onRemoveWinner={handleRemoveWinner}
+                                    />
+                                </div>
+                            )
+                        }
+                        return null;
                     })}
-                     {Object.keys(groupedOtherWinners).length === 0 && showReelItFeelItAnnouncement && (
+                     {!otherWinners.some(w => w.competitionId === 'reel-it-feel-it') && showReelItFeelItAnnouncement && (
                         <AnnouncementCard competitionName="Reel It. Feel It." meta={reelItFeelItMeta!} />
                     )}
                 </div>
@@ -459,18 +462,22 @@ function AutoScrollingWinnerList({ competitionName, winners, onRemoveWinner }: A
     const scrollRef = useRef<HTMLDivElement>(null);
     const contentRef = useRef<HTMLDivElement>(null);
     const isHovering = useRef(false);
+    const [shouldLoop, setShouldLoop] = React.useState(false);
     
     // Sort winners by rank for 'Reel It. Feel It.'
     const sortedWinners = winners[0]?.competitionId === 'reel-it-feel-it'
         ? [...winners].sort((a, b) => (a.rank || 4) - (b.rank || 4))
         : winners;
     
-    const shouldLoop = sortedWinners.length > 3; 
     const displayWinners = shouldLoop ? [...sortedWinners, ...sortedWinners] : sortedWinners;
 
     useEffect(() => {
         const scrollElement = scrollRef.current;
         const contentElement = contentRef.current;
+        if (scrollElement && contentElement) {
+             setShouldLoop(contentElement.offsetHeight > scrollElement.offsetHeight);
+        }
+
         if (!scrollElement || !contentElement || !shouldLoop) return;
 
         let scrollInterval: NodeJS.Timeout;
@@ -627,5 +634,7 @@ function WinnerCard({ winner, index, onRemove, showCheckbox = false, isSelected 
         </Card>
     )
 }
+
+    
 
     
