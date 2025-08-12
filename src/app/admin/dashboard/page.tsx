@@ -181,8 +181,8 @@ function DashboardPageContent() {
         }
     };
     
-    const handleUploadWinners = async (competitionId: string, winnersData: any[], regNoColumn: string): Promise<{success: boolean, message: string}> => {
-        const result = await processWinners(competitionId, winnersData, regNoColumn);
+    const handleUploadWinners = async (competitionId: string, winnersDataJson: string, regNoColumn: string): Promise<{success: boolean, message: string}> => {
+        const result = await processWinners(competitionId, winnersDataJson, regNoColumn);
         if (result.success) {
             await fetchData();
         }

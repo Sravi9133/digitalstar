@@ -55,14 +55,14 @@ export async function getAnnouncements(): Promise<Announcement[]> {
 
 export async function processWinners(
   competitionId: string,
-  winnersData: { [key: string]: string | number }[],
+  winnersDataJson: string, // Changed from object array to JSON string
   regNoColumn: string
 ): Promise<{ success: boolean; message: string }> {
   console.log("SERVER ACTION: processWinners started.");
   if (!competitionId) {
     return { success: false, message: "Please select a competition." };
   }
-  if (!winnersData || winnersData.length === 0) {
+  if (!winnersDataJson) {
     return { success: false, message: "Winner data is empty." };
   }
    if (!regNoColumn) {
@@ -70,6 +70,8 @@ export async function processWinners(
   }
 
   try {
+    const winnersData: { [key: string]: string | number }[] = JSON.parse(winnersDataJson);
+
     const registrationIds = winnersData
         .map(row => row[regNoColumn])
         .filter(id => id) // Filter out any empty/null IDs
@@ -121,6 +123,9 @@ export async function processWinners(
 
   } catch (error) {
     console.error("SERVER ACTION CRITICAL ERROR: Error processing winners:", error);
+    if (error instanceof SyntaxError) {
+        return { success: false, message: "Failed to parse winner data. The data format might be incorrect."};
+    }
     return { success: false, message: "An error occurred while processing the winners. Please check the data and try again." };
   }
 }

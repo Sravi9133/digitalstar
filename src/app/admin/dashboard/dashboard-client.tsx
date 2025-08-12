@@ -66,7 +66,7 @@ interface DashboardClientProps {
   refFilter: string;
   onRefFilterChange: (value: string) => void;
   onRefreshAnnouncements: () => void;
-  onUploadWinners: (competitionId: string, winnersData: any[], regNoColumn: string) => Promise<{success: boolean; message: string}>;
+  onUploadWinners: (competitionId: string, winnersDataJson: string, regNoColumn: string) => Promise<{success: boolean; message: string}>;
 }
 
 // Helper function to convert data to XLSX and trigger download
@@ -526,7 +526,7 @@ function AnnouncementsManager({ announcements, onRefresh }: AnnouncementsManager
 
 interface WinnerUploadCardProps {
     competitions: { id: string, name: string }[];
-    onUpload: (competitionId: string, winnersData: any[], regNoColumn: string) => Promise<{success: boolean; message: string}>;
+    onUpload: (competitionId: string, winnersDataJson: string, regNoColumn: string) => Promise<{success: boolean; message: string}>;
 }
 
 function WinnerUploadCard({ competitions, onUpload }: WinnerUploadCardProps) {
@@ -620,7 +620,7 @@ function WinnerUploadCard({ competitions, onUpload }: WinnerUploadCardProps) {
         setIsProcessing(true);
         setShowPreview(false);
 
-        const result = await onUpload(competitionId, parsedData, regNoColumn);
+        const result = await onUpload(competitionId, JSON.stringify(parsedData), regNoColumn);
         
         toast({
             title: result.success ? "Success" : "Error",
