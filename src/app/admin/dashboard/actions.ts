@@ -1,7 +1,7 @@
 
 'use server';
 
-import { getFirestore, collection, getDocs, query, orderBy, Timestamp, where, writeBatch, documentId } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, query, orderBy, Timestamp, where, writeBatch, documentId, FirestoreError } from 'firebase/firestore';
 import { app } from '@/lib/firebase';
 import type { Announcement, Submission } from '@/types';
 import * as XLSX from "xlsx";
@@ -27,28 +27,11 @@ export async function getAnnouncements(): Promise<Announcement[]> {
         });
     } catch (error) {
         console.error("Error fetching announcements: ", error);
-        // This might fail if a composite index is not created yet.
-        // As a fallback, fetch all and filter in code.
-        try {
-            console.log("Falling back to fetching all announcements and filtering in code.");
-            const announcementsCol = collection(db, 'announcements');
-            const snapshot = await getDocs(query(announcementsCol, orderBy('createdAt', 'desc')));
-             if (snapshot.empty) {
-                return [];
-            }
-            const allAnnouncements = snapshot.docs.map(doc => {
-                 const data = doc.data();
-                return {
-                    id: doc.id,
-                    ...data,
-                    createdAt: (data.createdAt as Timestamp).toDate(),
-                } as Announcement;
-            });
-            return allAnnouncements.filter(a => a.isActive);
-        } catch (fallbackError) {
-             console.error("Fallback fetching also failed: ", fallbackError);
-             return [];
+        if (error instanceof FirestoreError && error.code === 'failed-precondition') {
+             console.error("A composite index is likely required for this query. Please check the Firestore console.");
         }
+        // Return empty array or re-throw, but don't use an insecure fallback.
+        return [];
     }
 }
 
@@ -143,6 +126,9 @@ export async function processWinners(
     console.error("SERVER ACTION CRITICAL ERROR: Error processing winners:", error);
     if (error instanceof SyntaxError) {
         return { success: false, message: "Failed to parse winner data. The data format might be incorrect."};
+    }
+    if (error instanceof FirestoreError && error.code === 'permission-denied') {
+        return { success: false, message: "Permission Denied. The server cannot write to the database. This is likely a Firestore Security Rules issue or a missing index. Please check your Firebase console." };
     }
     return { success: false, message: "An error occurred while processing the winners. Please check the data and try again." };
   }
