@@ -10,7 +10,7 @@ import { auth, app } from "@/lib/firebase";
 import { useEffect, useState, useMemo } from "react";
 import { getFirestore, collection, getDocs, Timestamp, doc, updateDoc, query, where, getDoc, serverTimestamp, setDoc, writeBatch, orderBy } from "firebase/firestore";
 import { Loader2 } from "lucide-react";
-import { getAnnouncements, processWinners } from "./actions";
+import { getAnnouncements, getValidWinnerIds } from "./actions";
 
 const competitionDisplayNames: { [key: string]: string } = {
   "follow-win": "Follow & Win (Daily winner)",
@@ -182,11 +182,43 @@ function DashboardPageContent() {
     };
     
     const handleUploadWinners = async (competitionId: string, winnersDataJson: string, regNoColumn: string): Promise<{success: boolean, message: string}> => {
-        const result = await processWinners(competitionId, winnersDataJson, regNoColumn);
-        if (result.success) {
-            await fetchData();
+        // 1. Server validates the data and returns IDs of submissions that exist.
+        const validationResult = await getValidWinnerIds(competitionId, winnersDataJson, regNoColumn);
+        
+        if (!validationResult.success || !validationResult.validIds) {
+            return { success: false, message: validationResult.message };
         }
-        return result;
+
+        const { validIds, totalInFile } = validationResult;
+        const totalMatches = validIds.length;
+        
+        if (totalMatches === 0) {
+            return { success: false, message: "No matching submissions found for the provided registration IDs." };
+        }
+        
+        // 2. Client performs the authenticated write operation.
+        try {
+            const batch = writeBatch(db);
+            validIds.forEach(id => {
+                const submissionRef = doc(db, "submissions", id);
+                batch.update(submissionRef, { isWinner: true });
+            });
+            await batch.commit();
+
+            await fetchData(); // Refresh data
+
+            let successMessage = `${totalMatches} submission(s) successfully marked as winners.`;
+            if (totalInFile && totalMatches < totalInFile) {
+                const note = `Note: ${totalInFile - totalMatches} registration IDs from the file did not match any submissions in this competition.`;
+                successMessage = `${successMessage} ${note}`;
+            }
+
+            return { success: true, message: successMessage };
+
+        } catch(error) {
+            console.error("CLIENT-SIDE ERROR: Failed to mark winners:", error);
+            return { success: false, message: "An error occurred on the client while updating winners."};
+        }
     }
 
   const refSources = useMemo(() => {
