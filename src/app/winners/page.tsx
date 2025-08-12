@@ -65,7 +65,7 @@ const getCompetitionIcon = (id: string) => {
 
 export default function WinnersPage() {
     const [winners, setWinners] = useState<Submission[]>([]);
-    const [reelItFeelItMeta, setReelItFeelItMeta] = useState<CompetitionMeta | null>(null);
+    const [reelItFeelItMeta, setReelItFeelItMeta] = useState<CompetitionMeta | null>([]);
     const [isLoading, setIsLoading] = useState(true);
     const { toast } = useToast();
 
@@ -627,6 +627,3 @@ function WinnerCard({ winner, index, onRemove, showCheckbox = false, isSelected 
         </Card>
     )
 }
-
-    
-
