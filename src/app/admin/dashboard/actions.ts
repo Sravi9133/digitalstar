@@ -67,16 +67,11 @@ export async function processWinnersCsv(
     return { success: false, message: "The uploaded file is empty." };
   }
 
-  console.log("SERVER ACTION: Received file content snippet:", fileContent.substring(0, 200));
-
   try {
-    console.log("SERVER ACTION: Attempting to parse CSV content...");
     const workbook = XLSX.read(fileContent, { type: "string" });
     const sheetName = workbook.SheetNames[0];
-    console.log(`SERVER ACTION: Reading from sheet: ${sheetName}`);
     const worksheet = workbook.Sheets[sheetName];
     const winnersData: any[] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-    console.log("SERVER ACTION: Parsed CSV data (first 5 rows):", winnersData.slice(0, 5));
 
 
     if (winnersData.length < 2) {
@@ -86,10 +81,8 @@ export async function processWinnersCsv(
     }
 
     const header = winnersData[0].map((h: string) => String(h).toLowerCase().trim());
-    console.log("SERVER ACTION: Parsed header (lowercase, trimmed):", header);
     
     const regNoIndex = header.indexOf('reg no');
-    console.log(`SERVER ACTION: Index of 'reg no' is: ${regNoIndex}`);
 
     if (regNoIndex === -1) {
         const message = "CSV header must include 'REG NO'.";
@@ -102,8 +95,6 @@ export async function processWinnersCsv(
         .map(row => row[regNoIndex])
         .filter(id => id) // Filter out any empty/null IDs
         .map(String);
-    
-    console.log(`SERVER ACTION: Extracted ${registrationIds.length} registration IDs:`, registrationIds);
         
     if (registrationIds.length === 0) {
         const message = "No valid registration IDs found in the file.";
@@ -111,13 +102,11 @@ export async function processWinnersCsv(
         return { success: false, message };
     }
 
-    console.log(`SERVER ACTION: Querying Firestore for ${registrationIds.length} IDs in competition "${competitionId}"...`);
     // Query Firestore for all submissions matching the competition and registration IDs
     const submissionsRef = collection(db, "submissions");
     const q = query(submissionsRef, where("competitionId", "==", competitionId), where("registrationId", "in", registrationIds));
     
     const snapshot = await getDocs(q);
-    console.log(`SERVER ACTION: Firestore query found ${snapshot.size} matching documents.`);
 
     if (snapshot.empty) {
         const message = `No matching submissions found for the provided registration IDs in the "${competitionId}" competition.`;
@@ -125,15 +114,12 @@ export async function processWinnersCsv(
         return { success: false, message };
     }
     
-    console.log("SERVER ACTION: Creating write batch to update winners...");
     const batch = writeBatch(db);
     snapshot.docs.forEach(doc => {
-        console.log(`SERVER ACTION: Marking doc ${doc.id} as winner.`);
         batch.update(doc.ref, { isWinner: true });
     });
 
     await batch.commit();
-    console.log("SERVER ACTION: Batch commit successful.");
     
     const successMessage = `${snapshot.size} submission(s) successfully marked as winners.`;
     if(snapshot.size < registrationIds.length) {
@@ -147,3 +133,4 @@ export async function processWinnersCsv(
     return { success: false, message: "An error occurred while processing the file. Please check the file format and try again." };
   }
 }
+

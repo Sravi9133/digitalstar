@@ -540,7 +540,6 @@ function WinnerUploadCard({ competitions, onUpload }: WinnerUploadCardProps) {
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFile = e.target.files?.[0];
         if (selectedFile) {
-            console.log("CLIENT: File selected:", selectedFile.name, selectedFile.type);
             if (selectedFile.type === 'text/csv' || selectedFile.name.endsWith('.csv')) {
                 setFile(selectedFile);
                 setFileName(selectedFile.name);
@@ -548,30 +547,14 @@ function WinnerUploadCard({ competitions, onUpload }: WinnerUploadCardProps) {
                 const reader = new FileReader();
                 reader.onload = (event) => {
                     const content = event.target?.result as string;
-                    console.log("CLIENT: FileReader finished reading. Content snippet:", content.substring(0, 100));
                     setFileContent(content);
-                    try {
-                        const workbook = XLSX.read(content, { type: "string" });
-                        const sheetName = workbook.SheetNames[0];
-                        const worksheet = workbook.Sheets[sheetName];
-                        const data = XLSX.utils.sheet_to_json(worksheet);
-                        console.log("CLIENT: Parsed data for preview:", data);
-                        setParsedData(data);
-                    } catch (error) {
-                         console.error("CLIENT: Error parsing CSV for preview:", error);
-                         toast({ title: "Parsing Error", description: "Could not parse CSV file. Please check its format.", variant: "destructive" });
-                         resetState();
-                    }
-                };
-                reader.onerror = () => {
-                    console.error("CLIENT: FileReader error.");
-                    toast({ title: "File Read Error", description: "Could not read the selected file.", variant: "destructive" });
-                    resetState();
                 };
                 reader.readAsText(selectedFile);
             } else {
                 toast({ title: "Invalid File Type", description: "Please upload a .csv file.", variant: "destructive" });
-                resetState();
+                setFile(null);
+                setFileName("");
+                setFileContent("");
             }
         }
     }
@@ -581,18 +564,28 @@ function WinnerUploadCard({ competitions, onUpload }: WinnerUploadCardProps) {
             toast({ title: "Error", description: "Please select a competition.", variant: "destructive" });
             return;
         }
-        if (!file) {
+        if (!fileContent) {
             toast({ title: "Error", description: "Please select a file to upload.", variant: "destructive" });
             return;
         }
-        console.log("CLIENT: 'Process Winners' button clicked. Showing preview.");
-        setShowPreview(true);
+        
+        try {
+            const workbook = XLSX.read(fileContent, { type: "string" });
+            const sheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[sheetName];
+            const data = XLSX.utils.sheet_to_json(worksheet);
+            setParsedData(data);
+            setShowPreview(true);
+        } catch (error) {
+             console.error("CLIENT: Error parsing CSV for preview:", error);
+             toast({ title: "Parsing Error", description: "Could not parse CSV file. Please check its format.", variant: "destructive" });
+             setParsedData(null);
+        }
     };
 
     const handleConfirmProcess = async () => {
         setIsProcessing(true);
         setShowPreview(false);
-        console.log("CLIENT: Confirm button clicked. Calling onUpload server action.");
         const result = await onUpload(competitionId, fileContent);
         toast({
             title: result.success ? "Success" : "Error",
@@ -601,23 +594,19 @@ function WinnerUploadCard({ competitions, onUpload }: WinnerUploadCardProps) {
         });
 
         if (result.success) {
-            resetState();
+            setFile(null);
+            setFileName("");
+            setFileContent("");
+            setParsedData(null);
         }
         setIsProcessing(false);
     }
     
-    const resetState = () => {
-        console.log("CLIENT: Resetting upload state.");
+    const cancelUpload = () => {
         setFile(null);
         setFileName("");
         setFileContent("");
         setParsedData(null);
-        // keep competitionId selected for convenience
-    }
-
-    const cancelUpload = () => {
-        console.log("CLIENT: Cancelling upload.");
-        resetState();
         setShowPreview(false);
     }
 
