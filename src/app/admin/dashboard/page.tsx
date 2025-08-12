@@ -8,9 +8,9 @@ import { useAuth } from "@/hooks/use-auth";
 import { useRouter } from "next/navigation";
 import { auth, app } from "@/lib/firebase";
 import { useEffect, useState, useMemo } from "react";
-import { getFirestore, collection, getDocs, Timestamp, doc, updateDoc, query, where, getDoc, serverTimestamp, setDoc, writeBatch, orderBy } from "firebase/firestore";
+import { getFirestore, collection, getDocs, Timestamp, doc, updateDoc, query, where, getDoc, serverTimestamp, setDoc, writeBatch, orderBy, documentId } from "firebase/firestore";
 import { Loader2 } from "lucide-react";
-import { getAnnouncements, getValidWinnerIds } from "./actions";
+import { getAnnouncements } from "./actions";
 
 const competitionDisplayNames: { [key: string]: string } = {
   "follow-win": "Follow & Win (Daily winner)",
@@ -182,24 +182,42 @@ function DashboardPageContent() {
     };
     
     const handleUploadWinners = async (competitionId: string, winnersDataJson: string, regNoColumn: string): Promise<{success: boolean, message: string}> => {
-        // 1. Server validates the data and returns IDs of submissions that exist.
-        const validationResult = await getValidWinnerIds(competitionId, winnersDataJson, regNoColumn);
-        
-        if (!validationResult.success || !validationResult.validIds) {
-            return { success: false, message: validationResult.message };
-        }
+       try {
+            const winnersData: { [key: string]: string | number }[] = JSON.parse(winnersDataJson);
+            const totalInFile = winnersData.length;
 
-        const { validIds, totalInFile } = validationResult;
-        const totalMatches = validIds.length;
-        
-        if (totalMatches === 0) {
-            return { success: false, message: "No matching submissions found for the provided registration IDs." };
-        }
-        
-        // 2. Client performs the authenticated write operation.
-        try {
+            if (totalInFile === 0) {
+                return { success: false, message: "The uploaded file is empty or could not be read."};
+            }
+
+            const registrationIds = winnersData.map(row => String(row[regNoColumn])).filter(id => id);
+
+            if (registrationIds.length === 0) {
+                return { success: false, message: "No registration IDs found in the selected column."};
+            }
+
+            // Split into chunks of 30 for Firestore 'in' query limit
+            const chunks: string[][] = [];
+            for (let i = 0; i < registrationIds.length; i += 30) {
+                chunks.push(registrationIds.slice(i, i + 30));
+            }
+
+            const submissionsRef = collection(db, 'submissions');
+            const matchingIds: string[] = [];
+            
+            for (const chunk of chunks) {
+                const q = query(submissionsRef, where("competitionId", "==", competitionId), where("registrationId", "in", chunk));
+                const snapshot = await getDocs(q);
+                snapshot.forEach(doc => matchingIds.push(doc.id));
+            }
+            
+            const totalMatches = matchingIds.length;
+            if (totalMatches === 0) {
+                return { success: false, message: "No matching submissions found for the provided registration IDs in this competition." };
+            }
+
             const batch = writeBatch(db);
-            validIds.forEach(id => {
+            matchingIds.forEach(id => {
                 const submissionRef = doc(db, "submissions", id);
                 batch.update(submissionRef, { isWinner: true });
             });
@@ -208,16 +226,18 @@ function DashboardPageContent() {
             await fetchData(); // Refresh data
 
             let successMessage = `${totalMatches} submission(s) successfully marked as winners.`;
-            if (totalInFile && totalMatches < totalInFile) {
-                const note = `Note: ${totalInFile - totalMatches} registration IDs from the file did not match any submissions in this competition.`;
-                successMessage = `${successMessage} ${note}`;
+            if (totalMatches < totalInFile) {
+                successMessage += ` Note: ${totalInFile - totalMatches} registration IDs from the file did not match any submissions.`;
             }
 
             return { success: true, message: successMessage };
 
-        } catch(error) {
-            console.error("CLIENT-SIDE ERROR: Failed to mark winners:", error);
-            return { success: false, message: "An error occurred on the client while updating winners."};
+        } catch(error: any) {
+            console.error("CLIENT-SIDE ERROR: Failed to process and mark winners:", error);
+            if (error.code === 'permission-denied') {
+                 return { success: false, message: "Permission Denied. Ensure you are logged in and have the correct permissions to read and write to the database."};
+            }
+            return { success: false, message: "An unexpected error occurred while processing winners."};
         }
     }
 
