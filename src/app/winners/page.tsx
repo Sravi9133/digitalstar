@@ -4,7 +4,7 @@
 import { useEffect, useState, useRef } from "react";
 import type { Submission, Competition, CompetitionMeta } from "@/types";
 import { Header } from "@/components/header";
-import { getFirestore, doc, updateDoc, collection, getDocs, query, where, Timestamp, getDoc } from "firebase/firestore";
+import { getFirestore, doc, updateDoc, collection, getDocs, query, where, Timestamp, getDoc, writeBatch } from "firebase/firestore";
 import { app } from "@/lib/firebase";
 import { Loader2, Trophy, Award, Camera, Gift, Tv, ChevronLeft, ChevronRight, Users, CalendarIcon, Trash2 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,6 +19,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -105,16 +106,28 @@ export default function WinnersPage() {
     }, []);
 
     const handleRemoveWinner = async (submissionId: string) => {
+        await handleBulkRemoveWinners([submissionId]);
+    }
+
+    const handleBulkRemoveWinners = async (submissionIds: string[]) => {
+        if (submissionIds.length === 0) return;
+
         const db = getFirestore(app);
-        const submissionRef = doc(db, "submissions", submissionId);
-        try {
-            await updateDoc(submissionRef, {
+        const batch = writeBatch(db);
+
+        submissionIds.forEach(id => {
+            const submissionRef = doc(db, "submissions", id);
+            batch.update(submissionRef, {
                 isWinner: false,
                 rank: null // Also remove rank if it exists
             });
+        });
+        
+        try {
+            await batch.commit();
             toast({
                 title: "Success",
-                description: "Winner status has been removed."
+                description: `${submissionIds.length} winner(s) have been removed.`
             });
             fetchWinners(); // Refresh the list of winners
         } catch (error) {
@@ -169,7 +182,11 @@ export default function WinnersPage() {
                 {/* Desktop Layout: Columns */}
                 <div className="hidden md:flex flex-row gap-8 h-full flex-grow items-stretch">
                     {followWinWinners.length > 0 && (
-                        <FollowAndWinWinners winners={followWinWinners} onRemoveWinner={handleRemoveWinner} />
+                        <FollowAndWinWinners 
+                            winners={followWinWinners} 
+                            onRemoveWinner={handleRemoveWinner} 
+                            onBulkRemoveWinners={handleBulkRemoveWinners}
+                        />
                     )}
                     {Object.entries(groupedOtherWinners).map(([competitionName, competitionWinners]) => {
                         const compId = competitionWinners[0].competitionId;
@@ -211,7 +228,11 @@ export default function WinnersPage() {
                         {followWinWinners.length > 0 && (
                              <TabsContent value="follow-win">
                                 <div className="mt-4">
-                                  <FollowAndWinWinners winners={followWinWinners} onRemoveWinner={handleRemoveWinner} />
+                                  <FollowAndWinWinners 
+                                    winners={followWinWinners} 
+                                    onRemoveWinner={handleRemoveWinner} 
+                                    onBulkRemoveWinners={handleBulkRemoveWinners}
+                                  />
                                 </div>
                              </TabsContent>
                         )}
@@ -270,10 +291,12 @@ function AnnouncementCard({ competitionName, meta }: { competitionName: string, 
 interface FollowAndWinWinnersProps {
     winners: Submission[];
     onRemoveWinner: (submissionId: string) => Promise<void>;
+    onBulkRemoveWinners: (submissionIds: string[]) => Promise<void>;
 }
-function FollowAndWinWinners({ winners, onRemoveWinner }: FollowAndWinWinnersProps) {
+function FollowAndWinWinners({ winners, onRemoveWinner, onBulkRemoveWinners }: FollowAndWinWinnersProps) {
     const [currentDate, setCurrentDate] = useState(startOfDay(new Date()));
-
+    const [selectedWinnerIds, setSelectedWinnerIds] = useState<string[]>([]);
+    
     const winnersByDate = winners.reduce((acc, winner) => {
         const dateKey = startOfDay(winner.submittedAt).toISOString();
         if (!acc[dateKey]) {
@@ -284,7 +307,35 @@ function FollowAndWinWinners({ winners, onRemoveWinner }: FollowAndWinWinnersPro
     }, {} as Record<string, Submission[]>);
 
     const winnersForCurrentDate = winnersByDate[currentDate.toISOString()] || [];
+    const isAllSelected = winnersForCurrentDate.length > 0 && selectedWinnerIds.length === winnersForCurrentDate.length;
+
+    useEffect(() => {
+        // Clear selection when date changes
+        setSelectedWinnerIds([]);
+    }, [currentDate]);
+
+    const handleSelectAll = (checked: boolean) => {
+        if (checked) {
+            setSelectedWinnerIds(winnersForCurrentDate.map(w => w.id));
+        } else {
+            setSelectedWinnerIds([]);
+        }
+    };
     
+    const handleSelectWinner = (id: string, isSelected: boolean) => {
+        if (isSelected) {
+            setSelectedWinnerIds(prev => [...prev, id]);
+        } else {
+            setSelectedWinnerIds(prev => prev.filter(winnerId => winnerId !== id));
+        }
+    }
+    
+    const handleBulkDelete = () => {
+        onBulkRemoveWinners(selectedWinnerIds).then(() => {
+            setSelectedWinnerIds([]);
+        });
+    }
+
     return (
         <div className="flex flex-col flex-1 min-w-0 h-full">
              <div className="flex items-center gap-4 mb-6">
@@ -336,12 +387,57 @@ function FollowAndWinWinners({ winners, onRemoveWinner }: FollowAndWinWinnersPro
                     <ChevronRight className="h-4 w-4"/>
                 </Button>
             </div>
+            
+             {winnersForCurrentDate.length > 0 && (
+                <div className="flex items-center justify-between mb-4 p-2 rounded-lg bg-muted/50">
+                    <div className="flex items-center gap-2">
+                        <Checkbox 
+                            id="select-all" 
+                            checked={isAllSelected}
+                            onCheckedChange={handleSelectAll}
+                        />
+                        <label htmlFor="select-all" className="text-sm font-medium">
+                            Select All
+                        </label>
+                    </div>
+                    {selectedWinnerIds.length > 0 && (
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button variant="destructive" size="sm">
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    Delete ({selectedWinnerIds.length})
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    This will remove the winner status from {selectedWinnerIds.length} submission(s). This action cannot be undone.
+                                </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={handleBulkDelete}>Confirm</AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                    )}
+                </div>
+            )}
 
             <ScrollArea className="flex-grow pr-4 h-[60vh]">
                 <div className="space-y-4 pb-8">
                 {winnersForCurrentDate.length > 0 ? (
                     winnersForCurrentDate.map((winner, index) => (
-                        <WinnerCard key={winner.id} winner={winner} index={index} onRemove={onRemoveWinner} />
+                        <WinnerCard 
+                            key={winner.id} 
+                            winner={winner} 
+                            index={index} 
+                            onRemove={onRemoveWinner}
+                            showCheckbox={true}
+                            isSelected={selectedWinnerIds.includes(winner.id)}
+                            onSelect={handleSelectWinner}
+                        />
                     ))
                 ) : (
                     <div className="text-center py-16">
@@ -435,8 +531,11 @@ interface WinnerCardProps {
     winner: Submission;
     index: number;
     onRemove: (submissionId: string) => Promise<void>;
+    showCheckbox?: boolean;
+    isSelected?: boolean;
+    onSelect?: (id: string, isSelected: boolean) => void;
 }
-function WinnerCard({ winner, index, onRemove }: WinnerCardProps) {
+function WinnerCard({ winner, index, onRemove, showCheckbox = false, isSelected = false, onSelect }: WinnerCardProps) {
     const identifier = winner.name || winner.registrationId || "Anonymous";
     const avatarFallback = identifier.substring(0, 2).toUpperCase();
 
@@ -484,8 +583,18 @@ function WinnerCard({ winner, index, onRemove }: WinnerCardProps) {
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
+            
+            {showCheckbox && onSelect && (
+                 <div className="absolute top-2 left-2">
+                    <Checkbox
+                        checked={isSelected}
+                        onCheckedChange={(checked) => onSelect(winner.id, !!checked)}
+                        aria-label={`Select winner ${identifier}`}
+                    />
+                </div>
+            )}
 
-            <CardHeader>
+            <CardHeader className={cn(showCheckbox && "pl-10")}>
                 <div className="flex items-center gap-4">
                     <Avatar>
                         <AvatarFallback className="bg-primary/20 text-primary font-bold">{avatarFallback}</AvatarFallback>
@@ -511,7 +620,7 @@ function WinnerCard({ winner, index, onRemove }: WinnerCardProps) {
                 )}
             </CardContent>
             {renderSubmissionLink() && 
-                <CardFooter>
+                <CardFooter className={cn(showCheckbox && "pl-10")}>
                     {renderSubmissionLink()}
                 </CardFooter>
             }
@@ -520,3 +629,4 @@ function WinnerCard({ winner, index, onRemove }: WinnerCardProps) {
 }
 
     
+
