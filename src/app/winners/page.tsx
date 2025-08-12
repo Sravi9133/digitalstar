@@ -4,9 +4,9 @@
 import { useEffect, useState, useRef } from "react";
 import type { Submission, Competition, CompetitionMeta } from "@/types";
 import { Header } from "@/components/header";
-import { getFirestore, collection, getDocs, query, where, Timestamp, doc, getDoc } from "firebase/firestore";
+import { getFirestore, doc, updateDoc, collection, getDocs, query, where, Timestamp, getDoc } from "firebase/firestore";
 import { app } from "@/lib/firebase";
-import { Loader2, Trophy, Award, Camera, Gift, Tv, ChevronLeft, ChevronRight, Users, CalendarIcon } from "lucide-react";
+import { Loader2, Trophy, Award, Camera, Gift, Tv, ChevronLeft, ChevronRight, Users, CalendarIcon, Trash2 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import Link from "next/link";
@@ -18,6 +18,18 @@ import { format, startOfDay, addDays, subDays, isToday, isFuture } from "date-fn
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 
 const competitionsData: Omit<Competition, 'deadline' | 'icon'>[] = [
@@ -54,41 +66,66 @@ export default function WinnersPage() {
     const [winners, setWinners] = useState<Submission[]>([]);
     const [reelItFeelItMeta, setReelItFeelItMeta] = useState<CompetitionMeta | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const { toast } = useToast();
+
+    const fetchWinners = async () => {
+        setIsLoading(true);
+        const db = getFirestore(app);
+        
+        // Fetch winners
+        const submissionsCol = collection(db, "submissions");
+        const q = query(submissionsCol, where("isWinner", "==", true));
+        const winnerSnapshot = await getDocs(q);
+        const winnerList = winnerSnapshot.docs.map(doc => {
+             const data = doc.data();
+            return {
+                id: doc.id,
+                ...data,
+                submittedAt: (data.submittedAt as Timestamp).toDate(),
+            } as Submission;
+        }).sort((a,b) => b.submittedAt.getTime() - a.submittedAt.getTime());
+        setWinners(winnerList);
+
+        // Fetch competition meta
+        const metaRef = doc(db, "competition_meta", "reel-it-feel-it");
+        const metaSnap = await getDoc(metaRef);
+        if (metaSnap.exists()) {
+            const data = metaSnap.data();
+            setReelItFeelItMeta({
+                ...data,
+                resultAnnouncementDate: (data.resultAnnouncementDate as Timestamp).toDate(),
+            } as CompetitionMeta);
+        }
+
+        setIsLoading(false);
+    }
 
     useEffect(() => {
-        const fetchWinners = async () => {
-            setIsLoading(true);
-            const db = getFirestore(app);
-            
-            // Fetch winners
-            const submissionsCol = collection(db, "submissions");
-            const q = query(submissionsCol, where("isWinner", "==", true));
-            const winnerSnapshot = await getDocs(q);
-            const winnerList = winnerSnapshot.docs.map(doc => {
-                 const data = doc.data();
-                return {
-                    id: doc.id,
-                    ...data,
-                    submittedAt: (data.submittedAt as Timestamp).toDate(),
-                } as Submission;
-            }).sort((a,b) => b.submittedAt.getTime() - a.submittedAt.getTime());
-            setWinners(winnerList);
-
-            // Fetch competition meta
-            const metaRef = doc(db, "competition_meta", "reel-it-feel-it");
-            const metaSnap = await getDoc(metaRef);
-            if (metaSnap.exists()) {
-                const data = metaSnap.data();
-                setReelItFeelItMeta({
-                    ...data,
-                    resultAnnouncementDate: (data.resultAnnouncementDate as Timestamp).toDate(),
-                } as CompetitionMeta);
-            }
-
-            setIsLoading(false);
-        }
         fetchWinners();
     }, []);
+
+    const handleRemoveWinner = async (submissionId: string) => {
+        const db = getFirestore(app);
+        const submissionRef = doc(db, "submissions", submissionId);
+        try {
+            await updateDoc(submissionRef, {
+                isWinner: false,
+                rank: null // Also remove rank if it exists
+            });
+            toast({
+                title: "Success",
+                description: "Winner status has been removed."
+            });
+            fetchWinners(); // Refresh the list of winners
+        } catch (error) {
+            console.error("Error removing winner status: ", error);
+            toast({
+                title: "Error",
+                description: "Failed to remove winner status. Please try again.",
+                variant: "destructive"
+            });
+        }
+    }
 
     const followWinWinners = winners.filter(w => w.competitionId === 'follow-win');
     const otherWinners = winners.filter(w => w.competitionId !== 'follow-win' && w.competitionId !== 'my-first-day');
@@ -132,7 +169,7 @@ export default function WinnersPage() {
                 {/* Desktop Layout: Columns */}
                 <div className="hidden md:flex flex-row gap-8 h-full flex-grow items-stretch">
                     {followWinWinners.length > 0 && (
-                        <FollowAndWinWinners winners={followWinWinners} />
+                        <FollowAndWinWinners winners={followWinWinners} onRemoveWinner={handleRemoveWinner} />
                     )}
                     {Object.entries(groupedOtherWinners).map(([competitionName, competitionWinners]) => {
                         const compId = competitionWinners[0].competitionId;
@@ -144,6 +181,7 @@ export default function WinnersPage() {
                                 <AutoScrollingWinnerList 
                                     competitionName={competitionName}
                                     winners={competitionWinners}
+                                    onRemoveWinner={handleRemoveWinner}
                                 />
                             </div>
                         )
@@ -173,7 +211,7 @@ export default function WinnersPage() {
                         {followWinWinners.length > 0 && (
                              <TabsContent value="follow-win">
                                 <div className="mt-4">
-                                  <FollowAndWinWinners winners={followWinWinners} />
+                                  <FollowAndWinWinners winners={followWinWinners} onRemoveWinner={handleRemoveWinner} />
                                 </div>
                              </TabsContent>
                         )}
@@ -184,6 +222,7 @@ export default function WinnersPage() {
                                  <AutoScrollingWinnerList 
                                     competitionName={competitionName}
                                     winners={competitionWinners}
+                                    onRemoveWinner={handleRemoveWinner}
                                  />
                                </div>
                             </TabsContent>
@@ -228,8 +267,11 @@ function AnnouncementCard({ competitionName, meta }: { competitionName: string, 
     );
 }
 
-
-function FollowAndWinWinners({ winners }: { winners: Submission[] }) {
+interface FollowAndWinWinnersProps {
+    winners: Submission[];
+    onRemoveWinner: (submissionId: string) => Promise<void>;
+}
+function FollowAndWinWinners({ winners, onRemoveWinner }: FollowAndWinWinnersProps) {
     const [currentDate, setCurrentDate] = useState(startOfDay(new Date()));
 
     const winnersByDate = winners.reduce((acc, winner) => {
@@ -299,7 +341,7 @@ function FollowAndWinWinners({ winners }: { winners: Submission[] }) {
                 <div className="space-y-4 pb-8">
                 {winnersForCurrentDate.length > 0 ? (
                     winnersForCurrentDate.map((winner, index) => (
-                        <WinnerCard key={winner.id} winner={winner} index={index} />
+                        <WinnerCard key={winner.id} winner={winner} index={index} onRemove={onRemoveWinner} />
                     ))
                 ) : (
                     <div className="text-center py-16">
@@ -312,7 +354,12 @@ function FollowAndWinWinners({ winners }: { winners: Submission[] }) {
     );
 }
 
-function AutoScrollingWinnerList({ competitionName, winners }: { competitionName: string, winners: Submission[] }) {
+interface AutoScrollingWinnerListProps {
+    competitionName: string;
+    winners: Submission[];
+    onRemoveWinner: (submissionId: string) => Promise<void>;
+}
+function AutoScrollingWinnerList({ competitionName, winners, onRemoveWinner }: AutoScrollingWinnerListProps) {
     const scrollRef = useRef<HTMLDivElement>(null);
     const contentRef = useRef<HTMLDivElement>(null);
     const isHovering = useRef(false);
@@ -364,7 +411,7 @@ function AutoScrollingWinnerList({ competitionName, winners }: { competitionName
             <ScrollArea className="flex-grow h-0 pr-4" viewportRef={scrollRef}>
                 <div className="space-y-4 pb-8" ref={contentRef}>
                     {displayWinners.map((winner, index) => (
-                        <WinnerCard key={`${winner.id}-${index}`} winner={winner} index={index % sortedWinners.length} />
+                        <WinnerCard key={`${winner.id}-${index}`} winner={winner} index={index % sortedWinners.length} onRemove={onRemoveWinner} />
                     ))}
                 </div>
             </ScrollArea>
@@ -384,7 +431,12 @@ function getRankBadge(rank?: 1 | 2 | 3) {
     )
 }
 
-function WinnerCard({ winner, index }: { winner: Submission, index: number }) {
+interface WinnerCardProps {
+    winner: Submission;
+    index: number;
+    onRemove: (submissionId: string) => Promise<void>;
+}
+function WinnerCard({ winner, index, onRemove }: WinnerCardProps) {
     const identifier = winner.name || winner.registrationId || "Anonymous";
     const avatarFallback = identifier.substring(0, 2).toUpperCase();
 
@@ -409,10 +461,30 @@ function WinnerCard({ winner, index }: { winner: Submission, index: number }) {
     }
 
     return (
-        <Card className="transform hover:-translate-y-1 transition-transform duration-300 ease-in-out shadow-lg hover:shadow-primary/20 relative">
+        <Card className="transform hover:-translate-y-1 transition-transform duration-300 ease-in-out shadow-lg hover:shadow-primary/20 relative group">
             <div className="absolute top-2 right-2 bg-primary/10 text-primary font-bold text-xs w-6 h-6 flex items-center justify-center rounded-full">
                 {index + 1}
             </div>
+             <AlertDialog>
+                <AlertDialogTrigger asChild>
+                    <Button variant="destructive" size="icon" className="absolute bottom-2 right-2 h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Trash2 className="h-4 w-4" />
+                    </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        This will remove the winner status from "{identifier}". This action cannot be undone.
+                    </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => onRemove(winner.id)}>Confirm</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
             <CardHeader>
                 <div className="flex items-center gap-4">
                     <Avatar>
