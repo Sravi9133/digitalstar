@@ -72,6 +72,10 @@ export async function processWinners(
   try {
     const winnersData: { [key: string]: string | number }[] = JSON.parse(winnersDataJson);
 
+    if (!Array.isArray(winnersData)) {
+      throw new Error("Parsed winner data is not an array.");
+    }
+
     const registrationIds = winnersData
         .map(row => row[regNoColumn])
         .filter(id => id) // Filter out any empty/null IDs
@@ -93,6 +97,8 @@ export async function processWinners(
     
     console.log(`SERVER ACTION: Splitting into ${registrationIdChunks.length} chunks for querying.`);
 
+    const db = getFirestore(app);
+    const submissionsRef = collection(db, 'submissions');
     const batch = writeBatch(db);
     let totalMatches = 0;
 
