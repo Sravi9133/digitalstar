@@ -10,7 +10,7 @@ import { auth, app } from "@/lib/firebase";
 import { useEffect, useState, useMemo } from "react";
 import { getFirestore, collection, getDocs, Timestamp, doc, updateDoc, query, where, getDoc, serverTimestamp, setDoc, writeBatch, orderBy } from "firebase/firestore";
 import { Loader2 } from "lucide-react";
-import { getAnnouncements } from "./actions";
+import { getAnnouncements, processWinnersCsv } from "./actions";
 
 const competitionDisplayNames: { [key: string]: string } = {
   "follow-win": "Follow & Win (Daily winner)",
@@ -181,6 +181,14 @@ function DashboardPageContent() {
         }
     };
     
+    const handleUploadWinners = async (competitionId: string, fileContent: string): Promise<{success: boolean, message: string}> => {
+        const result = await processWinnersCsv(competitionId, fileContent);
+        if (result.success) {
+            await fetchData();
+        }
+        return result;
+    }
+
   const refSources = useMemo(() => {
     const sources = new Set<string>();
     allSubmissions.forEach(s => {
@@ -239,6 +247,7 @@ function DashboardPageContent() {
             onRefFilterChange={setRefFilter}
             announcements={announcements}
             onRefreshAnnouncements={fetchAnnouncements}
+            onUploadWinners={handleUploadWinners}
         />
     </main>
     </div>

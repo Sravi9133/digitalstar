@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { BarChart, Download, Users, Trophy, Award, ChevronDown, Calendar as CalendarIcon, Link2, Filter, Trash2, PlusCircle, ExternalLink, Megaphone, Pencil, Check, X, Edit, Copy } from "lucide-react";
+import { BarChart, Download, Users, Trophy, Award, ChevronDown, Calendar as CalendarIcon, Link2, Filter, Trash2, PlusCircle, ExternalLink, Megaphone, Pencil, Check, X, Edit, Copy, UploadCloud } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import * as XLSX from "xlsx";
@@ -62,6 +62,7 @@ interface DashboardClientProps {
   refFilter: string;
   onRefFilterChange: (value: string) => void;
   onRefreshAnnouncements: () => void;
+  onUploadWinners: (competitionId: string, fileContent: string) => Promise<{success: boolean; message: string}>;
 }
 
 // Helper function to convert data to XLSX and trigger download
@@ -120,6 +121,7 @@ export function DashboardClient({
     refFilter,
     onRefFilterChange,
     onRefreshAnnouncements,
+    onUploadWinners,
  }: DashboardClientProps) {
     const { toast } = useToast();
     const [selectedSubmissionIds, setSelectedSubmissionIds] = useState<string[]>([]);
@@ -224,7 +226,7 @@ export function DashboardClient({
           <TabsTrigger value="announcements">Announcements</TabsTrigger>
         </TabsList>
         <TabsContent value="overview" className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Submissions</CardTitle>
@@ -257,6 +259,7 @@ export function DashboardClient({
                  <p className="text-xs text-muted-foreground">Currently open</p>
               </CardContent>
             </Card>
+            <WinnerUploadCard competitions={stats.submissionsPerCompetition} onUpload={onUploadWinners} />
           </div>
         </TabsContent>
         {stats.submissionsPerCompetition.map(comp => {
@@ -514,6 +517,116 @@ function AnnouncementsManager({ announcements, onRefresh }: AnnouncementsManager
                 </Card>
             </div>
         </div>
+    );
+}
+
+interface WinnerUploadCardProps {
+    competitions: { id: string, name: string }[];
+    onUpload: (competitionId: string, fileContent: string) => Promise<{success: boolean; message: string}>;
+}
+
+function WinnerUploadCard({ competitions, onUpload }: WinnerUploadCardProps) {
+    const { toast } = useToast();
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [competitionId, setCompetitionId] = useState("");
+    const [file, setFile] = useState<File | null>(null);
+    const [fileName, setFileName] = useState("");
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const selectedFile = e.target.files?.[0];
+        if (selectedFile) {
+            if (selectedFile.type === 'text/csv') {
+                setFile(selectedFile);
+                setFileName(selectedFile.name);
+            } else {
+                toast({ title: "Invalid File Type", description: "Please upload a .csv file.", variant: "destructive" });
+                setFile(null);
+                setFileName("");
+            }
+        }
+    }
+
+    const handleUpload = async () => {
+        if (!competitionId) {
+            toast({ title: "Error", description: "Please select a competition.", variant: "destructive" });
+            return;
+        }
+        if (!file) {
+            toast({ title: "Error", description: "Please select a file to upload.", variant: "destructive" });
+            return;
+        }
+
+        setIsProcessing(true);
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const content = e.target?.result as string;
+            const result = await onUpload(competitionId, content);
+            toast({
+                title: result.success ? "Success" : "Error",
+                description: result.message,
+                variant: result.success ? "default" : "destructive",
+            });
+            if (result.success) {
+                // Reset form
+                setCompetitionId("");
+                setFile(null);
+                setFileName("");
+            }
+            setIsProcessing(false);
+        };
+        reader.onerror = () => {
+            toast({ title: "Error", description: "Failed to read the file.", variant: "destructive" });
+            setIsProcessing(false);
+        }
+        reader.readAsText(file);
+    }
+
+    return (
+        <Card className="lg:col-span-1">
+            <CardHeader>
+                <CardTitle className="text-sm font-medium">Upload Winners (CSV)</CardTitle>
+                 <CardDescription className="text-xs">
+                    Bulk mark submissions as winners. CSV must contain a 'REG NO' column.
+                </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <Select value={competitionId} onValueChange={setCompetitionId}>
+                    <SelectTrigger>
+                        <SelectValue placeholder="Select a competition" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {competitions.map(comp => (
+                            <SelectItem key={comp.id} value={comp.id}>{comp.name}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+
+                <div className="relative">
+                    <label htmlFor="csv-upload" className="cursor-pointer flex items-center justify-center w-full h-20 border-2 border-dashed rounded-lg bg-card hover:bg-muted/50 transition-colors">
+                        <div className="text-center">
+                            <UploadCloud className="w-6 h-6 mx-auto text-muted-foreground mb-1" />
+                            <p className="text-xs font-semibold text-primary truncate max-w-[200px]">{fileName ? fileName : "Click to upload CSV"}</p>
+                        </div>
+                    </label>
+                    <Input 
+                        id="csv-upload"
+                        type="file" 
+                        className="hidden"
+                        accept=".csv"
+                        onChange={handleFileChange}
+                    />
+                </div>
+                
+                <Button onClick={handleUpload} disabled={isProcessing || !file || !competitionId} className="w-full">
+                    {isProcessing ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                        <Trophy className="mr-2 h-4 w-4" />
+                    )}
+                    Process Winners
+                </Button>
+            </CardContent>
+        </Card>
     );
 }
 
