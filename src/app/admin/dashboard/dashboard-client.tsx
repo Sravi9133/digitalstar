@@ -42,6 +42,7 @@ import { app } from "@/lib/firebase";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 
 
 interface DashboardClientProps {
@@ -556,7 +557,6 @@ function WinnerUploadCard({ competitions, onUpload }: WinnerUploadCardProps) {
     }
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        resetState(); // Reset state every time a new file is selected
         const selectedFile = e.target.files?.[0];
         if (selectedFile) {
             if (selectedFile.type === 'text/csv' || selectedFile.name.endsWith('.csv') || selectedFile.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
