@@ -53,84 +53,74 @@ export async function getAnnouncements(): Promise<Announcement[]> {
 }
 
 
-export async function processWinnersCsv(
+export async function processWinners(
   competitionId: string,
-  fileContent: string
+  winnersData: { [key: string]: string | number }[],
+  regNoColumn: string
 ): Promise<{ success: boolean; message: string }> {
-  console.log("SERVER ACTION: processWinnersCsv started.");
+  console.log("SERVER ACTION: processWinners started.");
   if (!competitionId) {
-    console.error("SERVER ACTION ERROR: No competition ID provided.");
     return { success: false, message: "Please select a competition." };
   }
-  if (!fileContent) {
-    console.error("SERVER ACTION ERROR: File content is empty.");
-    return { success: false, message: "The uploaded file is empty." };
+  if (!winnersData || winnersData.length === 0) {
+    return { success: false, message: "Winner data is empty." };
+  }
+   if (!regNoColumn) {
+    return { success: false, message: "Registration number column mapping is missing." };
   }
 
   try {
-    const workbook = XLSX.read(fileContent, { type: "string" });
-    const sheetName = workbook.SheetNames[0];
-    const worksheet = workbook.Sheets[sheetName];
-    const winnersData: any[] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-
-    if (winnersData.length < 2) {
-      const message = "CSV file must have a header row and at least one winner row.";
-      console.error(`SERVER ACTION ERROR: ${message}`);
-      return { success: false, message };
-    }
-
-    const header = winnersData[0].map((h: string) => String(h).toLowerCase().trim());
-    
-    const regNoIndex = header.indexOf('reg no');
-
-    if (regNoIndex === -1) {
-        const message = "CSV header must include 'REG NO'.";
-        console.error(`SERVER ACTION ERROR: ${message}. Found headers:`, header);
-        return { success: false, message: `${message} Detected headers are: ${header.join(', ')}` };
-    }
-    
     const registrationIds = winnersData
-        .slice(1) // Skip header
-        .map(row => row[regNoIndex])
+        .map(row => row[regNoColumn])
         .filter(id => id) // Filter out any empty/null IDs
         .map(String);
         
     if (registrationIds.length === 0) {
-        const message = "No valid registration IDs found in the file.";
+        const message = "No valid registration IDs found in the file for the selected column.";
         console.error(`SERVER ACTION ERROR: ${message}`);
         return { success: false, message };
     }
 
     // Query Firestore for all submissions matching the competition and registration IDs
     const submissionsRef = collection(db, "submissions");
-    const q = query(submissionsRef, where("competitionId", "==", competitionId), where("registrationId", "in", registrationIds));
+    // Firestore 'in' queries are limited to 30 items. We need to batch the requests.
+    const registrationIdChunks: string[][] = [];
+    for (let i = 0; i < registrationIds.length; i += 30) {
+        registrationIdChunks.push(registrationIds.slice(i, i + 30));
+    }
     
-    const snapshot = await getDocs(q);
+    const batch = writeBatch(db);
+    let totalMatches = 0;
 
-    if (snapshot.empty) {
+    for (const chunk of registrationIdChunks) {
+         const q = query(submissionsRef, where("competitionId", "==", competitionId), where("registrationId", "in", chunk));
+         const snapshot = await getDocs(q);
+
+         if (!snapshot.empty) {
+            totalMatches += snapshot.size;
+            snapshot.docs.forEach(doc => {
+                batch.update(doc.ref, { isWinner: true });
+            });
+         }
+    }
+    
+    if (totalMatches === 0) {
         const message = `No matching submissions found for the provided registration IDs in the "${competitionId}" competition.`;
         console.warn(`SERVER ACTION: ${message}`);
         return { success: false, message };
     }
-    
-    const batch = writeBatch(db);
-    snapshot.docs.forEach(doc => {
-        batch.update(doc.ref, { isWinner: true });
-    });
 
     await batch.commit();
     
-    const successMessage = `${snapshot.size} submission(s) successfully marked as winners.`;
-    if(snapshot.size < registrationIds.length) {
-        return { success: true, message: `${successMessage} Note: ${registrationIds.length - snapshot.size} registration IDs from the file did not match any submissions.` };
+    const successMessage = `${totalMatches} submission(s) successfully marked as winners.`;
+    if(totalMatches < registrationIds.length) {
+        return { success: true, message: `${successMessage} Note: ${registrationIds.length - totalMatches} registration IDs from the file did not match any submissions.` };
     }
 
     return { success: true, message: successMessage };
 
   } catch (error) {
-    console.error("SERVER ACTION CRITICAL ERROR: Error processing winners CSV:", error);
-    return { success: false, message: "An error occurred while processing the file. Please check the file format and try again." };
+    console.error("SERVER ACTION CRITICAL ERROR: Error processing winners:", error);
+    return { success: false, message: "An error occurred while processing the winners. Please check the data and try again." };
   }
 }
-

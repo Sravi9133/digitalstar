@@ -6,14 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { BarChart, Download, Users, Trophy, Award, ChevronDown, Calendar as CalendarIcon, Link2, Filter, Trash2, PlusCircle, ExternalLink, Megaphone, Pencil, Check, X, Edit, Copy, UploadCloud } from "lucide-react";
+import { BarChart, Download, Users, Trophy, Award, ChevronDown, Calendar as CalendarIcon, Link2, Filter, Trash2, PlusCircle, ExternalLink, Megaphone, Pencil, Check, X, Edit, Copy, UploadCloud, HelpCircle } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import * as XLSX from "xlsx";
 import { useToast } from "@/hooks/use-toast";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -41,6 +41,7 @@ import { addDoc, collection, deleteDoc, doc, getFirestore, serverTimestamp, upda
 import { app } from "@/lib/firebase";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 
 interface DashboardClientProps {
@@ -64,7 +65,7 @@ interface DashboardClientProps {
   refFilter: string;
   onRefFilterChange: (value: string) => void;
   onRefreshAnnouncements: () => void;
-  onUploadWinners: (competitionId: string, fileContent: string) => Promise<{success: boolean; message: string}>;
+  onUploadWinners: (competitionId: string, winnersData: any[], regNoColumn: string) => Promise<{success: boolean; message: string}>;
 }
 
 // Helper function to convert data to XLSX and trigger download
@@ -524,7 +525,7 @@ function AnnouncementsManager({ announcements, onRefresh }: AnnouncementsManager
 
 interface WinnerUploadCardProps {
     competitions: { id: string, name: string }[];
-    onUpload: (competitionId: string, fileContent: string) => Promise<{success: boolean; message: string}>;
+    onUpload: (competitionId: string, winnersData: any[], regNoColumn: string) => Promise<{success: boolean; message: string}>;
 }
 
 function WinnerUploadCard({ competitions, onUpload }: WinnerUploadCardProps) {
@@ -532,97 +533,118 @@ function WinnerUploadCard({ competitions, onUpload }: WinnerUploadCardProps) {
     const [isProcessing, setIsProcessing] = useState(false);
     const [competitionId, setCompetitionId] = useState("");
     const [file, setFile] = useState<File | null>(null);
+    
+    // Preview state
     const [fileName, setFileName] = useState("");
-    const [fileContent, setFileContent] = useState("");
-    const [parsedData, setParsedData] = useState<any[] | null>(null);
+    const [headers, setHeaders] = useState<string[]>([]);
+    const [parsedData, setParsedData] = useState<any[]>([]);
     const [showPreview, setShowPreview] = useState(false);
+    const [regNoColumn, setRegNoColumn] = useState("");
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+
+    const resetState = () => {
+        setFile(null);
+        setFileName("");
+        setParsedData([]);
+        setHeaders([]);
+        setShowPreview(false);
+        setRegNoColumn("");
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
+    }
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        resetState(); // Reset state every time a new file is selected
         const selectedFile = e.target.files?.[0];
         if (selectedFile) {
-            if (selectedFile.type === 'text/csv' || selectedFile.name.endsWith('.csv')) {
+            if (selectedFile.type === 'text/csv' || selectedFile.name.endsWith('.csv') || selectedFile.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
                 setFile(selectedFile);
                 setFileName(selectedFile.name);
-
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    const content = event.target?.result as string;
-                    setFileContent(content);
-                };
-                reader.readAsText(selectedFile);
             } else {
-                toast({ title: "Invalid File Type", description: "Please upload a .csv file.", variant: "destructive" });
-                setFile(null);
-                setFileName("");
-                setFileContent("");
+                toast({ title: "Invalid File Type", description: "Please upload a .csv or .xlsx file.", variant: "destructive" });
+                resetState();
             }
         }
     }
 
-    const handleProcessRequest = () => {
+    const handlePreviewRequest = () => {
         if (!competitionId) {
             toast({ title: "Error", description: "Please select a competition.", variant: "destructive" });
             return;
         }
-        if (!fileContent) {
+        if (!file) {
             toast({ title: "Error", description: "Please select a file to upload.", variant: "destructive" });
             return;
         }
         
-        try {
-            const workbook = XLSX.read(fileContent, { type: "string" });
-            const sheetName = workbook.SheetNames[0];
-            const worksheet = workbook.Sheets[sheetName];
-            const data = XLSX.utils.sheet_to_json(worksheet);
-            setParsedData(data);
-            setShowPreview(true);
-        } catch (error) {
-             console.error("CLIENT: Error parsing CSV for preview:", error);
-             toast({ title: "Parsing Error", description: "Could not parse CSV file. Please check its format.", variant: "destructive" });
-             setParsedData(null);
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            try {
+                const data = event.target?.result;
+                const workbook = XLSX.read(data, { type: "binary" });
+                const sheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+                const jsonData:any[] = XLSX.utils.sheet_to_json(worksheet);
+
+                if (jsonData.length === 0) {
+                    toast({ title: "Empty File", description: "The uploaded file has no data.", variant: "destructive" });
+                    return;
+                }
+                
+                const fileHeaders = Object.keys(jsonData[0]);
+                setHeaders(fileHeaders);
+                setParsedData(jsonData);
+                setShowPreview(true);
+
+            } catch (error) {
+                 console.error("CLIENT: Error parsing file for preview:", error);
+                 toast({ title: "Parsing Error", description: "Could not parse file. Please check its format.", variant: "destructive" });
+                 resetState();
+            }
+        };
+        reader.onerror = () => {
+             toast({ title: "File Read Error", description: "Could not read the selected file.", variant: "destructive" });
+             resetState();
         }
+        reader.readAsBinaryString(file);
     };
 
     const handleConfirmProcess = async () => {
+        if (!regNoColumn) {
+            toast({ title: "Mapping Required", description: "Please select the column containing the Registration IDs.", variant: "destructive" });
+            return;
+        }
+
         setIsProcessing(true);
         setShowPreview(false);
-        const result = await onUpload(competitionId, fileContent);
+
+        const result = await onUpload(competitionId, parsedData, regNoColumn);
+        
         toast({
             title: result.success ? "Success" : "Error",
             description: result.message,
             variant: result.success ? "default" : "destructive",
         });
 
-        if (result.success) {
-            setFile(null);
-            setFileName("");
-            setFileContent("");
-            setParsedData(null);
-        }
+        resetState();
         setIsProcessing(false);
-    }
-    
-    const cancelUpload = () => {
-        setFile(null);
-        setFileName("");
-        setFileContent("");
-        setParsedData(null);
-        setShowPreview(false);
     }
 
     return (
         <>
         <Card className="lg:col-span-1">
             <CardHeader>
-                <CardTitle className="text-sm font-medium">Upload Winners (CSV)</CardTitle>
+                <CardTitle className="text-sm font-medium">Upload Winners (CSV/XLSX)</CardTitle>
                  <CardDescription className="text-xs">
-                    Bulk mark submissions as winners. CSV must contain a 'REG NO' column.
+                    Bulk mark submissions as winners by uploading a file.
                 </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
                 <Select value={competitionId} onValueChange={setCompetitionId} disabled={isProcessing}>
                     <SelectTrigger>
-                        <SelectValue placeholder="Select a competition" />
+                        <SelectValue placeholder="1. Select Competition" />
                     </SelectTrigger>
                     <SelectContent>
                         {competitions.map(comp => (
@@ -635,26 +657,27 @@ function WinnerUploadCard({ competitions, onUpload }: WinnerUploadCardProps) {
                     <label htmlFor="csv-upload" className="cursor-pointer flex items-center justify-center w-full h-20 border-2 border-dashed rounded-lg bg-card hover:bg-muted/50 transition-colors">
                         <div className="text-center">
                             <UploadCloud className="w-6 h-6 mx-auto text-muted-foreground mb-1" />
-                            <p className="text-xs font-semibold text-primary truncate max-w-[200px]">{fileName ? fileName : "Click to upload CSV"}</p>
+                            <p className="text-xs font-semibold text-primary truncate max-w-[200px]">{fileName ? fileName : "2. Upload File"}</p>
                         </div>
                     </label>
                     <Input 
                         id="csv-upload"
                         type="file" 
+                        ref={fileInputRef}
                         className="hidden"
-                        accept=".csv"
+                        accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
                         onChange={handleFileChange}
                         disabled={isProcessing}
                     />
                 </div>
                 
-                <Button onClick={handleProcessRequest} disabled={isProcessing || !file || !competitionId} className="w-full">
+                <Button onClick={handlePreviewRequest} disabled={isProcessing || !file || !competitionId} className="w-full">
                     {isProcessing ? (
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     ) : (
-                        <Trophy className="mr-2 h-4 w-4" />
+                        <Check className="mr-2 h-4 w-4" />
                     )}
-                    Process Winners
+                    3. Preview & Confirm
                 </Button>
             </CardContent>
         </Card>
@@ -664,36 +687,77 @@ function WinnerUploadCard({ competitions, onUpload }: WinnerUploadCardProps) {
                 <DialogHeader>
                     <DialogTitle>Confirm Winner Upload</DialogTitle>
                     <DialogDescription>
-                        You are about to mark the following entries as winners for the <span className="font-bold text-foreground">{competitions.find(c => c.id === competitionId)?.name}</span> competition. Please review the data before confirming.
+                        Review the data and map the Registration ID column before processing.
+                        You are marking winners for the <span className="font-bold text-foreground">{competitions.find(c => c.id === competitionId)?.name}</span> competition.
                     </DialogDescription>
                 </DialogHeader>
+
+                <div className="my-4 p-4 bg-muted/50 rounded-lg flex flex-col sm:flex-row items-center gap-4">
+                    <div className="flex items-center gap-2 font-semibold">
+                        <p>Map Registration ID column:</p>
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>Select the column from your file that contains the student Registration IDs.</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                    </div>
+                     <Select value={regNoColumn} onValueChange={setRegNoColumn}>
+                        <SelectTrigger className="w-full sm:w-[250px]">
+                            <SelectValue placeholder="Select a column..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {headers.map(header => (
+                                <SelectItem key={header} value={header}>{header}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                     <div className="flex-1 text-right">
+                        <Badge variant="outline">Found {parsedData.length} rows</Badge>
+                     </div>
+                </div>
                 
-                <ScrollArea className="max-h-[50vh] border rounded-md">
+                <ScrollArea className="max-h-[45vh] border rounded-md">
                      <Table>
                         <TableHeader>
                             <TableRow>
-                                {parsedData && parsedData.length > 0 && Object.keys(parsedData[0]).map(header => (
-                                    <TableHead key={header}>{header}</TableHead>
+                                {headers.map(header => (
+                                    <TableHead key={header} className={cn(header === regNoColumn && "bg-primary/20 text-primary")}>
+                                        {header}
+                                    </TableHead>
                                 ))}
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {parsedData?.map((row, rowIndex) => (
+                            {parsedData.slice(0, 100).map((row, rowIndex) => ( // Preview up to 100 rows
                                 <TableRow key={rowIndex}>
-                                    {Object.values(row).map((cell: any, cellIndex) => (
-                                        <TableCell key={cellIndex}>{String(cell)}</TableCell>
+                                    {headers.map((header, cellIndex) => (
+                                        <TableCell key={cellIndex} className={cn(header === regNoColumn && "bg-primary/10")}>{String(row[header] ?? '')}</TableCell>
                                     ))}
                                 </TableRow>
                             ))}
                         </TableBody>
                     </Table>
+                     {parsedData.length > 100 && (
+                        <div className="p-4 text-center text-sm text-muted-foreground">
+                            Showing first 100 rows of {parsedData.length}.
+                        </div>
+                    )}
                 </ScrollArea>
                
                 <DialogFooter>
-                    <Button variant="outline" onClick={cancelUpload}>Cancel</Button>
-                    <Button onClick={handleConfirmProcess}>
-                        <Check className="mr-2 h-4 w-4" />
-                        Confirm & Process {parsedData?.length || 0} Winners
+                    <Button variant="outline" onClick={() => setShowPreview(false)}>Cancel</Button>
+                    <Button onClick={handleConfirmProcess} disabled={!regNoColumn || isProcessing}>
+                         {isProcessing ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                         ) : (
+                            <Trophy className="mr-2 h-4 w-4" />
+                         )}
+                        Confirm & Process {parsedData.length} Winners
                     </Button>
                 </DialogFooter>
             </DialogContent>
