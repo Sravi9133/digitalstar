@@ -141,7 +141,7 @@ export default function WinnersPage() {
     }
 
     const followWinWinners = winners.filter(w => w.competitionId === 'follow-win');
-    const otherWinners = winners.filter(w => w.competitionId !== 'follow-win' && w.competitionId !== 'my-first-day');
+    const otherWinners = winners.filter(w => w.competitionId !== 'follow-win');
 
     const groupedOtherWinners = otherWinners.reduce((acc, winner) => {
         const competition = competitionsData.find(c => c.id === winner.competitionId);
@@ -220,7 +220,7 @@ export default function WinnersPage() {
                                 {competitionName}
                                </TabsTrigger>
                            ))}
-                           {showReelItFeelItAnnouncement && (
+                           {showReelItFeelItAnnouncement && !groupedOtherWinners['Reel It. Feel It.'] && (
                                 <TabsTrigger value="announcement">Reel It. Feel It.</TabsTrigger>
                            )}
                         </TabsList>
@@ -249,7 +249,7 @@ export default function WinnersPage() {
                             </TabsContent>
                         ))}
 
-                        {showReelItFeelItAnnouncement && (
+                        {showReelItFeelItAnnouncement && !groupedOtherWinners['Reel It. Feel It.'] && (
                             <TabsContent value="announcement">
                                 <div className="mt-4">
                                     <AnnouncementCard competitionName="Reel It. Feel It." meta={reelItFeelItMeta!} />
@@ -627,3 +627,5 @@ function WinnerCard({ winner, index, onRemove, showCheckbox = false, isSelected 
         </Card>
     )
 }
+
+    
