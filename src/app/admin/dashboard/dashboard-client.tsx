@@ -583,23 +583,31 @@ function WinnerUploadCard({ competitions, onUpload }: WinnerUploadCardProps) {
         reader.onload = (event) => {
             try {
                 const data = event.target?.result;
-                const workbook = XLSX.read(data, { type: "binary", cellDates: true });
+                const workbook = XLSX.read(data, { type: "binary", cellText: true });
                 const sheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[sheetName];
                 const jsonData:any[] = XLSX.utils.sheet_to_json(worksheet, { 
-                    raw: false, // Important for dates
+                    raw: false,
                     defval: "",
-                    dateNF: 'dd/mm/yyyy' // Specify date format
+                    header: 1, 
                 });
-
-                if (jsonData.length === 0) {
+    
+                if (jsonData.length < 1) {
                     toast({ title: "Empty File", description: "The uploaded file has no data.", variant: "destructive" });
                     return;
                 }
-                
-                const fileHeaders = Object.keys(jsonData[0]);
+    
+                const fileHeaders = jsonData[0] as string[];
+                const fileRows = jsonData.slice(1).map(rowArray => {
+                    const rowObject: { [key: string]: any } = {};
+                    fileHeaders.forEach((header, index) => {
+                        rowObject[header] = (rowArray as any[])[index];
+                    });
+                    return rowObject;
+                });
+    
                 setHeaders(fileHeaders);
-                setParsedData(jsonData);
+                setParsedData(fileRows);
                 setShowPreview(true);
 
             } catch (error) {
@@ -737,7 +745,7 @@ function WinnerUploadCard({ competitions, onUpload }: WinnerUploadCardProps) {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {parsedData.slice(0, 100).map((row, rowIndex) => ( // Preview up to 100 rows
+                            {parsedData.map((row, rowIndex) => (
                                 <TableRow key={rowIndex}>
                                     {headers.map((header, cellIndex) => (
                                         <TableCell key={cellIndex} className={cn(header === regNoColumn && "bg-primary/10")}>{String(row[header] ?? '')}</TableCell>
@@ -746,11 +754,6 @@ function WinnerUploadCard({ competitions, onUpload }: WinnerUploadCardProps) {
                             ))}
                         </TableBody>
                     </Table>
-                     {parsedData.length > 100 && (
-                        <div className="p-4 text-center text-sm text-muted-foreground">
-                            Showing first 100 rows of {parsedData.length}.
-                        </div>
-                    )}
                 </ScrollArea>
                
                 <DialogFooter>
