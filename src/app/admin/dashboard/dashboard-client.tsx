@@ -526,7 +526,7 @@ function AnnouncementsManager({ announcements, onRefresh }: AnnouncementsManager
 
 interface WinnerUploadCardProps {
     competitions: { id: string, name: string }[];
-    onUpload: (competitionId: string, winnersDataJson: string, regNoColumn: string) => Promise<{success: boolean; message: string}>;
+    onUpload: (competitionId: string, winnersDataJson: string, regNoColumn: string) => Promise<{success: boolean; message:string}>;
 }
 
 function WinnerUploadCard({ competitions, onUpload }: WinnerUploadCardProps) {
@@ -583,11 +583,14 @@ function WinnerUploadCard({ competitions, onUpload }: WinnerUploadCardProps) {
         reader.onload = (event) => {
             try {
                 const data = event.target?.result;
-                const workbook = XLSX.read(data, { type: "binary" });
+                const workbook = XLSX.read(data, { type: "binary", cellDates: true });
                 const sheetName = workbook.SheetNames[0];
                 const worksheet = workbook.Sheets[sheetName];
-                // Treat all values as raw strings to avoid date parsing issues
-                const jsonData:any[] = XLSX.utils.sheet_to_json(worksheet, { raw: true, defval: "" });
+                const jsonData:any[] = XLSX.utils.sheet_to_json(worksheet, { 
+                    raw: false, // Important for dates
+                    defval: "",
+                    dateNF: 'dd/mm/yyyy' // Specify date format
+                });
 
                 if (jsonData.length === 0) {
                     toast({ title: "Empty File", description: "The uploaded file has no data.", variant: "destructive" });
