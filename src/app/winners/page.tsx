@@ -2,11 +2,11 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import type { Competition, CompetitionMeta, CuratedWinner } from "@/types";
+import type { Competition, CompetitionMeta, CuratedWinner, Submission } from "@/types";
 import { Header } from "@/components/header";
-import { getFirestore, doc, updateDoc, collection, getDocs, query, where, Timestamp, getDoc, writeBatch } from "firebase/firestore";
+import { getFirestore, doc, updateDoc, collection, getDocs, query, where, Timestamp, getDoc, writeBatch, orderBy } from "firebase/firestore";
 import { app } from "@/lib/firebase";
-import { Loader2, Trophy, Award, Camera, Gift, Tv, ChevronLeft, ChevronRight, Users, CalendarIcon, Trash2, Search } from "lucide-react";
+import { Loader2, Trophy, Award, Camera, Gift, Tv, ChevronLeft, ChevronRight, Users, CalendarIcon, Trash2, Search, Link as LinkIcon, Info } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import Link from "next/link";
@@ -14,23 +14,11 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { ExternalLink } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { format, startOfDay, addDays, subDays, isToday, isFuture, parse as parseDate } from "date-fns";
+import { format, startOfDay, addDays, subDays, isToday, isFuture, parse as parseDate, isAfter } from "date-fns";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import ReactConfetti from "react-confetti";
 import { useWindowSize } from '@/hooks/use-window-size';
 import { Input } from "@/components/ui/input";
@@ -54,26 +42,22 @@ const competitionsData: Omit<Competition, 'deadline' | 'icon'>[] = [
   },
 ];
 
-const getCompetitionIcon = (id: string) => {
-    const competition = competitionsData.find(c => c.id === id);
-    const iconName = (competition as any)?.icon || "Trophy";
-    
-    switch(id) {
-        case "follow-win": return <Gift className="w-8 h-8 text-primary" />;
-        case "reel-it-feel-it": return <Tv className="w-8 h-8 text-primary" />;
-        case "my-first-day": return <Camera className="w-8 h-8 text-primary" />;
-        default: return <Trophy className="w-8 h-8 text-primary" />;
-    }
-}
-
-interface WinnerData {
+interface CuratedWinnerData {
     id: string; // Corresponds to competitionId
     name: string;
     winners: CuratedWinner[];
 }
 
+interface RankedWinnerData {
+    id: string;
+    name: string;
+    winners: Submission[];
+    meta: CompetitionMeta | null;
+}
+
 export default function WinnersPage() {
-    const [allWinnersData, setAllWinnersData] = useState<WinnerData[]>([]);
+    const [curatedWinnersData, setCuratedWinnersData] = useState<CuratedWinnerData[]>([]);
+    const [rankedWinnersData, setRankedWinnersData] = useState<RankedWinnerData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [showConfetti, setShowConfetti] = useState(false);
     const { width, height } = useWindowSize();
@@ -82,10 +66,11 @@ export default function WinnersPage() {
     const fetchWinners = async () => {
         setIsLoading(true);
         const db = getFirestore(app);
+
+        // Fetch Curated Winners (Follow & Win, My First Day)
         const winnersCol = collection(db, "winners");
         const winnerSnapshot = await getDocs(winnersCol);
-
-        const winnerList: WinnerData[] = winnerSnapshot.docs.map(doc => {
+        const winnerList: CuratedWinnerData[] = winnerSnapshot.docs.map(doc => {
             const competition = competitionsData.find(c => c.id === doc.id);
             return {
                 id: doc.id,
@@ -93,10 +78,40 @@ export default function WinnersPage() {
                 winners: doc.data().data as CuratedWinner[],
             }
         });
+        setCuratedWinnersData(winnerList);
+
+        // Fetch Ranked Winners (Reel it Feel It)
+        const metaRef = doc(db, "competition_meta", "reel-it-feel-it");
+        const metaSnap = await getDoc(metaRef);
+        let meta: CompetitionMeta | null = null;
+        if (metaSnap.exists()) {
+            const data = metaSnap.data();
+            meta = {
+                ...data,
+                resultAnnouncementDate: (data.resultAnnouncementDate as Timestamp).toDate(),
+            } as CompetitionMeta;
+        }
+
+        const rankedWinnersQuery = query(
+            collection(db, "submissions"), 
+            where("competitionId", "==", "reel-it-feel-it"),
+            where("isWinner", "==", true),
+            orderBy("rank", "asc")
+        );
+        const rankedWinnersSnapshot = await getDocs(rankedWinnersQuery);
+        const rankedWinnerList = rankedWinnersSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as Submission));
         
-        setAllWinnersData(winnerList);
+        const reelItFeelItCompetition = competitionsData.find(c => c.id === 'reel-it-feel-it');
+        setRankedWinnersData({
+            id: 'reel-it-feel-it',
+            name: reelItFeelItCompetition?.name || 'Reel It. Feel It.',
+            winners: rankedWinnerList,
+            meta: meta
+        });
+
+
         setIsLoading(false);
-        if (winnerList.some(comp => comp.winners.length > 0)) {
+        if (winnerList.some(comp => comp.winners.length > 0) || rankedWinnerList.length > 0) {
             setShowConfetti(true);
         }
     }
@@ -105,22 +120,45 @@ export default function WinnersPage() {
         fetchWinners();
     }, []);
 
+    const allCompetitions = useMemo(() => {
+        const all = [...curatedWinnersData];
+        if (rankedWinnersData) {
+            all.push(rankedWinnersData);
+        }
+        return all.sort((a,b) => competitionsData.findIndex(c => c.id === a.id) - competitionsData.findIndex(c => c.id === b.id));
+    }, [curatedWinnersData, rankedWinnersData]);
+
+
     const filteredWinnersData = useMemo(() => {
         if (!searchQuery) {
-            return allWinnersData;
+            return allCompetitions;
         }
-        return allWinnersData
-            .map(comp => ({
-                ...comp,
-                winners: comp.winners.filter(winner => 
-                    String(winner['REG NO']).toLowerCase().includes(searchQuery.toLowerCase())
-                )
-            }))
+        return allCompetitions
+            .map(comp => {
+                if ('winners' in comp && comp.winners.length > 0) {
+                    if ((comp.winners[0] as CuratedWinner)['REG NO'] !== undefined) { // CuratedWinner
+                        return {
+                            ...comp,
+                            winners: (comp.winners as CuratedWinner[]).filter(winner => 
+                                String(winner['REG NO']).toLowerCase().includes(searchQuery.toLowerCase())
+                            )
+                        };
+                    } else { // Submission
+                        return {
+                            ...comp,
+                            winners: (comp.winners as Submission[]).filter(winner => 
+                                String(winner.registrationId).toLowerCase().includes(searchQuery.toLowerCase())
+                            )
+                        }
+                    }
+                }
+                return comp;
+            })
             .filter(comp => comp.winners.length > 0);
-    }, [allWinnersData, searchQuery]);
+    }, [allCompetitions, searchQuery]);
 
     const hasWinners = filteredWinnersData.some(comp => comp.winners.length > 0);
-    const hasInitialData = allWinnersData.some(comp => comp.winners.length > 0);
+    const hasInitialData = allCompetitions.some(comp => comp.winners.length > 0);
 
   return (
     <>
@@ -185,12 +223,21 @@ export default function WinnersPage() {
                                 </TabsList>
                                 
                                 {filteredWinnersData.map((competition) => {
-                                if (competition.winners.length === 0) return null;
-                                return (
-                                    <TabsContent key={competition.id} value={competition.id} className="mt-8">
-                                    <WinnerDisplay winners={competition.winners} searchQuery={searchQuery} />
-                                    </TabsContent>
-                                )
+                                    if (competition.winners.length === 0 && !('meta' in competition)) return null;
+                                    
+                                    if (competition.id === 'reel-it-feel-it' && 'meta' in competition) {
+                                        return (
+                                            <TabsContent key={competition.id} value={competition.id} className="mt-8">
+                                                <RankedWinnerDisplay data={competition as RankedWinnerData} searchQuery={searchQuery}/>
+                                            </TabsContent>
+                                        )
+                                    }
+
+                                    return (
+                                        <TabsContent key={competition.id} value={competition.id} className="mt-8">
+                                            <CuratedWinnerDisplay winners={(competition as CuratedWinnerData).winners} searchQuery={searchQuery} />
+                                        </TabsContent>
+                                    )
                                 })}
                         </Tabs>
                         </div>
@@ -203,12 +250,12 @@ export default function WinnersPage() {
   );
 }
 
-interface WinnerDisplayProps {
+interface CuratedWinnerDisplayProps {
     winners: CuratedWinner[];
     searchQuery: string;
 }
 
-function WinnerDisplay({ winners, searchQuery }: WinnerDisplayProps) {
+function CuratedWinnerDisplay({ winners, searchQuery }: CuratedWinnerDisplayProps) {
     const [currentDate, setCurrentDate] = useState(startOfDay(new Date()));
 
     const winnersByDate = useMemo(() => winners.reduce((acc, winner) => {
@@ -365,3 +412,111 @@ function WinnerDisplay({ winners, searchQuery }: WinnerDisplayProps) {
     );
 }
 
+interface RankedWinnerDisplayProps {
+    data: RankedWinnerData;
+    searchQuery: string;
+}
+
+function RankedWinnerDisplay({ data, searchQuery }: RankedWinnerDisplayProps) {
+    const { winners, meta } = data;
+    const isAnnounced = meta ? isAfter(new Date(), meta.resultAnnouncementDate) : false;
+
+    const rankText = (rank?: number) => {
+        if (rank === 1) return "1st Place";
+        if (rank === 2) return "2nd Place";
+        if (rank === 3) return "3rd Place";
+        return "Winner";
+    }
+
+    if (searchQuery) { // Always show search results regardless of date
+         return (
+            <div className="space-y-4 pb-8">
+                {winners.map((winner) => (
+                    <RankedWinnerCard key={winner.id} winner={winner} />
+                ))}
+            </div>
+        );
+    }
+    
+    if (!meta) {
+        return (
+            <div className="text-center py-20">
+                <p className="text-xl text-muted-foreground">The announcement date has not been set.</p>
+                <p className="mt-2">Check back soon!</p>
+            </div>
+        )
+    }
+
+    if (!isAnnounced) {
+        return (
+             <div className="text-center py-20">
+                <p className="text-xl text-muted-foreground">Winners will be announced on</p>
+                <p className="text-3xl font-bold font-headline text-primary mt-2">{format(meta.resultAnnouncementDate, "PPP")}</p>
+            </div>
+        )
+    }
+
+     if (winners.length === 0) {
+        return (
+            <div className="text-center py-20">
+                <p className="text-xl text-muted-foreground">Winners have been announced, but none are listed yet.</p>
+            </div>
+        );
+    }
+
+    return (
+        <div className="space-y-4 pb-8">
+            {winners.map((winner) => (
+                <RankedWinnerCard key={winner.id} winner={winner} />
+            ))}
+        </div>
+    );
+}
+
+function RankedWinnerCard({ winner }: { winner: Submission }) {
+     const rankText = (rank?: number) => {
+        if (rank === 1) return "1st Place";
+        if (rank === 2) return "2nd Place";
+        if (rank === 3) return "3rd Place";
+        return "Winner";
+    }
+
+     const rankColor = (rank?: number) => {
+        if (rank === 1) return "border-yellow-400 shadow-yellow-400/30";
+        if (rank === 2) return "border-slate-400 shadow-slate-400/30";
+        if (rank === 3) return "border-orange-600 shadow-orange-600/30";
+        return "border-primary/20";
+    }
+    
+    return (
+        <Card className={cn("shadow-lg bg-card/50 backdrop-blur-sm overflow-hidden relative transition-all duration-300 hover:shadow-lg border-2", rankColor(winner.rank))}>
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-50"></div>
+            <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl"></div>
+            <CardHeader className="relative z-10 flex flex-row items-center justify-between">
+                <div className="flex items-center gap-4">
+                    <Avatar>
+                        <AvatarFallback className="bg-primary/20 text-primary font-bold">
+                            {(String(winner.registrationId) || 'W').substring(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                    </Avatar>
+                    <div>
+                        <CardTitle className="text-xl font-bold">{winner.registrationId}</CardTitle>
+                        {winner.postLink && (
+                             <Button asChild variant="link" className="p-0 h-auto">
+                                <Link href={winner.postLink} target="_blank" className="text-xs">
+                                    View Submission <ExternalLink className="ml-1 h-3 w-3" />
+                                </Link>
+                            </Button>
+                        )}
+                    </div>
+                </div>
+                 <div className="text-right">
+                    <p className="text-lg font-bold text-primary">{rankText(winner.rank)}</p>
+                    {winner.school && <p className="text-sm text-muted-foreground">{winner.school}</p>}
+                </div>
+            </CardHeader>
+        </Card>
+    )
+}
+
+    

@@ -265,8 +265,8 @@ export function DashboardClient({
                  <p className="text-xs text-muted-foreground">Currently open</p>
               </CardContent>
             </Card>
-            <WinnerUploadCard competitions={stats.submissionsPerCompetition} onUpload={onUploadWinners} />
-            <CuratedWinnerUploadCard competitions={stats.submissionsPerCompetition} onUpload={onUploadCuratedWinners} />
+            <WinnerUploadCard competitions={stats.submissionsPerCompetition.filter(c => c.id !== 'reel-it-feel-it')} onUpload={onUploadWinners} />
+            <CuratedWinnerUploadCard competitions={stats.submissionsPerCompetition.filter(c => c.id !== 'reel-it-feel-it')} onUpload={onUploadCuratedWinners} />
           </div>
         </TabsContent>
         {stats.submissionsPerCompetition.map(comp => {
@@ -1233,7 +1233,7 @@ function SubmissionsTable({
                 )}
             </TableCell>
             <TableCell className="text-right">
-                {competitionId === 'reel-it-feel-it' ? (
+                {competitionId === 'reel-it-feel-it' || competitionId === 'my-first-day' ? (
                      <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="outline" size="sm" disabled={submission.isWinner}>
@@ -1275,3 +1275,5 @@ function SubmissionsTable({
   </>
   );
 }
+
+    
