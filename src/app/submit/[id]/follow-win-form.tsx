@@ -137,17 +137,17 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
 
   const handleRegistrationIdBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
     const registrationId = e.target.value;
-    if (registrationId.length < 5) return;
+    if (registrationId.length < 5 || schools.length === 0) return;
 
     setIsFetchingProgram(true);
     setSearchTerm("");
-    form.setValue("school", "");
-    form.setValue("instagramHandle", "");
-
+    form.reset({ registrationId, instagramHandle: "", school: "", followedSubreddit: form.getValues('followedSubreddit') });
+    
     const result = await getProgramCode(registrationId);
 
     if (result.success && result.code) {
-        const matchedProgram = programsData.find(p => p.ProgramCode === result.code);
+        const programCode = result.code;
+        const matchedProgram = programsData.find(p => p.ProgramCode === programCode);
 
         if (matchedProgram) {
             const schoolName = matchedProgram["School Name"];
@@ -157,15 +157,15 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
             setSearchTerm(schoolName);
 
             if (instaLink) {
-              form.setValue("instagramHandle", instaLink);
+              form.setValue("instagramHandle", instaLink, { shouldValidate: true });
             }
-            toast({ title: "Details Found!", description: "Your school has been auto-filled." });
+            toast({ title: "Details Found!", description: "Your school and Instagram link have been auto-filled." });
         } else {
-             toast({ title: "School Not Found", description: "We couldn't automatically find your school from your program code. Please select it manually.", variant: "destructive" });
+             toast({ title: "School Not Matched", description: "We found your program, but couldn't match it to a school. Please select it manually.", variant: "destructive" });
         }
 
     } else {
-        toast({ title: "Error", description: result.message, variant: "destructive" });
+        toast({ title: "Could Not Fetch Details", description: result.message, variant: "destructive" });
     }
 
     setIsFetchingProgram(false);
@@ -204,7 +204,7 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
   const handleSchoolSelect = (school: School) => {
     setSearchTerm(school.name);
     form.setValue("school", school.name, { shouldValidate: true });
-    form.setValue("instagramHandle", school.link);
+    form.setValue("instagramHandle", school.link, { shouldValidate: true });
     setShowSuggestions(false);
   }
 

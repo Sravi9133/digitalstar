@@ -182,9 +182,10 @@ export async function getProgramCode(registrationId: string): Promise<{success: 
     }
 
     const data = await response.json();
+    const officialCode = data?.[0]?.OfficialCode;
     
-    if (data && data.OfficialCode) {
-      return { success: true, code: data.OfficialCode, message: 'Successfully fetched program code.' };
+    if (officialCode) {
+      return { success: true, code: officialCode, message: 'Successfully fetched program code.' };
     } else {
       return { success: false, message: 'OfficialCode not found in API response.' };
     }
