@@ -173,7 +173,7 @@ export default function WinnersPage() {
                     ) : (
                         <div className="flex-grow">
                             <Tabs defaultValue={filteredWinnersData.find(c => c.winners.length > 0)?.id} className="w-full">
-                                <TabsList className="grid w-full grid-cols-1 h-auto sm:grid-cols-3">
+                                <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-3 h-auto">
                                 {filteredWinnersData.map((competition) => {
                                     if (competition.winners.length === 0) return null;
                                     return (
@@ -267,7 +267,7 @@ function WinnerDisplay({ winners, searchQuery }: WinnerDisplayProps) {
                          <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl"></div>
                         <CardHeader className="relative z-10">
                             <div className="flex items-center gap-4">
-                                 <div className="relative flex items-center justify-center">
+                                 <div className="relative flex items-center justify-center w-10 h-10">
                                     <Trophy className="w-10 h-10 text-primary/50" />
                                     <span className="absolute text-sm font-bold text-foreground">{index + 1}</span>
                                 </div>
@@ -290,37 +290,42 @@ function WinnerDisplay({ winners, searchQuery }: WinnerDisplayProps) {
 
     return (
         <div className="flex flex-col flex-1 min-w-0 h-full">
-            <div className="flex items-center justify-between mb-4 gap-2">
-                <Button variant="outline" size="icon" onClick={() => setCurrentDate(subDays(currentDate, 1))}>
-                    <ChevronLeft className="h-4 w-4"/>
-                </Button>
+            <div className="flex items-center justify-between mb-4 gap-2 flex-wrap">
+                <div className="flex items-center gap-2">
+                    <Button variant="outline" size="icon" onClick={() => setCurrentDate(subDays(currentDate, 1))}>
+                        <ChevronLeft className="h-4 w-4"/>
+                    </Button>
+                    <Button variant="outline" size="icon" onClick={() => setCurrentDate(addDays(currentDate, 1))} disabled={isFuture(addDays(currentDate,1))}>
+                        <ChevronRight className="h-4 w-4"/>
+                    </Button>
+                </div>
 
-                <Popover>
-                    <PopoverTrigger asChild>
-                        <Button
-                        variant={"outline"}
-                        className={cn(
-                            "justify-start text-left font-normal flex-1",
-                            !currentDate && "text-muted-foreground"
-                        )}
-                        >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {currentDate ? format(currentDate, "PPP") : <span>Pick a date</span>}
-                        </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                        <Calendar
-                        mode="single"
-                        selected={currentDate}
-                        onSelect={(day) => day && setCurrentDate(day)}
-                        initialFocus
-                        />
-                    </PopoverContent>
-                </Popover>
-
-                <Button variant="outline" size="icon" onClick={() => setCurrentDate(addDays(currentDate, 1))} disabled={isFuture(addDays(currentDate,1))}>
-                    <ChevronRight className="h-4 w-4"/>
-                </Button>
+                <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">Choose Submission Date:</span>
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button
+                            size="sm"
+                            variant={"outline"}
+                            className={cn(
+                                "w-[200px] justify-start text-left font-normal",
+                                !currentDate && "text-muted-foreground"
+                            )}
+                            >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {currentDate ? format(currentDate, "PPP") : <span>Pick a date</span>}
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0">
+                            <Calendar
+                            mode="single"
+                            selected={currentDate}
+                            onSelect={(day) => day && setCurrentDate(day)}
+                            initialFocus
+                            />
+                        </PopoverContent>
+                    </Popover>
+                </div>
             </div>
             
             <ScrollArea className="flex-grow pr-4 h-[60vh]">
@@ -332,7 +337,7 @@ function WinnerDisplay({ winners, searchQuery }: WinnerDisplayProps) {
                              <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl"></div>
                             <CardHeader className="relative z-10">
                                 <div className="flex items-center gap-4">
-                                     <div className="relative flex items-center justify-center">
+                                     <div className="relative flex items-center justify-center w-10 h-10">
                                         <Trophy className="w-10 h-10 text-primary/50" />
                                         <span className="absolute text-sm font-bold text-foreground">{index + 1}</span>
                                     </div>
@@ -359,3 +364,4 @@ function WinnerDisplay({ winners, searchQuery }: WinnerDisplayProps) {
         </div>
     );
 }
+
