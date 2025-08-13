@@ -85,6 +85,15 @@ export default {
         'marquee-infinite-2': {
           '0%': { transform: 'translateX(100%)' },
           '100%': { transform: 'translateX(0%)' },
+        },
+        'text-shimmer': {
+          '0%': { 'background-position': '200%_center' },
+          '100%': { 'background-position': '-200%_center' },
+        },
+        'gradient-bg': {
+          '0%': { 'background-position': '0% 50%' },
+          '50%': { 'background-position': '100% 50%' },
+          '100%': { 'background-position': '0% 50%' },
         }
       },
       animation: {
@@ -92,6 +101,8 @@ export default {
         'accordion-up': 'accordion-up 0.2s ease-out',
         'marquee-infinite': 'marquee-infinite 40s linear infinite',
         'marquee-infinite-2': 'marquee-infinite-2 40s linear infinite',
+        'text-shimmer': 'text-shimmer 4s linear infinite',
+        'gradient-bg': 'gradient-bg 15s ease infinite',
       },
     },
   },

@@ -31,6 +31,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import ReactConfetti from "react-confetti";
+import { useWindowSize } from '@/hooks/use-window-size';
 
 
 const competitionsData: Omit<Competition, 'deadline' | 'icon'>[] = [
@@ -72,6 +74,8 @@ interface WinnerData {
 export default function WinnersPage() {
     const [allWinnersData, setAllWinnersData] = useState<WinnerData[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [showConfetti, setShowConfetti] = useState(false);
+    const { width, height } = useWindowSize();
 
     const fetchWinners = async () => {
         setIsLoading(true);
@@ -90,6 +94,9 @@ export default function WinnersPage() {
         
         setAllWinnersData(winnerList);
         setIsLoading(false);
+        if (winnerList.some(comp => comp.winners.length > 0)) {
+            setShowConfetti(true);
+        }
     }
 
     useEffect(() => {
@@ -99,55 +106,61 @@ export default function WinnersPage() {
     const hasWinners = allWinnersData.some(comp => comp.winners.length > 0);
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-br from-background via-background to-primary/10">
-      <Header />
-      <main className="flex-grow flex flex-col">
-        <section className="container mx-auto px-4 py-12 md:py-20 flex-grow flex flex-col">
-            <div className="text-center mb-12">
-                <Trophy className="w-16 h-16 mx-auto text-primary animate-pulse" />
-                <h1 className="text-4xl md:text-5xl font-bold font-headline mt-4">Hall of Fame</h1>
-                <p className="text-lg text-muted-foreground mt-2">Celebrating the talented winners of our competitions.</p>
-            </div>
-
-            {isLoading ? (
-                <div className="flex items-center justify-center flex-grow">
-                    <Loader2 className="h-12 w-12 animate-spin text-primary" />
-                </div>
-            ) : !hasWinners ? (
-                <div className="text-center py-20 flex-grow flex items-center justify-center">
-                    <div>
-                        <p className="text-xl text-muted-foreground">No winners have been announced yet.</p>
-                        <p className="mt-2">Check back soon!</p>
+    <>
+    {showConfetti && <ReactConfetti width={width} height={height} recycle={false} onConfettiComplete={() => setShowConfetti(false)} />}
+    <div className="flex flex-col min-h-screen bg-background relative overflow-hidden">
+        <div className="absolute inset-0 z-0 animate-gradient-bg bg-gradient-to-br from-background via-primary/10 to-accent/10"></div>
+        <div className="relative z-10 flex flex-col min-h-screen">
+            <Header />
+            <main className="flex-grow flex flex-col">
+                <section className="container mx-auto px-4 py-12 md:py-20 flex-grow flex flex-col">
+                    <div className="text-center mb-12">
+                        <Trophy className="w-16 h-16 mx-auto text-primary animate-pulse drop-shadow-lg" />
+                        <h1 className="text-4xl md:text-5xl font-bold font-headline mt-4 animate-text-shimmer bg-clip-text text-transparent bg-gradient-to-r from-primary via-foreground to-primary">Hall of Fame</h1>
+                        <p className="text-lg text-muted-foreground mt-2">Celebrating the talented winners of our competitions.</p>
                     </div>
-                </div>
-            ) : (
-                <div className="flex-grow">
-                    <Tabs defaultValue={allWinnersData.find(c => c.winners.length > 0)?.id} className="w-full">
-                        <TabsList className="grid w-full grid-cols-1 h-auto sm:grid-cols-3">
-                           {allWinnersData.map((competition) => {
-                             if (competition.winners.length === 0) return null;
-                             return (
-                               <TabsTrigger key={competition.id} value={competition.id} className="truncate">
-                                {competition.name}
-                               </TabsTrigger>
-                             )
-                           }).filter(Boolean)}
-                        </TabsList>
-                        
-                        {allWinnersData.map((competition) => {
-                           if (competition.winners.length === 0) return null;
-                           return (
-                            <TabsContent key={competition.id} value={competition.id} className="mt-8">
-                               <WinnerDisplay winners={competition.winners} />
-                            </TabsContent>
-                           )
-                        })}
-                  </Tabs>
-                </div>
-            )}
-        </section>
-      </main>
+
+                    {isLoading ? (
+                        <div className="flex items-center justify-center flex-grow">
+                            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                        </div>
+                    ) : !hasWinners ? (
+                        <div className="text-center py-20 flex-grow flex items-center justify-center">
+                            <div>
+                                <p className="text-xl text-muted-foreground">No winners have been announced yet.</p>
+                                <p className="mt-2">Check back soon!</p>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="flex-grow">
+                            <Tabs defaultValue={allWinnersData.find(c => c.winners.length > 0)?.id} className="w-full">
+                                <TabsList className="grid w-full grid-cols-1 h-auto sm:grid-cols-3">
+                                {allWinnersData.map((competition) => {
+                                    if (competition.winners.length === 0) return null;
+                                    return (
+                                    <TabsTrigger key={competition.id} value={competition.id} className="truncate">
+                                        {competition.name}
+                                    </TabsTrigger>
+                                    )
+                                }).filter(Boolean)}
+                                </TabsList>
+                                
+                                {allWinnersData.map((competition) => {
+                                if (competition.winners.length === 0) return null;
+                                return (
+                                    <TabsContent key={competition.id} value={competition.id} className="mt-8">
+                                    <WinnerDisplay winners={competition.winners} />
+                                    </TabsContent>
+                                )
+                                })}
+                        </Tabs>
+                        </div>
+                    )}
+                </section>
+            </main>
+        </div>
     </div>
+    </>
   );
 }
 
@@ -245,18 +258,23 @@ function WinnerDisplay({ winners }: WinnerDisplayProps) {
                 <div className="space-y-4 pb-8">
                 {winnersForCurrentDate.length > 0 ? (
                     winnersForCurrentDate.map((winner, index) => (
-                        <Card key={`${winner['REG NO']}-${index}`} className="shadow-lg">
-                            <CardHeader>
+                        <Card key={`${winner['REG NO']}-${index}`} className="shadow-lg bg-card/50 backdrop-blur-sm border-primary/20 overflow-hidden relative transition-all duration-300 hover:border-primary/50 hover:shadow-primary/20">
+                            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-50"></div>
+                             <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl"></div>
+                            <CardHeader className="relative z-10">
                                 <div className="flex items-center gap-4">
-                                    <div className="text-xl font-bold text-primary w-8 text-center">{index + 1}.</div>
+                                     <div className="relative flex items-center justify-center">
+                                        <Trophy className="w-10 h-10 text-primary/50" />
+                                        <span className="absolute text-sm font-bold text-foreground">{index + 1}</span>
+                                    </div>
                                      <Avatar>
                                         <AvatarFallback className="bg-primary/20 text-primary font-bold">
                                             {(String(winner['REG NO']) || 'W').substring(0, 2).toUpperCase()}
                                         </AvatarFallback>
                                     </Avatar>
                                     <div>
-                                        <CardTitle className="text-lg">{winner['REG NO']}</CardTitle>
-                                        <CardDescription>{winner.SCHOOL}</CardDescription>
+                                        <CardTitle className="text-xl font-bold">{winner['REG NO']}</CardTitle>
+                                        <CardDescription className="font-medium">{winner.SCHOOL}</CardDescription>
                                     </div>
                                 </div>
                             </CardHeader>
