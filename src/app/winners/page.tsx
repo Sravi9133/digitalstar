@@ -166,11 +166,13 @@ function WinnerDisplay({ winners }: WinnerDisplayProps) {
             let parsedDate: Date | null = null;
 
             for (const format of formats) {
-                const date = parseDate(winner.DATE, format, new Date());
-                if (!isNaN(date.getTime())) {
-                    parsedDate = date;
-                    break;
-                }
+                try {
+                    const date = parseDate(winner.DATE, format, new Date());
+                    if (!isNaN(date.getTime())) {
+                        parsedDate = date;
+                        break;
+                    }
+                } catch (e) { /* Ignore parsing errors for this format */ }
             }
 
             // Fallback for standard ISO strings or other formats recognized by new Date()
@@ -246,6 +248,7 @@ function WinnerDisplay({ winners }: WinnerDisplayProps) {
                         <Card key={`${winner['REG NO']}-${index}`} className="shadow-lg">
                             <CardHeader>
                                 <div className="flex items-center gap-4">
+                                    <div className="text-xl font-bold text-primary w-8 text-center">{index + 1}.</div>
                                      <Avatar>
                                         <AvatarFallback className="bg-primary/20 text-primary font-bold">
                                             {(String(winner['REG NO']) || 'W').substring(0, 2).toUpperCase()}
