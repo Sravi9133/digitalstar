@@ -151,3 +151,46 @@ export async function writeToGoogleSheet(submissionData: Omit<Submission, 'id' |
     return { success: false, message: 'Failed to write to Google Sheet due to a server error.' };
   }
 }
+
+
+export async function getProgramCode(registrationId: string): Promise<{success: boolean; code?: string; message: string}> {
+  if (!registrationId) {
+    return { success: false, message: 'Registration ID is required.' };
+  }
+
+  const url = `https://services.lpu.in/api/programsearch/GetReportingSchedule/All/${registrationId}`;
+  
+  try {
+    const response = await fetch(url, {
+      headers: {
+        'accept': '*/*',
+        'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+        'origin': 'https://www.lpu.in',
+        'referer': 'https://www.lpu.in/admission/reporting-schedule.php',
+        'sec-ch-ua': '"Not)A;Brand";v="8", "Chromium";v="138", "Google Chrome";v="138"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': '"macOS"',
+        'sec-fetch-dest': 'empty',
+        'sec-fetch-mode': 'cors',
+        'sec-fetch-site': 'same-site',
+        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36'
+      }
+    });
+
+    if (!response.ok) {
+      return { success: false, message: `API request failed with status: ${response.status}` };
+    }
+
+    const data = await response.json();
+    
+    if (data && data.OfficialCode) {
+      return { success: true, code: data.OfficialCode, message: 'Successfully fetched program code.' };
+    } else {
+      return { success: false, message: 'OfficialCode not found in API response.' };
+    }
+
+  } catch (error: any) {
+    console.error('Error fetching program code:', error);
+    return { success: false, message: 'An unexpected error occurred while fetching program details.' };
+  }
+}

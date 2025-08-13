@@ -24,7 +24,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { app } from "@/lib/firebase";
 import { getFirestore, collection, addDoc, serverTimestamp, Timestamp } from "firebase/firestore";
 import { Checkbox } from "@/components/ui/checkbox";
-import { writeToGoogleSheet } from "./actions";
+import { getProgramCode, writeToGoogleSheet } from "./actions";
 
 interface Program {
     ProgramCode: string;
@@ -60,8 +60,10 @@ interface FollowWinFormProps {
 export function FollowWinForm({ competitionId, competitionName }: FollowWinFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [programsData, setProgramsData] = useState<Program[]>([]);
   const [schools, setSchools] = useState<School[]>([]);
   const [isLoadingSchools, setIsLoadingSchools] = useState(true);
+  const [isFetchingProgram, setIsFetchingProgram] = useState(false);
   const { toast } = useToast();
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -78,6 +80,7 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
         const data = await response.json();
         
         const programData: Program[] = data['Account Links'];
+        setProgramsData(programData);
 
         if (Array.isArray(programData)) {
             const schoolsMap: Map<string, School> = new Map();
@@ -131,6 +134,42 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
   });
 
   const selectedSchoolUrl = schools.find(s => s.name === form.watch('school'))?.link;
+
+  const handleRegistrationIdBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
+    const registrationId = e.target.value;
+    if (registrationId.length < 5) return;
+
+    setIsFetchingProgram(true);
+    setSearchTerm("");
+    form.setValue("school", "");
+    form.setValue("instagramHandle", "");
+
+    const result = await getProgramCode(registrationId);
+
+    if (result.success && result.code) {
+        const matchedProgram = programsData.find(p => p.ProgramCode === result.code);
+
+        if (matchedProgram) {
+            const schoolName = matchedProgram["School Name"];
+            const instaLink = matchedProgram["Instagram Page"];
+            
+            form.setValue("school", schoolName, { shouldValidate: true });
+            setSearchTerm(schoolName);
+
+            if (instaLink) {
+              form.setValue("instagramHandle", instaLink);
+            }
+            toast({ title: "Details Found!", description: "Your school has been auto-filled." });
+        } else {
+             toast({ title: "School Not Found", description: "We couldn't automatically find your school from your program code. Please select it manually.", variant: "destructive" });
+        }
+
+    } else {
+        toast({ title: "Error", description: result.message, variant: "destructive" });
+    }
+
+    setIsFetchingProgram(false);
+  };
   
   const handleFocus = () => {
     setFilteredSchools(schools);
@@ -165,6 +204,7 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
   const handleSchoolSelect = (school: School) => {
     setSearchTerm(school.name);
     form.setValue("school", school.name, { shouldValidate: true });
+    form.setValue("instagramHandle", school.link);
     setShowSuggestions(false);
   }
 
@@ -266,45 +306,36 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
                       <FormItem>
                       <FormLabel>Registration / Candidate ID</FormLabel>
                       <FormControl>
-                          <Input placeholder="Enter your ID" {...field} />
+                          <Input placeholder="Enter your ID and press Tab" {...field} onBlur={handleRegistrationIdBlur} />
                       </FormControl>
                       <FormMessage />
                       </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="instagramHandle"
-                  render={({ field }) => (
-                      <FormItem>
-                      <FormLabel>Instagram Handle/Link</FormLabel>
-                      <FormControl>
-                          <Input placeholder="@your_handle or https://..." {...field} />
-                      </FormControl>
-                      <FormMessage />
-                      </FormItem>
-                  )}
-                />
+                
                 <FormField
                   control={form.control}
                   name="school"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Select Your School</FormLabel>
+                      <FormLabel>Your School</FormLabel>
                         {isLoadingSchools ? (
                           <Skeleton className="h-10 w-full" />
                         ) : (
                           <div className="relative">
                             <FormControl>
-                              <Input
-                                placeholder="Search for your school or program code..."
-                                value={searchTerm}
-                                onChange={handleSearchChange}
-                                onFocus={handleFocus}
-                                onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-                                disabled={schools.length === 0}
-                                autoComplete="off"
-                              />
+                              <div className="relative">
+                                  <Input
+                                    placeholder="Search for your school or program..."
+                                    value={searchTerm}
+                                    onChange={handleSearchChange}
+                                    onFocus={handleFocus}
+                                    onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                                    disabled={schools.length === 0 || isFetchingProgram}
+                                    autoComplete="off"
+                                  />
+                                  {isFetchingProgram && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin" />}
+                              </div>
                             </FormControl>
                             {showSuggestions && (
                               <div className="absolute z-10 w-full mt-1 bg-card border border-border rounded-md shadow-lg max-h-60 overflow-y-auto">
@@ -329,6 +360,23 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
                         )}
                       <FormMessage />
                     </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="instagramHandle"
+                  render={({ field }) => (
+                      <FormItem>
+                      <FormLabel>Instagram Handle/Link</FormLabel>
+                      <FormControl>
+                          <Input placeholder="@your_handle or https://..." {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        This will be auto-filled if your school is found. Otherwise, please enter your handle.
+                      </FormDescription>
+                      <FormMessage />
+                      </FormItem>
                   )}
                 />
             </div>
