@@ -141,7 +141,7 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
 
     setIsFetchingProgram(true);
     setSearchTerm("");
-    form.reset({ registrationId, instagramHandle: "", school: "", followedSubreddit: form.getValues('followedSubreddit') });
+    form.reset({ registrationId, instagramHandle: form.getValues('instagramHandle'), school: "", followedSubreddit: form.getValues('followedSubreddit') });
     
     const result = await getProgramCode(registrationId);
 
@@ -151,15 +151,9 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
 
         if (matchedProgram) {
             const schoolName = matchedProgram["School Name"];
-            const instaLink = matchedProgram["Instagram Page"];
-            
             form.setValue("school", schoolName, { shouldValidate: true });
             setSearchTerm(schoolName);
-
-            if (instaLink) {
-              form.setValue("instagramHandle", instaLink, { shouldValidate: true });
-            }
-            toast({ title: "Details Found!", description: "Your school and Instagram link have been auto-filled." });
+            toast({ title: "Details Found!", description: "Your school has been auto-filled." });
         } else {
              toast({ title: "School Not Matched", description: "We found your program, but couldn't match it to a school. Please select it manually.", variant: "destructive" });
         }
@@ -204,7 +198,6 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
   const handleSchoolSelect = (school: School) => {
     setSearchTerm(school.name);
     form.setValue("school", school.name, { shouldValidate: true });
-    form.setValue("instagramHandle", school.link, { shouldValidate: true });
     setShowSuggestions(false);
   }
 
@@ -373,7 +366,7 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
                           <Input placeholder="@your_handle or https://..." {...field} />
                       </FormControl>
                       <FormDescription>
-                        This will be auto-filled if your school is found. Otherwise, please enter your handle.
+                        this will not autofill
                       </FormDescription>
                       <FormMessage />
                       </FormItem>
