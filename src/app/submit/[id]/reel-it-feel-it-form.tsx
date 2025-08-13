@@ -135,7 +135,7 @@ export function ReelItFeelItForm({ competitionId, competitionName, postType = 'R
                   name="registrationId"
                   render={({ field }) => (
                       <FormItem>
-                      <FormLabel>Registration / Candidate ID</FormLabel>
+                      <FormLabel>Candidate ID</FormLabel>
                       <FormControl>
                           <Input placeholder="Enter your ID" {...field} />
                       </FormControl>

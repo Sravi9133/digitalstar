@@ -297,7 +297,7 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
                   name="registrationId"
                   render={({ field }) => (
                       <FormItem>
-                      <FormLabel>Registration / Candidate ID</FormLabel>
+                      <FormLabel>Candidate ID</FormLabel>
                       <FormControl>
                           <Input placeholder="Enter your ID and press Tab" {...field} onBlur={handleRegistrationIdBlur} />
                       </FormControl>
