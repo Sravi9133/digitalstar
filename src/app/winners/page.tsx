@@ -1,12 +1,12 @@
 
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-import type { Submission, Competition, CompetitionMeta, CuratedWinner } from "@/types";
+import { useEffect, useState, useMemo } from "react";
+import type { Competition, CompetitionMeta, CuratedWinner } from "@/types";
 import { Header } from "@/components/header";
 import { getFirestore, doc, updateDoc, collection, getDocs, query, where, Timestamp, getDoc, writeBatch } from "firebase/firestore";
 import { app } from "@/lib/firebase";
-import { Loader2, Trophy, Award, Camera, Gift, Tv, ChevronLeft, ChevronRight, Users, CalendarIcon, Trash2 } from "lucide-react";
+import { Loader2, Trophy, Award, Camera, Gift, Tv, ChevronLeft, ChevronRight, Users, CalendarIcon, Trash2, Search } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import Link from "next/link";
@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import ReactConfetti from "react-confetti";
 import { useWindowSize } from '@/hooks/use-window-size';
+import { Input } from "@/components/ui/input";
 
 
 const competitionsData: Omit<Competition, 'deadline' | 'icon'>[] = [
@@ -76,6 +77,7 @@ export default function WinnersPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [showConfetti, setShowConfetti] = useState(false);
     const { width, height } = useWindowSize();
+    const [searchQuery, setSearchQuery] = useState("");
 
     const fetchWinners = async () => {
         setIsLoading(true);
@@ -103,7 +105,22 @@ export default function WinnersPage() {
         fetchWinners();
     }, []);
 
-    const hasWinners = allWinnersData.some(comp => comp.winners.length > 0);
+    const filteredWinnersData = useMemo(() => {
+        if (!searchQuery) {
+            return allWinnersData;
+        }
+        return allWinnersData
+            .map(comp => ({
+                ...comp,
+                winners: comp.winners.filter(winner => 
+                    String(winner['REG NO']).toLowerCase().includes(searchQuery.toLowerCase())
+                )
+            }))
+            .filter(comp => comp.winners.length > 0);
+    }, [allWinnersData, searchQuery]);
+
+    const hasWinners = filteredWinnersData.some(comp => comp.winners.length > 0);
+    const hasInitialData = allWinnersData.some(comp => comp.winners.length > 0);
 
   return (
     <>
@@ -114,28 +131,50 @@ export default function WinnersPage() {
             <Header />
             <main className="flex-grow flex flex-col">
                 <section className="container mx-auto px-4 py-12 md:py-20 flex-grow flex flex-col">
-                    <div className="text-center mb-12">
+                    <div className="text-center mb-8">
                         <Trophy className="w-16 h-16 mx-auto text-primary animate-pulse drop-shadow-lg" />
                         <h1 className="text-4xl md:text-5xl font-bold font-headline mt-4 animate-text-shimmer bg-clip-text text-transparent bg-gradient-to-r from-primary via-foreground to-primary">Hall of Fame</h1>
                         <p className="text-lg text-muted-foreground mt-2">Celebrating the talented winners of our competitions.</p>
                     </div>
 
+                    {hasInitialData && (
+                         <div className="w-full max-w-md mx-auto mb-8">
+                            <div className="relative">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                    type="text"
+                                    placeholder="Search by Registration No..."
+                                    className="pl-10"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                />
+                            </div>
+                         </div>
+                    )}
+
                     {isLoading ? (
                         <div className="flex items-center justify-center flex-grow">
                             <Loader2 className="h-12 w-12 animate-spin text-primary" />
                         </div>
-                    ) : !hasWinners ? (
+                    ) : !hasInitialData ? (
                         <div className="text-center py-20 flex-grow flex items-center justify-center">
                             <div>
                                 <p className="text-xl text-muted-foreground">No winners have been announced yet.</p>
                                 <p className="mt-2">Check back soon!</p>
                             </div>
                         </div>
+                    ) : !hasWinners && searchQuery ? (
+                        <div className="text-center py-20 flex-grow flex items-center justify-center">
+                            <div>
+                                <p className="text-xl text-muted-foreground">No winners found for "{searchQuery}".</p>
+                                <p className="mt-2">Try a different registration number.</p>
+                            </div>
+                        </div>
                     ) : (
                         <div className="flex-grow">
-                            <Tabs defaultValue={allWinnersData.find(c => c.winners.length > 0)?.id} className="w-full">
+                            <Tabs defaultValue={filteredWinnersData.find(c => c.winners.length > 0)?.id} className="w-full">
                                 <TabsList className="grid w-full grid-cols-1 h-auto sm:grid-cols-3">
-                                {allWinnersData.map((competition) => {
+                                {filteredWinnersData.map((competition) => {
                                     if (competition.winners.length === 0) return null;
                                     return (
                                     <TabsTrigger key={competition.id} value={competition.id} className="truncate">
@@ -145,11 +184,11 @@ export default function WinnersPage() {
                                 }).filter(Boolean)}
                                 </TabsList>
                                 
-                                {allWinnersData.map((competition) => {
+                                {filteredWinnersData.map((competition) => {
                                 if (competition.winners.length === 0) return null;
                                 return (
                                     <TabsContent key={competition.id} value={competition.id} className="mt-8">
-                                    <WinnerDisplay winners={competition.winners} />
+                                    <WinnerDisplay winners={competition.winners} searchQuery={searchQuery} />
                                     </TabsContent>
                                 )
                                 })}
@@ -166,16 +205,16 @@ export default function WinnersPage() {
 
 interface WinnerDisplayProps {
     winners: CuratedWinner[];
+    searchQuery: string;
 }
 
-function WinnerDisplay({ winners }: WinnerDisplayProps) {
+function WinnerDisplay({ winners, searchQuery }: WinnerDisplayProps) {
     const [currentDate, setCurrentDate] = useState(startOfDay(new Date()));
 
-    const winnersByDate = winners.reduce((acc, winner) => {
+    const winnersByDate = useMemo(() => winners.reduce((acc, winner) => {
         let dateKey;
         if (typeof winner.DATE === 'string') {
-            // Attempt to parse multiple common date formats
-            const formats = ['dd/MM/yyyy', 'dd-MM-yyyy', 'MM/dd/yyyy', 'MM-dd-yyyy', 'yyyy-MM-dd'];
+            const formats = ['dd-MM-yyyy', 'dd/MM/yyyy', 'MM/dd/yyyy', 'MM-dd-yyyy', 'yyyy-MM-dd'];
             let parsedDate: Date | null = null;
 
             for (const format of formats) {
@@ -188,7 +227,6 @@ function WinnerDisplay({ winners }: WinnerDisplayProps) {
                 } catch (e) { /* Ignore parsing errors for this format */ }
             }
 
-            // Fallback for standard ISO strings or other formats recognized by new Date()
             if (!parsedDate) {
                  const fallbackParsedDate = new Date(winner.DATE);
                  if(!isNaN(fallbackParsedDate.getTime())) {
@@ -214,10 +252,41 @@ function WinnerDisplay({ winners }: WinnerDisplayProps) {
         }
 
         return acc;
-    }, {} as Record<string, CuratedWinner[]>);
+    }, {} as Record<string, CuratedWinner[]>), [winners]);
 
 
     const winnersForCurrentDate = winnersByDate[currentDate.toISOString()] || [];
+    
+    // If there's a search query, just display all results flatly, ignoring date.
+    if (searchQuery) {
+        return (
+            <div className="space-y-4 pb-8">
+                {winners.map((winner, index) => (
+                     <Card key={`${winner['REG NO']}-${index}`} className="shadow-lg bg-card/50 backdrop-blur-sm border-primary/20 overflow-hidden relative transition-all duration-300 hover:border-primary/50 hover:shadow-primary/20">
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-50"></div>
+                         <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl"></div>
+                        <CardHeader className="relative z-10">
+                            <div className="flex items-center gap-4">
+                                 <div className="relative flex items-center justify-center">
+                                    <Trophy className="w-10 h-10 text-primary/50" />
+                                    <span className="absolute text-sm font-bold text-foreground">{index + 1}</span>
+                                </div>
+                                 <Avatar>
+                                    <AvatarFallback className="bg-primary/20 text-primary font-bold">
+                                        {(String(winner['REG NO']) || 'W').substring(0, 2).toUpperCase()}
+                                    </AvatarFallback>
+                                </Avatar>
+                                <div>
+                                    <CardTitle className="text-xl font-bold">{winner['REG NO']}</CardTitle>
+                                    <CardDescription className="font-medium">{winner.SCHOOL}</CardDescription>
+                                </div>
+                            </div>
+                        </CardHeader>
+                    </Card>
+                ))}
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col flex-1 min-w-0 h-full">
