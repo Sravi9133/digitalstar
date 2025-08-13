@@ -35,8 +35,9 @@ export async function getAnnouncements(): Promise<Announcement[]> {
     }
 }
 
-export async function uploadWinnersList(competitionId: string, winnersDataJson: string): Promise<{success: boolean; message: string}> {
-    console.log("SERVER ACTION: uploadWinnersList started.");
+// This function now ONLY parses the file and returns the data. It does NOT write to Firestore.
+export async function parseWinnersList(competitionId: string, winnersDataJson: string): Promise<{success: boolean; message: string; data?: any[]}> {
+    console.log("SERVER ACTION: parseWinnersList started.");
     
     if (!competitionId) {
         return { success: false, message: "Competition ID is missing." };
@@ -49,17 +50,11 @@ export async function uploadWinnersList(competitionId: string, winnersDataJson: 
             throw new Error("Winner data is not a valid array.");
         }
 
-        console.log(`SERVER ACTION: Saving ${winnersData.length} winners for competition '${competitionId}'.`);
-
-        const db = getFirestore(app);
-        const winnerDocRef = doc(db, 'winners', competitionId);
+        console.log(`SERVER ACTION: Parsed ${winnersData.length} winners for competition '${competitionId}'.`);
         
-        await setDoc(winnerDocRef, { data: winnersData, updatedAt: Timestamp.now() });
-
-        console.log("SERVER ACTION: Successfully saved curated winner list.");
-        return { success: true, message: `Successfully uploaded ${winnersData.length} winners.` };
+        return { success: true, message: `Successfully parsed ${winnersData.length} winners.`, data: winnersData };
     } catch (error: any) {
-        console.error("SERVER ACTION CRITICAL ERROR: Failed to upload curated winner list.", error);
+        console.error("SERVER ACTION CRITICAL ERROR: Failed to parse winner list.", error);
         return { success: false, message: error.message || "An unknown error occurred on the server." };
     }
 }

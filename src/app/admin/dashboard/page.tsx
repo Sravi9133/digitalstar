@@ -10,7 +10,7 @@ import { auth, app } from "@/lib/firebase";
 import { useEffect, useState, useMemo } from "react";
 import { getFirestore, collection, getDocs, Timestamp, doc, updateDoc, query, where, getDoc, serverTimestamp, setDoc, writeBatch, orderBy, documentId } from "firebase/firestore";
 import { Loader2 } from "lucide-react";
-import { getAnnouncements, uploadWinnersList } from "./actions";
+import { getAnnouncements, parseWinnersList } from "./actions";
 
 const competitionDisplayNames: { [key: string]: string } = {
   "follow-win": "Follow & Win (Daily winner)",
@@ -233,6 +233,28 @@ function DashboardPageContent() {
             return { success: false, message: "An unexpected error occurred while processing winners."};
         }
     }
+    
+    // NEW: This function runs on the client and handles the entire flow.
+    const handleUploadCuratedWinners = async (competitionId: string, winnersDataJson: string): Promise<{success: boolean; message: string}> => {
+        try {
+            // Step 1: Call the server action to securely parse the file.
+            const parseResult = await parseWinnersList(competitionId, winnersDataJson);
+
+            if (!parseResult.success || !parseResult.data) {
+                return { success: false, message: parseResult.message };
+            }
+
+            // Step 2: Use the parsed data to write to Firestore from the client.
+            // This runs in the browser, so it's authenticated.
+            const winnerDocRef = doc(db, 'winners', competitionId);
+            await setDoc(winnerDocRef, { data: parseResult.data, updatedAt: Timestamp.now() });
+
+            return { success: true, message: `Successfully uploaded ${parseResult.data.length} winners.` };
+        } catch (error: any) {
+            console.error("CLIENT-SIDE CRITICAL ERROR: Failed to upload curated winner list.", error);
+            return { success: false, message: error.message || "An unknown error occurred." };
+        }
+    };
 
   const refSources = useMemo(() => {
     const sources = new Set<string>();
@@ -293,7 +315,7 @@ function DashboardPageContent() {
             announcements={announcements}
             onRefreshAnnouncements={fetchAnnouncements}
             onUploadWinners={handleUploadWinners}
-            onUploadCuratedWinners={uploadWinnersList}
+            onUploadCuratedWinners={handleUploadCuratedWinners}
         />
     </main>
     </div>
