@@ -160,20 +160,31 @@ function WinnerDisplay({ winners }: WinnerDisplayProps) {
 
     const winnersByDate = winners.reduce((acc, winner) => {
         let dateKey;
-        // The date from XLSX is a string, often in "dd/MM/yyyy" format.
         if (typeof winner.DATE === 'string') {
-            // Use date-fns to parse the specific format.
-            // It's more reliable than new Date() for non-standard formats.
-            const parsedDate = parseDate(winner.DATE, 'dd/MM/yyyy', new Date());
-            if (!isNaN(parsedDate.getTime())) {
-                dateKey = startOfDay(parsedDate).toISOString();
-            } else {
-                 // Fallback for other potential standard formats
+            // Attempt to parse multiple common date formats
+            const formats = ['dd/MM/yyyy', 'dd-MM-yyyy', 'MM/dd/yyyy', 'MM-dd-yyyy', 'yyyy-MM-dd'];
+            let parsedDate: Date | null = null;
+
+            for (const format of formats) {
+                const date = parseDate(winner.DATE, format, new Date());
+                if (!isNaN(date.getTime())) {
+                    parsedDate = date;
+                    break;
+                }
+            }
+
+            // Fallback for standard ISO strings or other formats recognized by new Date()
+            if (!parsedDate) {
                  const fallbackParsedDate = new Date(winner.DATE);
                  if(!isNaN(fallbackParsedDate.getTime())) {
-                    dateKey = startOfDay(fallbackParsedDate).toISOString();
+                    parsedDate = fallbackParsedDate;
                  }
             }
+
+            if (parsedDate) {
+                dateKey = startOfDay(parsedDate).toISOString();
+            }
+
         } else if (winner.DATE instanceof Date) {
             dateKey = startOfDay(winner.DATE).toISOString();
         } else if (winner.DATE && (winner.DATE as any).toDate) { // Firebase Timestamp
