@@ -66,7 +66,8 @@ interface DashboardClientProps {
   refFilter: string;
   onRefFilterChange: (value: string) => void;
   onRefreshAnnouncements: () => void;
-  onUploadWinners: (competitionId: string, winnersDataJson: string, regNoColumn: string) => Promise<{success: boolean; message: string}>;
+  onUploadWinners: (competitionId: string, winnersData: any[]) => Promise<{success: boolean; message: string}>;
+  onUploadCuratedWinners: (competitionId: string, winnersDataJson: string) => Promise<{success: boolean; message: string}>;
 }
 
 // Helper function to convert data to XLSX and trigger download
@@ -126,6 +127,7 @@ export function DashboardClient({
     onRefFilterChange,
     onRefreshAnnouncements,
     onUploadWinners,
+    onUploadCuratedWinners,
  }: DashboardClientProps) {
     const { toast } = useToast();
     const [selectedSubmissionIds, setSelectedSubmissionIds] = useState<string[]>([]);
@@ -264,6 +266,7 @@ export function DashboardClient({
               </CardContent>
             </Card>
             <WinnerUploadCard competitions={stats.submissionsPerCompetition} onUpload={onUploadWinners} />
+            <CuratedWinnerUploadCard competitions={stats.submissionsPerCompetition} onUpload={onUploadCuratedWinners} />
           </div>
         </TabsContent>
         {stats.submissionsPerCompetition.map(comp => {
@@ -524,9 +527,158 @@ function AnnouncementsManager({ announcements, onRefresh }: AnnouncementsManager
     );
 }
 
+interface CuratedWinnerUploadCardProps {
+    competitions: { id: string, name: string }[];
+    onUpload: (competitionId: string, winnersDataJson: string) => Promise<{success: boolean; message:string}>;
+}
+
+function CuratedWinnerUploadCard({ competitions, onUpload }: CuratedWinnerUploadCardProps) {
+    const { toast } = useToast();
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [competitionId, setCompetitionId] = useState("");
+    const [file, setFile] = useState<File | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [fileName, setFileName] = useState("");
+    const [parsedData, setParsedData] = useState<any[]>([]);
+    const [showPreview, setShowPreview] = useState(false);
+
+    const resetState = () => {
+        setCompetitionId("");
+        setFile(null);
+        setFileName("");
+        setParsedData([]);
+        setShowPreview(false);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = "";
+        }
+    }
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const selectedFile = e.target.files?.[0];
+        if (selectedFile) {
+            if (selectedFile.type === 'text/csv' || selectedFile.name.endsWith('.csv') || selectedFile.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+                setFile(selectedFile);
+                setFileName(selectedFile.name);
+            } else {
+                toast({ title: "Invalid File Type", description: "Please upload a .csv or .xlsx file.", variant: "destructive" });
+                resetState();
+            }
+        }
+    }
+
+    const handleProcessRequest = () => {
+        if (!competitionId) {
+            toast({ title: "Error", description: "Please select a competition.", variant: "destructive" });
+            return;
+        }
+        if (!file) {
+            toast({ title: "Error", description: "Please select a file to upload.", variant: "destructive" });
+            return;
+        }
+        
+        setIsProcessing(true);
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+            try {
+                const data = event.target?.result;
+                const workbook = XLSX.read(data, { type: "binary", cellText: true });
+                const sheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+                const jsonData:any[] = XLSX.utils.sheet_to_json(worksheet, { raw: false, defval: "" });
+    
+                if (jsonData.length === 0) {
+                    toast({ title: "Empty File", description: "The uploaded file has no data.", variant: "destructive" });
+                    setIsProcessing(false);
+                    return;
+                }
+
+                const requiredHeaders = ["DATE", "REG NO", "SCHOOL"];
+                const fileHeaders = Object.keys(jsonData[0]);
+                const hasRequiredHeaders = requiredHeaders.every(h => fileHeaders.includes(h));
+
+                if (!hasRequiredHeaders) {
+                     toast({ title: "Invalid Headers", description: `File must contain the headers: ${requiredHeaders.join(', ')}`, variant: "destructive" });
+                     setIsProcessing(false);
+                     return;
+                }
+    
+                const result = await onUpload(competitionId, JSON.stringify(jsonData));
+                toast({
+                    title: result.success ? "Success" : "Error",
+                    description: result.message,
+                    variant: result.success ? "default" : "destructive",
+                });
+                resetState();
+
+            } catch (error) {
+                 console.error("CLIENT: Error parsing file for preview:", error);
+                 toast({ title: "Parsing Error", description: "Could not parse file. Please check its format.", variant: "destructive" });
+                 resetState();
+            }
+            setIsProcessing(false);
+        };
+        reader.onerror = () => {
+             toast({ title: "File Read Error", description: "Could not read the selected file.", variant: "destructive" });
+             resetState();
+             setIsProcessing(false);
+        }
+        reader.readAsBinaryString(file);
+    };
+
+    return (
+        <Card className="lg:col-span-2">
+            <CardHeader>
+                <CardTitle className="text-sm font-medium">Upload Curated Winner List</CardTitle>
+                 <CardDescription className="text-xs">
+                    Upload a file with headers: DATE, REG NO, SCHOOL. This will overwrite the existing list for the selected competition.
+                </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <Select value={competitionId} onValueChange={setCompetitionId} disabled={isProcessing}>
+                    <SelectTrigger>
+                        <SelectValue placeholder="1. Select Competition" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {competitions.map(comp => (
+                            <SelectItem key={comp.id} value={comp.id}>{comp.name}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+
+                <div className="relative">
+                    <label htmlFor="curated-upload" className="cursor-pointer flex items-center justify-center w-full h-20 border-2 border-dashed rounded-lg bg-card hover:bg-muted/50 transition-colors">
+                        <div className="text-center">
+                            <UploadCloud className="w-6 h-6 mx-auto text-muted-foreground mb-1" />
+                            <p className="text-xs font-semibold text-primary truncate max-w-[200px]">{fileName ? fileName : "2. Upload File (CSV/XLSX)"}</p>
+                        </div>
+                    </label>
+                    <Input 
+                        id="curated-upload"
+                        type="file" 
+                        ref={fileInputRef}
+                        className="hidden"
+                        accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+                        onChange={handleFileChange}
+                        disabled={isProcessing}
+                    />
+                </div>
+                
+                <Button onClick={handleProcessRequest} disabled={isProcessing || !file || !competitionId} className="w-full">
+                    {isProcessing ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                        <Trophy className="mr-2 h-4 w-4" />
+                    )}
+                    3. Upload and Publish
+                </Button>
+            </CardContent>
+        </Card>
+    );
+}
+
 interface WinnerUploadCardProps {
     competitions: { id: string, name: string }[];
-    onUpload: (competitionId: string, winnersDataJson: string, regNoColumn: string) => Promise<{success: boolean; message:string}>;
+    onUpload: (competitionId: string, winnersData: any[]) => Promise<{success: boolean; message:string}>;
 }
 
 function WinnerUploadCard({ competitions, onUpload }: WinnerUploadCardProps) {
@@ -632,7 +784,9 @@ function WinnerUploadCard({ competitions, onUpload }: WinnerUploadCardProps) {
         setIsProcessing(true);
         setShowPreview(false);
 
-        const result = await onUpload(competitionId, JSON.stringify(parsedData), regNoColumn);
+        const winnersData = parsedData.map(row => String(row[regNoColumn])).filter(id => id);
+
+        const result = await onUpload(competitionId, winnersData);
         
         toast({
             title: result.success ? "Success" : "Error",
@@ -646,11 +800,11 @@ function WinnerUploadCard({ competitions, onUpload }: WinnerUploadCardProps) {
 
     return (
         <>
-        <Card className="lg:col-span-1">
+        <Card className="lg:col-span-2">
             <CardHeader>
-                <CardTitle className="text-sm font-medium">Upload Winners (CSV/XLSX)</CardTitle>
+                <CardTitle className="text-sm font-medium">Mark Winners from Submissions (CSV/XLSX)</CardTitle>
                  <CardDescription className="text-xs">
-                    Bulk mark submissions as winners by uploading a file.
+                    Bulk mark existing submissions as winners by uploading a file of registration IDs.
                 </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">

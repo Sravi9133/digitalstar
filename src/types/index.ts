@@ -52,3 +52,9 @@ export interface Announcement {
   isActive: boolean;
   createdAt: Date;
 }
+
+export interface CuratedWinner {
+  DATE: string | Date;
+  'REG NO': string | number;
+  SCHOOL: string;
+}

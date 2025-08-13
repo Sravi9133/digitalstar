@@ -10,7 +10,7 @@ import { auth, app } from "@/lib/firebase";
 import { useEffect, useState, useMemo } from "react";
 import { getFirestore, collection, getDocs, Timestamp, doc, updateDoc, query, where, getDoc, serverTimestamp, setDoc, writeBatch, orderBy, documentId } from "firebase/firestore";
 import { Loader2 } from "lucide-react";
-import { getAnnouncements } from "./actions";
+import { getAnnouncements, uploadWinnersList } from "./actions";
 
 const competitionDisplayNames: { [key: string]: string } = {
   "follow-win": "Follow & Win (Daily winner)",
@@ -181,18 +181,11 @@ function DashboardPageContent() {
         }
     };
     
-    const handleUploadWinners = async (competitionId: string, winnersDataJson: string, regNoColumn: string): Promise<{success: boolean, message: string}> => {
+    const handleUploadWinners = async (competitionId: string, registrationIds: string[]): Promise<{success: boolean, message: string}> => {
        try {
-            const winnersData: { [key: string]: string | number }[] = JSON.parse(winnersDataJson);
-            const totalInFile = winnersData.length;
+            const totalInFile = registrationIds.length;
 
             if (totalInFile === 0) {
-                return { success: false, message: "The uploaded file is empty or could not be read."};
-            }
-
-            const registrationIds = winnersData.map(row => String(row[regNoColumn])).filter(id => id);
-
-            if (registrationIds.length === 0) {
                 return { success: false, message: "No registration IDs found in the selected column."};
             }
 
@@ -235,7 +228,7 @@ function DashboardPageContent() {
         } catch(error: any) {
             console.error("CLIENT-SIDE ERROR: Failed to process and mark winners:", error);
             if (error.code === 'permission-denied') {
-                 return { success: false, message: "Permission Denied. Ensure you are logged in and have the correct permissions to read and write to the database."};
+                 return { success: false, message: "Permission Denied. Ensure you have the correct permissions to read and write to the database."};
             }
             return { success: false, message: "An unexpected error occurred while processing winners."};
         }
@@ -300,6 +293,7 @@ function DashboardPageContent() {
             announcements={announcements}
             onRefreshAnnouncements={fetchAnnouncements}
             onUploadWinners={handleUploadWinners}
+            onUploadCuratedWinners={uploadWinnersList}
         />
     </main>
     </div>

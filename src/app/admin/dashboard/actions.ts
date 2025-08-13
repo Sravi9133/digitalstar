@@ -1,7 +1,7 @@
 
 'use server';
 
-import { getFirestore, collection, getDocs, query, orderBy, Timestamp, where, writeBatch, documentId, FirestoreError } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, query, orderBy, Timestamp, where, writeBatch, documentId, FirestoreError, setDoc, doc } from 'firebase/firestore';
 import { app } from '@/lib/firebase';
 import type { Announcement, Submission } from '@/types';
 import * as XLSX from "xlsx";
@@ -32,5 +32,34 @@ export async function getAnnouncements(): Promise<Announcement[]> {
         }
         // Return empty array or re-throw, but don't use an insecure fallback.
         return [];
+    }
+}
+
+export async function uploadWinnersList(competitionId: string, winnersDataJson: string): Promise<{success: boolean; message: string}> {
+    console.log("SERVER ACTION: uploadWinnersList started.");
+    
+    if (!competitionId) {
+        return { success: false, message: "Competition ID is missing." };
+    }
+
+    try {
+        const winnersData = JSON.parse(winnersDataJson);
+
+        if (!Array.isArray(winnersData)) {
+            throw new Error("Winner data is not a valid array.");
+        }
+
+        console.log(`SERVER ACTION: Saving ${winnersData.length} winners for competition '${competitionId}'.`);
+
+        const db = getFirestore(app);
+        const winnerDocRef = doc(db, 'winners', competitionId);
+        
+        await setDoc(winnerDocRef, { data: winnersData, updatedAt: Timestamp.now() });
+
+        console.log("SERVER ACTION: Successfully saved curated winner list.");
+        return { success: true, message: `Successfully uploaded ${winnersData.length} winners.` };
+    } catch (error: any) {
+        console.error("SERVER ACTION CRITICAL ERROR: Failed to upload curated winner list.", error);
+        return { success: false, message: error.message || "An unknown error occurred on the server." };
     }
 }

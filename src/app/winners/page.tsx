@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import type { Submission, Competition, CompetitionMeta } from "@/types";
+import type { Submission, Competition, CompetitionMeta, CuratedWinner } from "@/types";
 import { Header } from "@/components/header";
 import { getFirestore, doc, updateDoc, collection, getDocs, query, where, Timestamp, getDoc, writeBatch } from "firebase/firestore";
 import { app } from "@/lib/firebase";
@@ -63,41 +63,32 @@ const getCompetitionIcon = (id: string) => {
     }
 }
 
+interface WinnerData {
+    id: string; // Corresponds to competitionId
+    name: string;
+    winners: CuratedWinner[];
+}
+
 export default function WinnersPage() {
-    const [winners, setWinners] = useState<Submission[]>([]);
-    const [reelItFeelItMeta, setReelItFeelItMeta] = useState<CompetitionMeta | null>(null);
+    const [allWinnersData, setAllWinnersData] = useState<WinnerData[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const { toast } = useToast();
 
     const fetchWinners = async () => {
         setIsLoading(true);
         const db = getFirestore(app);
-        
-        // Fetch winners
-        const submissionsCol = collection(db, "submissions");
-        const q = query(submissionsCol, where("isWinner", "==", true));
-        const winnerSnapshot = await getDocs(q);
-        const winnerList = winnerSnapshot.docs.map(doc => {
-             const data = doc.data();
+        const winnersCol = collection(db, "winners");
+        const winnerSnapshot = await getDocs(winnersCol);
+
+        const winnerList: WinnerData[] = winnerSnapshot.docs.map(doc => {
+            const competition = competitionsData.find(c => c.id === doc.id);
             return {
                 id: doc.id,
-                ...data,
-                submittedAt: (data.submittedAt as Timestamp).toDate(),
-            } as Submission;
-        }).sort((a,b) => b.submittedAt.getTime() - a.submittedAt.getTime());
-        setWinners(winnerList);
-
-        // Fetch competition meta
-        const metaRef = doc(db, "competition_meta", "reel-it-feel-it");
-        const metaSnap = await getDoc(metaRef);
-        if (metaSnap.exists()) {
-            const data = metaSnap.data();
-            setReelItFeelItMeta({
-                ...data,
-                resultAnnouncementDate: (data.resultAnnouncementDate as Timestamp).toDate(),
-            } as CompetitionMeta);
-        }
-
+                name: competition?.name || doc.id,
+                winners: doc.data().data as CuratedWinner[],
+            }
+        });
+        
+        setAllWinnersData(winnerList);
         setIsLoading(false);
     }
 
@@ -105,55 +96,7 @@ export default function WinnersPage() {
         fetchWinners();
     }, []);
 
-    const handleRemoveWinner = async (submissionId: string) => {
-        await handleBulkRemoveWinners([submissionId]);
-    }
-
-    const handleBulkRemoveWinners = async (submissionIds: string[]) => {
-        if (submissionIds.length === 0) return;
-
-        const db = getFirestore(app);
-        const batch = writeBatch(db);
-
-        submissionIds.forEach(id => {
-            const submissionRef = doc(db, "submissions", id);
-            batch.update(submissionRef, {
-                isWinner: false,
-                rank: null // Also remove rank if it exists
-            });
-        });
-        
-        try {
-            await batch.commit();
-            toast({
-                title: "Success",
-                description: `${submissionIds.length} winner(s) have been removed.`
-            });
-            fetchWinners(); // Refresh the list of winners
-        } catch (error) {
-            console.error("Error removing winner status: ", error);
-            toast({
-                title: "Error",
-                description: "Failed to remove winner status. Please try again.",
-                variant: "destructive"
-            });
-        }
-    }
-
-    const followWinWinners = winners.filter(w => w.competitionId === 'follow-win');
-    const otherWinners = winners.filter(w => w.competitionId !== 'follow-win');
-
-    const groupedOtherWinners = otherWinners.reduce((acc, winner) => {
-        const competition = competitionsData.find(c => c.id === winner.competitionId);
-        const competitionName = competition?.name || winner.competitionName;
-        if (!acc[competitionName]) {
-            acc[competitionName] = [];
-        }
-        acc[competitionName].push(winner);
-        return acc;
-    }, {} as Record<string, Submission[]>);
-
-    const showReelItFeelItAnnouncement = reelItFeelItMeta?.resultAnnouncementDate && isFuture(reelItFeelItMeta.resultAnnouncementDate);
+    const hasWinners = allWinnersData.some(comp => comp.winners.length > 0);
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-background via-background to-primary/10">
@@ -170,7 +113,7 @@ export default function WinnersPage() {
                 <div className="flex items-center justify-center flex-grow">
                     <Loader2 className="h-12 w-12 animate-spin text-primary" />
                 </div>
-            ) : winners.length === 0 && !showReelItFeelItAnnouncement ? (
+            ) : !hasWinners ? (
                 <div className="text-center py-20 flex-grow flex items-center justify-center">
                     <div>
                         <p className="text-xl text-muted-foreground">No winners have been announced yet.</p>
@@ -178,90 +121,23 @@ export default function WinnersPage() {
                     </div>
                 </div>
             ) : (
-              <div className="flex-grow flex flex-col">
-                {/* Desktop Layout: Columns */}
-                <div className="hidden md:flex flex-row gap-8 h-full flex-grow items-stretch">
-                    {followWinWinners.length > 0 && (
-                        <FollowAndWinWinners 
-                            winners={followWinWinners} 
-                            onRemoveWinner={handleRemoveWinner} 
-                            onBulkRemoveWinners={handleBulkRemoveWinners}
-                        />
-                    )}
-                    {Object.entries(groupedOtherWinners).map(([competitionName, competitionWinners]) => {
-                        const compId = competitionWinners[0].competitionId;
-                        if (compId === 'reel-it-feel-it' && showReelItFeelItAnnouncement && competitionWinners.length === 0) {
-                            return <AnnouncementCard key={competitionName} competitionName={competitionName} meta={reelItFeelItMeta!} />;
-                        }
-                        if (competitionWinners.length > 0) {
-                            return (
-                                <div key={competitionName} className="flex-1 flex flex-col h-[70vh]">
-                                    <AutoScrollingWinnerList 
-                                        competitionName={competitionName}
-                                        winners={competitionWinners}
-                                        onRemoveWinner={handleRemoveWinner}
-                                    />
-                                </div>
-                            )
-                        }
-                        return null;
-                    })}
-                     {!otherWinners.some(w => w.competitionId === 'reel-it-feel-it') && showReelItFeelItAnnouncement && (
-                        <AnnouncementCard competitionName="Reel It. Feel It." meta={reelItFeelItMeta!} />
-                    )}
-                </div>
-
-                {/* Mobile Layout: Tabs */}
-                <div className="md:hidden">
-                    <Tabs defaultValue={followWinWinners.length > 0 ? "follow-win" : Object.keys(groupedOtherWinners)[0] || 'announcement'} className="w-full">
+                <div className="flex-grow">
+                    <Tabs defaultValue={allWinnersData[0]?.id} className="w-full">
                         <TabsList className="grid w-full grid-cols-1 h-auto sm:grid-cols-3">
-                            {followWinWinners.length > 0 && (
-                                <TabsTrigger value="follow-win">Follow & Win</TabsTrigger>
-                            )}
-                           {Object.keys(groupedOtherWinners).map((competitionName) => (
-                               <TabsTrigger key={competitionName} value={competitionName} className="truncate">
-                                {competitionName}
+                           {allWinnersData.map((competition) => (
+                               <TabsTrigger key={competition.id} value={competition.id} className="truncate">
+                                {competition.name}
                                </TabsTrigger>
                            ))}
-                           {showReelItFeelItAnnouncement && !groupedOtherWinners['Reel It. Feel It.'] && (
-                                <TabsTrigger value="announcement">Reel It. Feel It.</TabsTrigger>
-                           )}
                         </TabsList>
-
-                        {followWinWinners.length > 0 && (
-                             <TabsContent value="follow-win">
-                                <div className="mt-4">
-                                  <FollowAndWinWinners 
-                                    winners={followWinWinners} 
-                                    onRemoveWinner={handleRemoveWinner} 
-                                    onBulkRemoveWinners={handleBulkRemoveWinners}
-                                  />
-                                </div>
-                             </TabsContent>
-                        )}
                         
-                        {Object.entries(groupedOtherWinners).map(([competitionName, competitionWinners]) => (
-                            <TabsContent key={competitionName} value={competitionName}>
-                               <div className="h-[60vh] mt-4">
-                                 <AutoScrollingWinnerList 
-                                    competitionName={competitionName}
-                                    winners={competitionWinners}
-                                    onRemoveWinner={handleRemoveWinner}
-                                 />
-                               </div>
+                        {allWinnersData.map((competition) => (
+                            <TabsContent key={competition.id} value={competition.id} className="mt-8">
+                               <WinnerDisplay winners={competition.winners} />
                             </TabsContent>
                         ))}
-
-                        {showReelItFeelItAnnouncement && !groupedOtherWinners['Reel It. Feel It.'] && (
-                            <TabsContent value="announcement">
-                                <div className="mt-4">
-                                    <AnnouncementCard competitionName="Reel It. Feel It." meta={reelItFeelItMeta!} />
-                                </div>
-                            </TabsContent>
-                        )}
                   </Tabs>
                 </div>
-              </div>
             )}
         </section>
       </main>
@@ -269,95 +145,44 @@ export default function WinnersPage() {
   );
 }
 
-function AnnouncementCard({ competitionName, meta }: { competitionName: string, meta: CompetitionMeta }) {
-    return (
-        <div className="flex-1 flex flex-col">
-            <div className="flex items-center gap-4 mb-6">
-                <div className="p-3 bg-card rounded-xl">
-                    {getCompetitionIcon('reel-it-feel-it')}
-                </div>
-                <h2 className="text-3xl font-bold font-headline truncate">{competitionName}</h2>
-            </div>
-            <Card className="flex-grow flex items-center justify-center text-center p-8 bg-muted/30 border-dashed">
-                <div>
-                    <CalendarIcon className="w-12 h-12 mx-auto text-primary mb-4" />
-                    <h3 className="text-2xl font-bold font-headline">Stay Tuned!</h3>
-                    <p className="text-muted-foreground mt-2">
-                        Results will be announced on <span className="font-semibold text-primary">{format(meta.resultAnnouncementDate, "PPP")}</span>.
-                    </p>
-                </div>
-            </Card>
-        </div>
-    );
+interface WinnerDisplayProps {
+    winners: CuratedWinner[];
 }
 
-interface FollowAndWinWinnersProps {
-    winners: Submission[];
-    onRemoveWinner: (submissionId: string) => Promise<void>;
-    onBulkRemoveWinners: (submissionIds: string[]) => Promise<void>;
-}
-function FollowAndWinWinners({ winners, onRemoveWinner, onBulkRemoveWinners }: FollowAndWinWinnersProps) {
+function WinnerDisplay({ winners }: WinnerDisplayProps) {
     const [currentDate, setCurrentDate] = useState(startOfDay(new Date()));
-    const [selectedWinnerIds, setSelectedWinnerIds] = useState<string[]>([]);
-    
+
     const winnersByDate = winners.reduce((acc, winner) => {
-        const dateKey = startOfDay(winner.submittedAt).toISOString();
-        if (!acc[dateKey]) {
-            acc[dateKey] = [];
+        // Handle both string and potential Timestamp/Date objects for DATE
+        let dateKey;
+        if (typeof winner.DATE === 'string') {
+            // Attempt to parse strings, assuming a common format like MM/DD/YYYY or YYYY-MM-DD
+            const parsedDate = new Date(winner.DATE);
+            // Check if parsing was successful
+            if (!isNaN(parsedDate.getTime())) {
+                dateKey = startOfDay(parsedDate).toISOString();
+            }
+        } else if (winner.DATE instanceof Date) {
+            dateKey = startOfDay(winner.DATE).toISOString();
+        } else if (winner.DATE && (winner.DATE as any).toDate) { // Firebase Timestamp
+            dateKey = startOfDay((winner.DATE as any).toDate()).toISOString();
         }
-        acc[dateKey].push(winner);
+        
+        if (dateKey) {
+            if (!acc[dateKey]) {
+                acc[dateKey] = [];
+            }
+            acc[dateKey].push(winner);
+        }
+
         return acc;
-    }, {} as Record<string, Submission[]>);
+    }, {} as Record<string, CuratedWinner[]>);
+
 
     const winnersForCurrentDate = winnersByDate[currentDate.toISOString()] || [];
-    const isAllSelected = winnersForCurrentDate.length > 0 && selectedWinnerIds.length === winnersForCurrentDate.length;
-
-    useEffect(() => {
-        // Clear selection when date changes
-        setSelectedWinnerIds([]);
-    }, [currentDate]);
-
-    const handleSelectAll = (checked: boolean) => {
-        if (checked) {
-            setSelectedWinnerIds(winnersForCurrentDate.map(w => w.id));
-        } else {
-            setSelectedWinnerIds([]);
-        }
-    };
-    
-    const handleSelectWinner = (id: string, isSelected: boolean) => {
-        if (isSelected) {
-            setSelectedWinnerIds(prev => [...prev, id]);
-        } else {
-            setSelectedWinnerIds(prev => prev.filter(winnerId => winnerId !== id));
-        }
-    }
-    
-    const handleBulkDelete = () => {
-        onBulkRemoveWinners(selectedWinnerIds).then(() => {
-            setSelectedWinnerIds([]);
-        });
-    }
 
     return (
         <div className="flex flex-col flex-1 min-w-0 h-full">
-             <div className="flex items-center gap-4 mb-6">
-                <div className="p-3 bg-card rounded-xl">
-                    {getCompetitionIcon('follow-win')}
-                </div>
-                <h2 className="text-3xl font-bold font-headline truncate">{competitionsData.find(c=>c.id === 'follow-win')?.name}</h2>
-            </div>
-            
-            <Card className="mb-4">
-                <CardHeader className="flex-row items-center justify-between p-4">
-                     <CardTitle className="text-lg">Total Winners</CardTitle>
-                     <div className="flex items-center gap-2">
-                         <Users className="w-6 h-6 text-primary"/>
-                         <span className="text-2xl font-bold">{winners.length}</span>
-                     </div>
-                </CardHeader>
-            </Card>
-
             <div className="flex items-center justify-between mb-4 gap-2">
                 <Button variant="outline" size="icon" onClick={() => setCurrentDate(subDays(currentDate, 1))}>
                     <ChevronLeft className="h-4 w-4"/>
@@ -391,56 +216,25 @@ function FollowAndWinWinners({ winners, onRemoveWinner, onBulkRemoveWinners }: F
                 </Button>
             </div>
             
-             {winnersForCurrentDate.length > 0 && (
-                <div className="flex items-center justify-between mb-4 p-2 rounded-lg bg-muted/50">
-                    <div className="flex items-center gap-2">
-                        <Checkbox 
-                            id="select-all" 
-                            checked={isAllSelected}
-                            onCheckedChange={handleSelectAll}
-                        />
-                        <label htmlFor="select-all" className="text-sm font-medium">
-                            Select All
-                        </label>
-                    </div>
-                    {selectedWinnerIds.length > 0 && (
-                        <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                                <Button variant="destructive" size="sm">
-                                    <Trash2 className="mr-2 h-4 w-4" />
-                                    Delete ({selectedWinnerIds.length})
-                                </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                                <AlertDialogHeader>
-                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                    This will remove the winner status from {selectedWinnerIds.length} submission(s). This action cannot be undone.
-                                </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={handleBulkDelete}>Confirm</AlertDialogAction>
-                                </AlertDialogFooter>
-                            </AlertDialogContent>
-                        </AlertDialog>
-                    )}
-                </div>
-            )}
-
             <ScrollArea className="flex-grow pr-4 h-[60vh]">
                 <div className="space-y-4 pb-8">
                 {winnersForCurrentDate.length > 0 ? (
                     winnersForCurrentDate.map((winner, index) => (
-                        <WinnerCard 
-                            key={winner.id} 
-                            winner={winner} 
-                            index={index} 
-                            onRemove={onRemoveWinner}
-                            showCheckbox={true}
-                            isSelected={selectedWinnerIds.includes(winner.id)}
-                            onSelect={handleSelectWinner}
-                        />
+                        <Card key={index} className="shadow-lg">
+                            <CardHeader>
+                                <div className="flex items-center gap-4">
+                                     <Avatar>
+                                        <AvatarFallback className="bg-primary/20 text-primary font-bold">
+                                            {(String(winner['REG NO']) || 'W').substring(0, 2).toUpperCase()}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    <div>
+                                        <CardTitle className="text-lg">{winner['REG NO']}</CardTitle>
+                                        <CardDescription>{winner.SCHOOL}</CardDescription>
+                                    </div>
+                                </div>
+                            </CardHeader>
+                        </Card>
                     ))
                 ) : (
                     <div className="text-center py-16">
@@ -452,189 +246,3 @@ function FollowAndWinWinners({ winners, onRemoveWinner, onBulkRemoveWinners }: F
         </div>
     );
 }
-
-interface AutoScrollingWinnerListProps {
-    competitionName: string;
-    winners: Submission[];
-    onRemoveWinner: (submissionId: string) => Promise<void>;
-}
-function AutoScrollingWinnerList({ competitionName, winners, onRemoveWinner }: AutoScrollingWinnerListProps) {
-    const scrollRef = useRef<HTMLDivElement>(null);
-    const contentRef = useRef<HTMLDivElement>(null);
-    const isHovering = useRef(false);
-    const [shouldLoop, setShouldLoop] = React.useState(false);
-    
-    // Sort winners by rank for 'Reel It. Feel It.'
-    const sortedWinners = winners[0]?.competitionId === 'reel-it-feel-it'
-        ? [...winners].sort((a, b) => (a.rank || 4) - (b.rank || 4))
-        : winners;
-    
-    const displayWinners = shouldLoop ? [...sortedWinners, ...sortedWinners] : sortedWinners;
-
-    useEffect(() => {
-        const scrollElement = scrollRef.current;
-        const contentElement = contentRef.current;
-        if (scrollElement && contentElement) {
-             setShouldLoop(contentElement.offsetHeight > scrollElement.offsetHeight);
-        }
-
-        if (!scrollElement || !contentElement || !shouldLoop) return;
-
-        let scrollInterval: NodeJS.Timeout;
-
-        const startScrolling = () => {
-            scrollInterval = setInterval(() => {
-                if (!isHovering.current && scrollElement) {
-                    if (scrollElement.scrollTop >= contentElement.scrollHeight / 2) {
-                        scrollElement.scrollTop = 0;
-                    } else {
-                        scrollElement.scrollTop += 1;
-                    }
-                }
-            }, 50); 
-        };
-
-        startScrolling();
-
-        return () => clearInterval(scrollInterval);
-    }, [sortedWinners, shouldLoop]);
-
-    return (
-        <div 
-            className="flex flex-col flex-1 min-w-0 h-full"
-            onMouseEnter={() => { isHovering.current = true; }}
-            onMouseLeave={() => { isHovering.current = false; }}
-        >
-            <div className="flex items-center gap-4 mb-6">
-                <div className="p-3 bg-card rounded-xl">
-                    {getCompetitionIcon(winners[0].competitionId)}
-                </div>
-                <h2 className="text-3xl font-bold font-headline truncate">{competitionName}</h2>
-            </div>
-            <ScrollArea className="flex-grow h-0 pr-4" viewportRef={scrollRef}>
-                <div className="space-y-4 pb-8" ref={contentRef}>
-                    {displayWinners.map((winner, index) => (
-                        <WinnerCard key={`${winner.id}-${index}`} winner={winner} index={index % sortedWinners.length} onRemove={onRemoveWinner} />
-                    ))}
-                </div>
-            </ScrollArea>
-        </div>
-    );
-}
-
-function getRankBadge(rank?: 1 | 2 | 3) {
-    if (!rank) return null;
-    const medals = ["🥇", "🥈", "🥉"];
-    const text = ["1st Place", "2nd Place", "3rd Place"];
-    return (
-        <div className="flex items-center gap-2">
-            <span className="text-2xl">{medals[rank-1]}</span>
-            <span className="font-bold text-lg text-primary">{text[rank-1]}</span>
-        </div>
-    )
-}
-
-interface WinnerCardProps {
-    winner: Submission;
-    index: number;
-    onRemove: (submissionId: string) => Promise<void>;
-    showCheckbox?: boolean;
-    isSelected?: boolean;
-    onSelect?: (id: string, isSelected: boolean) => void;
-}
-function WinnerCard({ winner, index, onRemove, showCheckbox = false, isSelected = false, onSelect }: WinnerCardProps) {
-    const identifier = winner.name || winner.registrationId || "Anonymous";
-    const avatarFallback = identifier.substring(0, 2).toUpperCase();
-
-    const renderSubmissionLink = () => {
-        const link = winner.postLink || winner.redditPostLink;
-        const text = winner.postLink ? "View Instagram Post" : "View Reddit Post";
-        if (link) {
-            return (
-                <Link href={link} target="_blank" className="text-sm inline-flex items-center text-primary hover:underline">
-                    {text} <ExternalLink className="ml-1 h-3 w-3" />
-                </Link>
-            )
-        }
-        if (winner.fileUrl) {
-            return (
-                 <Link href={winner.fileUrl} target="_blank" className="text-sm inline-flex items-center text-primary hover:underline">
-                    View Submission <ExternalLink className="ml-1 h-3 w-3" />
-                </Link>
-            )
-        }
-        return null;
-    }
-
-    return (
-        <Card className="transform hover:-translate-y-1 transition-transform duration-300 ease-in-out shadow-lg hover:shadow-primary/20 relative group">
-            <div className="absolute top-2 right-2 bg-primary/10 text-primary font-bold text-xs w-6 h-6 flex items-center justify-center rounded-full">
-                {index + 1}
-            </div>
-             <AlertDialog>
-                <AlertDialogTrigger asChild>
-                    <Button variant="destructive" size="icon" className="absolute bottom-2 right-2 h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Trash2 className="h-4 w-4" />
-                    </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                        This will remove the winner status from "{identifier}". This action cannot be undone.
-                    </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => onRemove(winner.id)}>Confirm</AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
-            
-            {showCheckbox && onSelect && (
-                 <div className="absolute top-2 left-2">
-                    <Checkbox
-                        checked={isSelected}
-                        onCheckedChange={(checked) => onSelect(winner.id, !!checked)}
-                        aria-label={`Select winner ${identifier}`}
-                    />
-                </div>
-            )}
-
-            <CardHeader className={cn(showCheckbox && "pl-10")}>
-                <div className="flex items-center gap-4">
-                    <Avatar>
-                        <AvatarFallback className="bg-primary/20 text-primary font-bold">{avatarFallback}</AvatarFallback>
-                    </Avatar>
-                    <div>
-                        <CardTitle className="text-lg">{identifier}</CardTitle>
-                        {winner.university && <CardDescription>{winner.university}</CardDescription>}
-                        {winner.school && <CardDescription>{winner.school}</CardDescription>}
-                    </div>
-                </div>
-            </CardHeader>
-            <CardContent>
-                {winner.rank ? (
-                    <div className="bg-muted/50 p-3 rounded-lg flex items-center justify-center">
-                       {getRankBadge(winner.rank)}
-                    </div>
-                ) : (
-                    <div className="bg-muted/50 p-3 rounded-lg text-center">
-                        <Award className="w-8 h-8 mx-auto text-primary" />
-                        <p className="text-sm font-semibold mt-2 text-foreground">Declared Winner</p>
-                        <p className="text-xs text-muted-foreground">{winner.submittedAt.toLocaleDateString()}</p>
-                    </div>
-                )}
-            </CardContent>
-            {renderSubmissionLink() && 
-                <CardFooter className={cn(showCheckbox && "pl-10")}>
-                    {renderSubmissionLink()}
-                </CardFooter>
-            }
-        </Card>
-    )
-}
-
-    
-
-    
