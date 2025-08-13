@@ -14,7 +14,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { ExternalLink } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { format, startOfDay, addDays, subDays, isToday, isFuture } from "date-fns";
+import { format, startOfDay, addDays, subDays, isToday, isFuture, parse as parseDate } from "date-fns";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
@@ -122,20 +122,26 @@ export default function WinnersPage() {
                 </div>
             ) : (
                 <div className="flex-grow">
-                    <Tabs defaultValue={allWinnersData[0]?.id} className="w-full">
+                    <Tabs defaultValue={allWinnersData.find(c => c.winners.length > 0)?.id} className="w-full">
                         <TabsList className="grid w-full grid-cols-1 h-auto sm:grid-cols-3">
-                           {allWinnersData.map((competition) => (
+                           {allWinnersData.map((competition) => {
+                             if (competition.winners.length === 0) return null;
+                             return (
                                <TabsTrigger key={competition.id} value={competition.id} className="truncate">
                                 {competition.name}
                                </TabsTrigger>
-                           ))}
+                             )
+                           }).filter(Boolean)}
                         </TabsList>
                         
-                        {allWinnersData.map((competition) => (
+                        {allWinnersData.map((competition) => {
+                           if (competition.winners.length === 0) return null;
+                           return (
                             <TabsContent key={competition.id} value={competition.id} className="mt-8">
                                <WinnerDisplay winners={competition.winners} />
                             </TabsContent>
-                        ))}
+                           )
+                        })}
                   </Tabs>
                 </div>
             )}
@@ -153,14 +159,20 @@ function WinnerDisplay({ winners }: WinnerDisplayProps) {
     const [currentDate, setCurrentDate] = useState(startOfDay(new Date()));
 
     const winnersByDate = winners.reduce((acc, winner) => {
-        // Handle both string and potential Timestamp/Date objects for DATE
         let dateKey;
+        // The date from XLSX is a string, often in "dd/MM/yyyy" format.
         if (typeof winner.DATE === 'string') {
-            // Attempt to parse strings, assuming a common format like MM/DD/YYYY or YYYY-MM-DD
-            const parsedDate = new Date(winner.DATE);
-            // Check if parsing was successful
+            // Use date-fns to parse the specific format.
+            // It's more reliable than new Date() for non-standard formats.
+            const parsedDate = parseDate(winner.DATE, 'dd/MM/yyyy', new Date());
             if (!isNaN(parsedDate.getTime())) {
                 dateKey = startOfDay(parsedDate).toISOString();
+            } else {
+                 // Fallback for other potential standard formats
+                 const fallbackParsedDate = new Date(winner.DATE);
+                 if(!isNaN(fallbackParsedDate.getTime())) {
+                    dateKey = startOfDay(fallbackParsedDate).toISOString();
+                 }
             }
         } else if (winner.DATE instanceof Date) {
             dateKey = startOfDay(winner.DATE).toISOString();
@@ -211,7 +223,7 @@ function WinnerDisplay({ winners }: WinnerDisplayProps) {
                     </PopoverContent>
                 </Popover>
 
-                <Button variant="outline" size="icon" onClick={() => setCurrentDate(addDays(currentDate, 1))} disabled={isToday(currentDate)}>
+                <Button variant="outline" size="icon" onClick={() => setCurrentDate(addDays(currentDate, 1))} disabled={isFuture(addDays(currentDate,1))}>
                     <ChevronRight className="h-4 w-4"/>
                 </Button>
             </div>
@@ -220,7 +232,7 @@ function WinnerDisplay({ winners }: WinnerDisplayProps) {
                 <div className="space-y-4 pb-8">
                 {winnersForCurrentDate.length > 0 ? (
                     winnersForCurrentDate.map((winner, index) => (
-                        <Card key={index} className="shadow-lg">
+                        <Card key={`${winner['REG NO']}-${index}`} className="shadow-lg">
                             <CardHeader>
                                 <div className="flex items-center gap-4">
                                      <Avatar>
