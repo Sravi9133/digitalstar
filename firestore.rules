@@ -23,6 +23,12 @@ service cloud.firestore {
         allow write: if request.auth != null;
     }
 
+    // Allow public, read-only access to the curated winners list
+    match /winners/{competitionId} {
+      allow read: if true;
+      allow write: if request.auth != null; // Only authenticated users can write
+    }
+
     // Disallow all other access by default.
     // NOTE: This rule must be at the end.
     match /{document=**} {
