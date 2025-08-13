@@ -359,7 +359,7 @@ function CuratedWinnerDisplay({ data, searchQuery }: CuratedWinnerDisplayProps) 
             </Card>
 
             <div className="mb-4">
-                <p className="text-sm text-muted-foreground mb-2 text-center md:text-left">Choose Reporting Date or Submission Date</p>
+                <p className="font-bold text-foreground mb-2 text-center md:text-left">Choose Reporting Date or Submission Date</p>
                 <div className="flex items-center justify-center md:justify-start gap-2 flex-wrap">
                     <Button variant="outline" size="icon" onClick={() => setCurrentDate(subDays(currentDate, 1))}>
                         <ChevronLeft className="h-4 w-4"/>
