@@ -233,7 +233,7 @@ export function DashboardClient({
                     </CardContent>
                 </Card>
             ))}
-             <Card className="lg:col-span-1">
+             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Competitions</CardTitle>
                 <BarChart className="h-4 w-4 text-muted-foreground" />
@@ -503,6 +503,7 @@ function CuratedWinnerUploadCard({ competitions, onUpload }: CuratedWinnerUpload
     const [showPreview, setShowPreview] = useState(false);
 
     const resetState = () => {
+        setIsProcessing(false);
         setCompetitionId("");
         setFile(null);
         setFileName("");
@@ -521,20 +522,15 @@ function CuratedWinnerUploadCard({ competitions, onUpload }: CuratedWinnerUpload
                 setFileName(selectedFile.name);
             } else {
                 toast({ title: "Invalid File Type", description: "Please upload a .csv or .xlsx file.", variant: "destructive" });
-                resetState();
+                setFile(null);
+                setFileName("");
+                 if (fileInputRef.current) fileInputRef.current.value = "";
             }
         }
     }
-
-    const handleProcessRequest = () => {
-        if (!competitionId) {
-            toast({ title: "Error", description: "Please select a competition.", variant: "destructive" });
-            return;
-        }
-        if (!file) {
-            toast({ title: "Error", description: "Please select a file to upload.", variant: "destructive" });
-            return;
-        }
+    
+    const handlePreviewRequest = () => {
+        if (!competitionId || !file) return;
         
         setIsProcessing(true);
         const reader = new FileReader();
@@ -561,31 +557,41 @@ function CuratedWinnerUploadCard({ competitions, onUpload }: CuratedWinnerUpload
                      setIsProcessing(false);
                      return;
                 }
-    
-                const result = await onUpload(competitionId, JSON.stringify(jsonData));
-                toast({
-                    title: result.success ? "Success" : "Error",
-                    description: result.message,
-                    variant: result.success ? "default" : "destructive",
-                });
-                resetState();
+                
+                setParsedData(jsonData);
+                setShowPreview(true);
 
             } catch (error) {
                  console.error("CLIENT: Error parsing file for preview:", error);
                  toast({ title: "Parsing Error", description: "Could not parse file. Please check its format.", variant: "destructive" });
-                 resetState();
+            } finally {
+                setIsProcessing(false);
             }
-            setIsProcessing(false);
         };
         reader.onerror = () => {
              toast({ title: "File Read Error", description: "Could not read the selected file.", variant: "destructive" });
-             resetState();
              setIsProcessing(false);
         }
         reader.readAsBinaryString(file);
     };
 
+    const handleFinalUpload = async () => {
+        if (!competitionId || parsedData.length === 0) return;
+
+        setIsProcessing(true);
+        const result = await onUpload(competitionId, JSON.stringify(parsedData));
+        
+        toast({
+            title: result.success ? "Success" : "Error",
+            description: result.message,
+            variant: result.success ? "default" : "destructive",
+        });
+
+        resetState();
+    }
+
     return (
+        <>
         <Card className="lg:col-span-2">
             <CardHeader>
                 <CardTitle className="text-sm font-medium">Upload Curated Winner List</CardTitle>
@@ -623,16 +629,62 @@ function CuratedWinnerUploadCard({ competitions, onUpload }: CuratedWinnerUpload
                     />
                 </div>
                 
-                <Button onClick={handleProcessRequest} disabled={isProcessing || !file || !competitionId} className="w-full">
-                    {isProcessing ? (
+                <Button onClick={handlePreviewRequest} disabled={isProcessing || !file || !competitionId} className="w-full">
+                    {isProcessing && parsedData.length === 0 ? (
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     ) : (
                         <Trophy className="mr-2 h-4 w-4" />
                     )}
-                    3. Upload and Publish
+                    3. Process & Preview
                 </Button>
             </CardContent>
         </Card>
+        <Dialog open={showPreview} onOpenChange={(isOpen) => { if(!isOpen) resetState() }}>
+            <DialogContent className="max-w-4xl h-[90vh]">
+                <DialogHeader>
+                <DialogTitle>Winner Preview ({parsedData.length} entries)</DialogTitle>
+                <DialogDescription>
+                    Review the parsed data below. If it's correct, click "Upload and Publish" to finalize.
+                </DialogDescription>
+                </DialogHeader>
+                <ScrollArea className="border rounded-md">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>S.No</TableHead>
+                                <TableHead>DATE</TableHead>
+                                <TableHead>REG NO</TableHead>
+                                <TableHead>SCHOOL</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {parsedData.map((row, index) => (
+                                <TableRow key={index}>
+                                    <TableCell>{index + 1}</TableCell>
+                                    <TableCell>{row.DATE}</TableCell>
+                                    <TableCell>{row['REG NO']}</TableCell>
+                                    <TableCell>{row.SCHOOL}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </ScrollArea>
+                <DialogFooter>
+                    <DialogClose asChild>
+                        <Button variant="outline" onClick={resetState} disabled={isProcessing}>Cancel</Button>
+                    </DialogClose>
+                    <Button onClick={handleFinalUpload} disabled={isProcessing}>
+                         {isProcessing ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                         ) : (
+                            <UploadCloud className="mr-2 h-4 w-4" />
+                         )}
+                        Upload and Publish
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+        </>
     );
 }
 
@@ -937,3 +989,4 @@ function SubmissionsTable({
     
 
     
+
