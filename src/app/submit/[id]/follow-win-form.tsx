@@ -355,23 +355,6 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
                     </FormItem>
                   )}
                 />
-                
-                <FormField
-                  control={form.control}
-                  name="instagramHandle"
-                  render={({ field }) => (
-                      <FormItem>
-                      <FormLabel>Instagram Handle/Link</FormLabel>
-                      <FormControl>
-                          <Input placeholder="@your_handle or https://..." {...field} />
-                      </FormControl>
-                      <FormDescription>
-                        this will not autofill
-                      </FormDescription>
-                      <FormMessage />
-                      </FormItem>
-                  )}
-                />
             </div>
 
             {selectedSchoolUrl && (
@@ -387,6 +370,23 @@ export function FollowWinForm({ competitionId, competitionName }: FollowWinFormP
                     </div>
                  </Card>
             )}
+
+            <FormField
+              control={form.control}
+              name="instagramHandle"
+              render={({ field }) => (
+                  <FormItem>
+                  <FormLabel>Instagram Handle/Link</FormLabel>
+                  <FormControl>
+                      <Input placeholder="@your_handle or https://..." {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    this will not autofill
+                  </FormDescription>
+                  <FormMessage />
+                  </FormItem>
+              )}
+            />
 
             <Card className="bg-muted/50 p-4 flex flex-col items-center justify-center gap-2">
                 <p className="text-sm text-muted-foreground -mt-1 mb-1">And please follow both subreddits:</p>
