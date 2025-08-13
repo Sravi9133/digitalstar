@@ -59,7 +59,6 @@ interface DashboardClientProps {
   onMarkAsWinner: (submission: Submission, rank?: 1 | 2 | 3) => Promise<{success: boolean; message: string}>;
   onDeleteSubmissions: (ids: string[]) => Promise<{success: boolean; message: string}>;
   onUpdateRefSource: (submissionId: string, newRefSource: string) => Promise<{success: boolean; message: string}>;
-  onBulkUpdateRefSource: (updates: Record<string, string>) => Promise<{success: boolean; message: string}>;
   reelItFeelItMeta: CompetitionMeta | null;
   onSetReelItFeelItDate: (date: Date) => Promise<{success: boolean; message: string}>;
   refSources: string[];
@@ -119,7 +118,6 @@ export function DashboardClient({
     onMarkAsWinner,
     onDeleteSubmissions,
     onUpdateRefSource,
-    onBulkUpdateRefSource,
     reelItFeelItMeta, 
     onSetReelItFeelItDate,
     refSources,
@@ -131,9 +129,7 @@ export function DashboardClient({
  }: DashboardClientProps) {
     const { toast } = useToast();
     const [selectedSubmissionIds, setSelectedSubmissionIds] = useState<string[]>([]);
-    const [isBulkEditing, setIsBulkEditing] = useState(false);
-    const [pendingRefChanges, setPendingRefChanges] = useState<Record<string, string>>({});
-
+    
     const handleDownloadAll = () => {
         downloadAsXLSX(submissions, "all_submissions");
     }
@@ -160,22 +156,6 @@ export function DashboardClient({
             toast({ title: "Error", description: result.message, variant: "destructive" });
         }
     }
-
-    const handleCancelBulkEdit = () => {
-        setIsBulkEditing(false);
-        setPendingRefChanges({});
-    }
-
-    const handleSaveBulkEdit = async () => {
-        const result = await onBulkUpdateRefSource(pendingRefChanges);
-        if (result.success) {
-            toast({ title: "Success", description: result.message });
-            handleCancelBulkEdit();
-        } else {
-            toast({ title: "Error", description: result.message, variant: "destructive" });
-        }
-    }
-
 
   return (
     <>
@@ -278,20 +258,6 @@ export function DashboardClient({
                             <div className="flex items-center justify-between">
                                 <CardTitle>{comp.name} Submissions</CardTitle>
                                 <div className="flex items-center gap-2">
-                                    {isBulkEditing ? (
-                                        <>
-                                            <Button onClick={handleSaveBulkEdit} size="sm">
-                                                <Check className="mr-2 h-4 w-4" /> Save All
-                                            </Button>
-                                            <Button onClick={handleCancelBulkEdit} variant="outline" size="sm">
-                                                <X className="mr-2 h-4 w-4" /> Cancel
-                                            </Button>
-                                        </>
-                                    ) : (
-                                        <Button onClick={() => setIsBulkEditing(true)} variant="outline" size="sm">
-                                            <Edit className="mr-2 h-4 w-4" /> Edit Referrals
-                                        </Button>
-                                    )}
                                     <Button onClick={() => handleDownloadCompetition(comp.id, comp.name)} variant="outline" size="sm">
                                         <Download className="mr-2 h-4 w-4" />
                                         Download XLSX
@@ -315,9 +281,6 @@ export function DashboardClient({
                                 competitionId={comp.id}
                                 selectedSubmissionIds={selectedSubmissionIds}
                                 setSelectedSubmissionIds={setSelectedSubmissionIds}
-                                isBulkEditing={isBulkEditing}
-                                pendingRefChanges={pendingRefChanges}
-                                setPendingRefChanges={setPendingRefChanges}
                             />
                         </CardContent>
                     </Card>
@@ -993,9 +956,6 @@ interface SubmissionsTableProps {
     competitionId: string;
     selectedSubmissionIds: string[];
     setSelectedSubmissionIds: React.Dispatch<React.SetStateAction<string[]>>;
-    isBulkEditing: boolean;
-    pendingRefChanges: Record<string, string>;
-    setPendingRefChanges: React.Dispatch<React.SetStateAction<Record<string, string>>>;
 }
 
 function SubmissionsTable({ 
@@ -1005,14 +965,10 @@ function SubmissionsTable({
     competitionId, 
     selectedSubmissionIds, 
     setSelectedSubmissionIds,
-    isBulkEditing,
-    pendingRefChanges,
-    setPendingRefChanges
 }: SubmissionsTableProps) {
     const { toast } = useToast();
     const [editingSubmissionId, setEditingSubmissionId] = useState<string | null>(null);
     const [editingRefSource, setEditingRefSource] = useState("");
-    const [bulkApplyValue, setBulkApplyValue] = useState("");
 
     if (submissions.length === 0) {
         return <p className="text-center text-muted-foreground py-8">No submissions for this competition yet.</p>
@@ -1076,48 +1032,11 @@ function SubmissionsTable({
             toast({ title: "Error", description: result.message, variant: "destructive" });
         }
     }
-
-    const handleBulkRefChange = (submissionId: string, value: string) => {
-        setPendingRefChanges(prev => ({
-            ...prev,
-            [submissionId]: value
-        }));
-    }
-
-    const handleApplyBulkValue = () => {
-        if (selectedSubmissionIds.length === 0) {
-            toast({ title: "No submissions selected", description: "Please select submissions to apply the value.", variant: "destructive"});
-            return;
-        }
-        const newChanges: Record<string, string> = {};
-        selectedSubmissionIds.forEach(id => {
-            newChanges[id] = bulkApplyValue;
-        });
-        setPendingRefChanges(prev => ({
-            ...prev,
-            ...newChanges
-        }));
-        toast({ title: "Applied", description: `Set referral source to "${bulkApplyValue}" for ${selectedSubmissionIds.length} submissions.`});
-    }
     
     const isAllSelected = submissions.length > 0 && submissions.every(s => selectedSubmissionIds.includes(s.id));
 
   return (
     <>
-    {isBulkEditing && selectedSubmissionIds.length > 0 && (
-        <div className="flex items-center gap-2 p-4 border-b bg-muted/50">
-            <Input 
-                placeholder={`Apply value to ${selectedSubmissionIds.length} selected items...`}
-                value={bulkApplyValue}
-                onChange={(e) => setBulkApplyValue(e.target.value)}
-                className="max-w-xs"
-            />
-            <Button size="sm" onClick={handleApplyBulkValue}>
-                <Copy className="mr-2 h-4 w-4" />
-                Apply to Selected
-            </Button>
-        </div>
-    )}
     <Table>
       <TableHeader>
         <TableRow>
@@ -1181,14 +1100,7 @@ function SubmissionsTable({
                 </div>
             </TableCell>
             <TableCell>
-                {isBulkEditing ? (
-                     <Input 
-                        value={pendingRefChanges[submission.id] ?? submission.refSource ?? ""} 
-                        onChange={(e) => handleBulkRefChange(submission.id, e.target.value)}
-                        className="h-8"
-                        placeholder="Enter source"
-                    />
-                ) : editingSubmissionId === submission.id ? (
+                {editingSubmissionId === submission.id ? (
                     <div className="flex items-center gap-1">
                         <Input 
                             value={editingRefSource} 
@@ -1275,5 +1187,7 @@ function SubmissionsTable({
   </>
   );
 }
+
+    
 
     

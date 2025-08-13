@@ -123,26 +123,6 @@ function DashboardPageContent() {
         }
     };
     
-    const handleBulkUpdateRefSource = async (updates: Record<string, string>): Promise<{success: boolean, message: string}> => {
-        const numUpdates = Object.keys(updates).length;
-        if (numUpdates === 0) {
-            return { success: false, message: "No changes to save." };
-        }
-        try {
-            const batch = writeBatch(db);
-            Object.entries(updates).forEach(([id, refSource]) => {
-                const submissionRef = doc(db, "submissions", id);
-                batch.update(submissionRef, { refSource });
-            });
-            await batch.commit();
-            await fetchData();
-            return { success: true, message: `${numUpdates} referral source(s) updated successfully.` };
-        } catch (error) {
-            console.error("Error bulk updating referral sources: ", error);
-            return { success: false, message: "Failed to bulk update referral sources." };
-        }
-    }
-
     const handleMarkAsWinner = async (submission: Submission, rank?: 1 | 2 | 3): Promise<{success: boolean, message: string}> => {
         // For "Follow & Win", check if the user has already won
         if (submission.competitionId === 'follow-win' && submission.registrationId) {
@@ -306,7 +286,6 @@ function DashboardPageContent() {
             onMarkAsWinner={handleMarkAsWinner} 
             onDeleteSubmissions={handleDeleteSubmissions}
             onUpdateRefSource={handleUpdateRefSource}
-            onBulkUpdateRefSource={handleBulkUpdateRefSource}
             reelItFeelItMeta={reelItFeelItMeta}
             onSetReelItFeelItDate={handleSetReelItFeelItDate}
             refSources={refSources}
@@ -343,3 +322,5 @@ export default function DashboardPage() {
 
     return <DashboardPageContent />;
 }
+
+    
