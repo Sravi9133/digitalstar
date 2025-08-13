@@ -6,7 +6,7 @@ import type { Competition, CompetitionMeta, CuratedWinner, Submission } from "@/
 import { Header } from "@/components/header";
 import { getFirestore, doc, updateDoc, collection, getDocs, query, where, Timestamp, getDoc, writeBatch, orderBy } from "firebase/firestore";
 import { app } from "@/lib/firebase";
-import { Loader2, Trophy, Award, Camera, Gift, Tv, ChevronLeft, ChevronRight, Users, CalendarIcon, Trash2, Search, Link as LinkIcon, Info } from "lucide-react";
+import { Loader2, Trophy, Award, Camera, Gift, Tv, ChevronLeft, ChevronRight, Users, Calendar as CalendarIcon, Trash2, Search, Link as LinkIcon, Info } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import Link from "next/link";
@@ -24,21 +24,24 @@ import { useWindowSize } from '@/hooks/use-window-size';
 import { Input } from "@/components/ui/input";
 
 
-const competitionsData: Omit<Competition, 'deadline' | 'icon'>[] = [
+const competitionsData: Omit<Competition, 'deadline' >[] = [
   {
     id: "follow-win",
     name: "Follow & Win (Daily winner)",
     description: "Follow your school's social media and submit a screenshot to win daily prizes.",
+    icon: <Gift className="w-5 h-5" />,
   },
   {
     id: "reel-it-feel-it",
     name: "Reel It. Feel It.",
     description: "Create an Instagram Reel about your first days at LPU.",
+    icon: <Tv className="w-5 h-5" />,
   },
   {
     id: "my-first-day",
     name: "My First Day at LPU",
     description: "Take a selfie at the official Selfie Point and post it on Instagram.",
+    icon: <Camera className="w-5 h-5" />,
   },
 ];
 
@@ -46,6 +49,7 @@ interface CuratedWinnerData {
     id: string; // Corresponds to competitionId
     name: string;
     winners: CuratedWinner[];
+    icon: React.ReactNode;
 }
 
 interface RankedWinnerData {
@@ -53,6 +57,7 @@ interface RankedWinnerData {
     name: string;
     winners: Submission[];
     meta: CompetitionMeta | null;
+    icon: React.ReactNode;
 }
 
 export default function WinnersPage() {
@@ -68,14 +73,17 @@ export default function WinnersPage() {
         const db = getFirestore(app);
 
         // Fetch Curated Winners (Follow & Win, My First Day)
+        const curatedCompetitionIds = ['follow-win', 'my-first-day'];
         const winnersCol = collection(db, "winners");
-        const winnerSnapshot = await getDocs(winnersCol);
+        const winnerSnapshot = await getDocs(query(winnersCol, where('__name__', 'in', curatedCompetitionIds)));
+        
         const winnerList: CuratedWinnerData[] = winnerSnapshot.docs.map(doc => {
             const competition = competitionsData.find(c => c.id === doc.id);
             return {
                 id: doc.id,
                 name: competition?.name || doc.id,
                 winners: doc.data().data as CuratedWinner[],
+                icon: competition?.icon || <Trophy className="w-5 h-5" />,
             }
         });
         setCuratedWinnersData(winnerList);
@@ -106,7 +114,8 @@ export default function WinnersPage() {
             id: 'reel-it-feel-it',
             name: reelItFeelItCompetition?.name || 'Reel It. Feel It.',
             winners: rankedWinnerList,
-            meta: meta
+            meta: meta,
+            icon: reelItFeelItCompetition?.icon || <Trophy className="w-5 h-5" />,
         });
 
 
@@ -154,11 +163,11 @@ export default function WinnersPage() {
                 }
                 return comp;
             })
-            .filter(comp => comp.winners.length > 0);
+            .filter(comp => comp.winners.length > 0 || comp.id === 'reel-it-feel-it'); // Always show reel-it-feel-it
     }, [allCompetitions, searchQuery]);
 
-    const hasWinners = filteredWinnersData.some(comp => comp.winners.length > 0);
-    const hasInitialData = allCompetitions.some(comp => comp.winners.length > 0);
+    const hasWinners = allCompetitions.some(comp => comp.winners.length > 0);
+    const hasInitialData = allCompetitions.length > 0;
 
   return (
     <>
@@ -194,14 +203,14 @@ export default function WinnersPage() {
                         <div className="flex items-center justify-center flex-grow">
                             <Loader2 className="h-12 w-12 animate-spin text-primary" />
                         </div>
-                    ) : !hasInitialData ? (
+                    ) : !hasWinners ? (
                         <div className="text-center py-20 flex-grow flex items-center justify-center">
                             <div>
                                 <p className="text-xl text-muted-foreground">No winners have been announced yet.</p>
                                 <p className="mt-2">Check back soon!</p>
                             </div>
                         </div>
-                    ) : !hasWinners && searchQuery ? (
+                    ) : !filteredWinnersData.some(c => c.winners.length > 0) && searchQuery ? (
                         <div className="text-center py-20 flex-grow flex items-center justify-center">
                             <div>
                                 <p className="text-xl text-muted-foreground">No winners found for "{searchQuery}".</p>
@@ -210,12 +219,14 @@ export default function WinnersPage() {
                         </div>
                     ) : (
                         <div className="flex-grow">
-                            <Tabs defaultValue={filteredWinnersData.find(c => c.winners.length > 0)?.id} className="w-full">
+                            <Tabs defaultValue={filteredWinnersData.find(c => c.id === 'follow-win' || c.winners.length > 0)?.id} className="w-full">
                                 <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-3 h-auto">
                                 {filteredWinnersData.map((competition) => {
-                                    if (competition.winners.length === 0) return null;
+                                    const competitionInfo = competitionsData.find(c => c.id === competition.id);
+                                    if (searchQuery && competition.winners.length === 0) return null;
                                     return (
-                                    <TabsTrigger key={competition.id} value={competition.id} className="truncate">
+                                    <TabsTrigger key={competition.id} value={competition.id} className="truncate flex items-center gap-2">
+                                        {competitionInfo?.icon}
                                         {competition.name}
                                     </TabsTrigger>
                                     )
@@ -223,8 +234,6 @@ export default function WinnersPage() {
                                 </TabsList>
                                 
                                 {filteredWinnersData.map((competition) => {
-                                    if (competition.winners.length === 0 && !('meta' in competition)) return null;
-                                    
                                     if (competition.id === 'reel-it-feel-it' && 'meta' in competition) {
                                         return (
                                             <TabsContent key={competition.id} value={competition.id} className="mt-8">
@@ -235,7 +244,7 @@ export default function WinnersPage() {
 
                                     return (
                                         <TabsContent key={competition.id} value={competition.id} className="mt-8">
-                                            <CuratedWinnerDisplay winners={(competition as CuratedWinnerData).winners} searchQuery={searchQuery} />
+                                            <CuratedWinnerDisplay data={competition as CuratedWinnerData} searchQuery={searchQuery} />
                                         </TabsContent>
                                     )
                                 })}
@@ -251,11 +260,12 @@ export default function WinnersPage() {
 }
 
 interface CuratedWinnerDisplayProps {
-    winners: CuratedWinner[];
+    data: CuratedWinnerData;
     searchQuery: string;
 }
 
-function CuratedWinnerDisplay({ winners, searchQuery }: CuratedWinnerDisplayProps) {
+function CuratedWinnerDisplay({ data, searchQuery }: CuratedWinnerDisplayProps) {
+    const { winners } = data;
     const [currentDate, setCurrentDate] = useState(startOfDay(new Date()));
 
     const winnersByDate = useMemo(() => winners.reduce((acc, winner) => {
@@ -306,6 +316,7 @@ function CuratedWinnerDisplay({ winners, searchQuery }: CuratedWinnerDisplayProp
     
     // If there's a search query, just display all results flatly, ignoring date.
     if (searchQuery) {
+        if (winners.length === 0) return null;
         return (
             <div className="space-y-4 pb-8">
                 {winners.map((winner, index) => (
@@ -337,22 +348,24 @@ function CuratedWinnerDisplay({ winners, searchQuery }: CuratedWinnerDisplayProp
 
     return (
         <div className="flex flex-col flex-1 min-w-0 h-full">
+            <Card className="mb-4 bg-card/50">
+                <CardContent className="p-3 flex items-center justify-between">
+                    <p className="font-semibold">Total Winners</p>
+                    <div className="flex items-center gap-2 font-bold text-primary">
+                        <Users className="w-5 h-5"/>
+                        <span>{winners.length}</span>
+                    </div>
+                </CardContent>
+            </Card>
+
             <div className="flex items-center justify-between mb-4 gap-2 flex-wrap">
                 <div className="flex items-center gap-2">
                     <Button variant="outline" size="icon" onClick={() => setCurrentDate(subDays(currentDate, 1))}>
                         <ChevronLeft className="h-4 w-4"/>
                     </Button>
-                    <Button variant="outline" size="icon" onClick={() => setCurrentDate(addDays(currentDate, 1))} disabled={isFuture(addDays(currentDate,1))}>
-                        <ChevronRight className="h-4 w-4"/>
-                    </Button>
-                </div>
-
-                <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">Choose Submission Date:</span>
-                    <Popover>
+                     <Popover>
                         <PopoverTrigger asChild>
                             <Button
-                            size="sm"
                             variant={"outline"}
                             className={cn(
                                 "w-[200px] justify-start text-left font-normal",
@@ -372,6 +385,9 @@ function CuratedWinnerDisplay({ winners, searchQuery }: CuratedWinnerDisplayProp
                             />
                         </PopoverContent>
                     </Popover>
+                    <Button variant="outline" size="icon" onClick={() => setCurrentDate(addDays(currentDate, 1))} disabled={isFuture(addDays(currentDate,1))}>
+                        <ChevronRight className="h-4 w-4"/>
+                    </Button>
                 </div>
             </div>
             
@@ -421,14 +437,8 @@ function RankedWinnerDisplay({ data, searchQuery }: RankedWinnerDisplayProps) {
     const { winners, meta } = data;
     const isAnnounced = meta ? isAfter(new Date(), meta.resultAnnouncementDate) : false;
 
-    const rankText = (rank?: number) => {
-        if (rank === 1) return "1st Place";
-        if (rank === 2) return "2nd Place";
-        if (rank === 3) return "3rd Place";
-        return "Winner";
-    }
-
     if (searchQuery) { // Always show search results regardless of date
+         if (winners.length === 0) return null;
          return (
             <div className="space-y-4 pb-8">
                 {winners.map((winner) => (
@@ -438,20 +448,14 @@ function RankedWinnerDisplay({ data, searchQuery }: RankedWinnerDisplayProps) {
         );
     }
     
-    if (!meta) {
+    if (!meta || !isAnnounced) {
         return (
-            <div className="text-center py-20">
-                <p className="text-xl text-muted-foreground">The announcement date has not been set.</p>
-                <p className="mt-2">Check back soon!</p>
-            </div>
-        )
-    }
-
-    if (!isAnnounced) {
-        return (
-             <div className="text-center py-20">
-                <p className="text-xl text-muted-foreground">Winners will be announced on</p>
-                <p className="text-3xl font-bold font-headline text-primary mt-2">{format(meta.resultAnnouncementDate, "PPP")}</p>
+             <div className="text-center py-20 flex flex-col items-center justify-center h-full min-h-[40vh]">
+                <CalendarIcon className="w-16 h-16 text-primary/50 mb-4" />
+                <p className="text-2xl font-bold font-headline text-foreground">Stay Tuned!</p>
+                <p className="text-muted-foreground mt-2">
+                    Results will be announced on <span className="font-semibold text-primary">{meta ? format(meta.resultAnnouncementDate, "PPP") : 'a future date'}</span>.
+                </p>
             </div>
         )
     }
@@ -518,5 +522,7 @@ function RankedWinnerCard({ winner }: { winner: Submission }) {
         </Card>
     )
 }
+
+    
 
     
